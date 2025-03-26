@@ -1,0 +1,10 @@
+create calendar --name cal2 --timezone Asia/Kolkata
+copy events on 2025-03-01 --target cal2 to 2025-03-07
+use calendar --name cal2
+print events on 2025-03-07
+create calendar --name cal3 --timezone America/Chicago
+use calendar --name cal1
+copy events between 2025-03-01 and 2025-03-02 --target cal3 to 2025-03-06
+use calendar --name cal3
+print events on 2025-03-06
+

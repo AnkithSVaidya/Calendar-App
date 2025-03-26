@@ -1,0 +1,18 @@
+Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private
+event1,2025-03-01,08:07,2025-03-01,09:10,false,desc1,newLoc,false
+event12,2025-03-11,08:00,2025-03-11,09:00,false,newDesc,l2,false
+newSubject,2025-03-03,10:07,2025-03-03,11:12,false,null,null,true
+event2R,2025-03-05,10:07,2025-03-05,11:12,false,null,null,true
+event2R,2025-03-07,10:07,2025-03-07,11:12,false,null,null,true
+event3U,2025-03-04,12:03,2025-03-04,13:14,false,null,null,true
+event3U,2025-03-06,12:03,2025-03-06,13:14,false,null,null,true
+event3U,2025-03-11,12:03,2025-03-11,13:14,false,null,null,true
+event3U,2025-03-13,12:03,2025-03-13,13:14,false,null,null,true
+event4Allday,2025-03-11,14:03,,,true,null,null,true
+event4All,2025-03-02,12:03,,,true,null,null,true
+event5RepeatN,2025-03-15,00:00,,,true,null,null,true
+event5RepeatN,2025-03-16,00:00,,,true,null,null,true
+event6Alldayrepeat,2025-03-12,00:00,,,true,null,null,true
+event6Alldayrepeat,2025-03-14,00:00,,,true,null,null,true
+event6Alldayrepeat,2025-03-19,00:00,,,true,null,null,true
+event6Alldayrepeat,2025-03-21,00:00,,,true,null,null,true

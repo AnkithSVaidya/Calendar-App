@@ -1,3 +1,5 @@
+create calendar --name cal1 --timezone America/New_York
+use calendar --name cal1
 create event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public
 create event event12 from 2025-03-11T08:00 to 2025-03-11T09:00 --desc d2 --location l2 public
 create event event2R from 2025-03-01T10:07 to 2025-03-01T11:12 repeats MWF for 3 times
@@ -14,3 +16,15 @@ edit events description event12 newDesc
 edit event location event1 from 2025-03-01T08:07 to 2025-03-01T09:10 with newLoc
 edit events subject event2R from 2025-03-03T10:07 with newSubject
 export cal test.csv
+create calendar --name cal2 --timezone Asia/Kolkata
+copy events on 2025-03-01 --target cal2 to 2025-03-07
+use calendar --name cal2
+print events on 2025-03-07
+create calendar --name cal3 --timezone America/Chicago
+use calendar --name cal1
+copy events between 2025-03-01 and 2025-03-02 --target cal3 to 2025-03-06
+use calendar --name cal3
+print events on 2025-03-06
+use calendar --name cal1
+edit calendar --name cal1 --property timezone Asia/Kolkata
+print events from 2025-03-01T01:00 to 2025-03-20T23:00

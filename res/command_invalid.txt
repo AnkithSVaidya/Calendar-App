@@ -1,1 +1,3 @@
+create calendar --name cal1 --timezone America/New_York
+use calendar --name cal1
 create INVALID event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public

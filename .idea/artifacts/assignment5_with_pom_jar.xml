@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="assignment5_with_pom:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/assignment5_with_pom_jar</output-path>
+    <root id="archive" name="assignment5_with_pom.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="assignment5_with_pom" />
+    </root>
+  </artifact>
+</component>
