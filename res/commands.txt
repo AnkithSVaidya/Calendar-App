@@ -1,0 +1,16 @@
+create event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public
+create event event12 from 2025-03-11T08:00 to 2025-03-11T09:00 --desc d2 --location l2 public
+create event event2R from 2025-03-01T10:07 to 2025-03-01T11:12 repeats MWF for 3 times
+create event event3U from 2025-03-01T12:03 to 2025-03-01T13:14 repeats TR until 2025-03-14T12:00
+create event event4Allday on 2025-03-11T14:03
+create event event4All on 2025-03-02T12:03
+create event event5RepeatN on 2025-03-15 repeats SU for 2 times
+create event event6Alldayrepeat on 2025-03-12 repeats WF until 2025-03-25
+show status on 2025-03-01T08:10
+show status on 2025-03-01T06:00
+print events on 2025-03-11
+print events from 2025-03-10T07:00 to 2025-03-13T16:00
+edit events description event12 newDesc
+edit event location event1 from 2025-03-01T08:07 to 2025-03-01T09:10 with newLoc
+edit events subject event2R from 2025-03-03T10:07 with newSubject
+export cal test.csv
