@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,7 +83,29 @@ public class CalendarManager implements ICalendarManager {
       } catch (Exception e) {
         return false;
       }
+      ZoneId currZone = currentCalendar.getTimezone();
+
       cal.setTimezone(newValue);
+
+      // Swap all the current events datetime to the new timezone.
+      List<Event> eventList = currentCalendar.getAllEventsList();
+
+      for (Event e : eventList) {
+        LocalDateTime newEventDateTime = e.getStart().atZone(currZone)
+            .withZoneSameInstant(ZoneId.of(newValue))
+            .toLocalDateTime();
+
+        LocalDateTime newEnd = null;
+        if (e.getEnd() != null) {
+          long durationSeconds = java.time.Duration.between(e.getStart(),
+              e.getEnd()).getSeconds();
+          newEnd = newEventDateTime.plusSeconds(durationSeconds);
+        }
+
+        e.setStart(newEventDateTime);
+        e.setEnd(newEnd);
+      }
+
       return true;
     }
     return false;

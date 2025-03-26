@@ -57,6 +57,10 @@ public class Calendar implements ICalendar {
     this.timezone = ZoneId.of(tzString);
   }
 
+  List<Event> getAllEventsList() {
+    return this.events;
+  }
+
   /**
    * Adds an event to the calendar, optionally auto-declining if conflicts exist.
    *
