@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.time.ZoneId;
+import java.util.List;
 
 
 import static org.junit.Assert.assertEquals;
@@ -289,6 +290,46 @@ public class CalendarManagerTest {
         LocalDate.of(2025,
             3,
             12)).size());
+  }
+
+  @Test
+  public void testEditCalendarTimezone() {
+    manager.createCalendar("Default", "America/New_York");
+    manager.useCalendar("Default");
+
+    ICalendar cal = manager.getCurrentCalendar();
+    cal.addEvent(event1, false);
+
+    // Change timezone.
+    boolean result = manager.editCalendar("Default",
+        "timezone",
+        "Asia/Kolkata");
+    assertTrue(result);
+
+
+    List<Event> l = cal.getAllEventsList();
+    assertEquals(1, l.size());
+  }
+
+  @Test
+  public void testEditCalendarTimezone2() {
+    manager.createCalendar("Default", "America/New_York");
+    manager.useCalendar("Default");
+
+    ICalendar cal = manager.getCurrentCalendar();
+    cal.addEvent(event1, false);
+
+    // Change timezone.
+    boolean result = manager.editCalendar("Default",
+        "timezone",
+        "Asia/Kolkata");
+    assertTrue(result);
+
+    List<Event> l = cal.getAllEventsList();
+    Event e1 = l.get(0);
+
+    assertEquals(LocalDateTime.of(2025, 3, 10, 19, 30), e1.getStart());
+    assertEquals(LocalDateTime.of(2025, 3, 10, 20, 30), e1.getEnd());
   }
 
   @Test

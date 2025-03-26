@@ -116,5 +116,15 @@ public interface ICalendar {
   boolean editAllEvents(String property, String eventName, String newValue);
 
 
+  /**
+   * Method to return the calendar timezone.
+   * @return - Return zone id of timezone.
+   */
   ZoneId getTimezone();
+
+  /**
+   * Method to return all events associated with the calendar.
+   * @return - List of events.
+   */
+  List<Event> getAllEventsList();
 }
