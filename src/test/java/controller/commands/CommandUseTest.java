@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import controller.Controller;
+import controller.IController;
+import controller.InteractiveController;
 import model.ICalendar;
 import model.ICalendarManager;
 
@@ -20,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class CommandUseTest {
   ICalendar mockCal;
   ICalendarManager mockCalManager;
+  IController controller;
   StringBuilder mockCalLog;
   StringBuilder mockCalManagerLog;
 
@@ -27,22 +30,20 @@ public class CommandUseTest {
   public void setUp() {
     mockCalLog = new StringBuilder();
     mockCalManagerLog = new StringBuilder();
+    mockCal = new MockCalendar(mockCalLog, 1111);
+    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
   }
 
   @Test
-  public void testBasicUseCommand() {
+  public void testBasicUseCommand() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar --name cal1\nq").getBytes());
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalManagerLog.toString().contains("useCalendar"));
   }

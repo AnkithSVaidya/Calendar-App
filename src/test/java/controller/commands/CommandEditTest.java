@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import controller.Controller;
+import controller.IController;
+import controller.InteractiveController;
 import model.ICalendar;
 import model.ICalendarManager;
 
@@ -20,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class CommandEditTest {
   ICalendar mockCal;
   ICalendarManager mockCalManager;
+  IController controller;
   StringBuilder mockCalLog;
   StringBuilder mockCalManagerLog;
 
@@ -27,10 +30,12 @@ public class CommandEditTest {
   public void setUp() {
     mockCalLog = new StringBuilder();
     mockCalManagerLog = new StringBuilder();
+    mockCal = new MockCalendar(mockCalLog, 1111);
+    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
   }
 
   @Test
-  public void testBasicEdit1() {
+  public void testBasicEdit1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 " +
@@ -40,10 +45,8 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalLog.toString().contains("event1"));
     assertTrue(mockCalLog.toString().contains("desc1"));
@@ -52,7 +55,7 @@ public class CommandEditTest {
   }
 
   @Test
-  public void testBasicEdit2() {
+  public void testBasicEdit2() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event12 from 2025-03-11T08:00 to 2025-03-11T09:00 " +
@@ -60,11 +63,8 @@ public class CommandEditTest {
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
-
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalLog.toString().contains("event12"));
     assertTrue(mockCalLog.toString().contains("newDesc"));
@@ -73,7 +73,7 @@ public class CommandEditTest {
   }
 
   @Test
-  public void testBasicEdit3() {
+  public void testBasicEdit3() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event2R from 2025-03-01T10:07 to 2025-03-01T11:12 repeats " +
@@ -83,16 +83,14 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalLog.toString().contains("newSubject"));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testEditInvalidProperty() {
+  public void testEditInvalidProperty() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -102,14 +100,12 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testEditInvalidCommand() {
+  public void testEditInvalidCommand() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -119,14 +115,12 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 
   @Test
-  public void testBasicEditCalendar1() {
+  public void testBasicEditCalendar1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 " +
@@ -136,16 +130,14 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalManagerLog.toString().contains("editCalendar"));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBasicEditInvalidProperty() {
+  public void testBasicEditInvalidProperty() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 " +
@@ -155,9 +147,7 @@ public class CommandEditTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 }

@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import controller.Controller;
+import controller.IController;
+import controller.InteractiveController;
 import model.ICalendar;
 import model.ICalendarManager;
 
@@ -21,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class CommandExportTest {
   ICalendar mockCal;
   ICalendarManager mockCalManager;
+  IController controller;
   StringBuilder mockCalLog;
   StringBuilder mockCalManagerLog;
 
@@ -28,10 +31,12 @@ public class CommandExportTest {
   public void setUp() {
     mockCalLog = new StringBuilder();
     mockCalManagerLog = new StringBuilder();
+    mockCal = new MockCalendar(mockCalLog, 1111);
+    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
   }
 
   @Test
-  public void testBasicExport1() {
+  public void testBasicExport1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -42,10 +47,8 @@ public class CommandExportTest {
 
     System.setOut(out);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalLog.toString().contains("Export"));
 
@@ -69,7 +72,7 @@ public class CommandExportTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBasicExportFail1() {
+  public void testBasicExportFail1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -77,15 +80,12 @@ public class CommandExportTest {
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
-
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBasicExportFail2() {
+  public void testBasicExportFail2() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -93,16 +93,13 @@ public class CommandExportTest {
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
-
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBasicExportFail3() {
+  public void testBasicExportFail3() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -111,9 +108,7 @@ public class CommandExportTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 }

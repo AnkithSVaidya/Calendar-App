@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import controller.Controller;
+import controller.IController;
+import controller.InteractiveController;
 import model.CalendarManager;
 
 import static org.junit.Assert.assertEquals;
@@ -19,6 +21,8 @@ import static org.junit.Assert.assertEquals;
 public class CommandShowTest {
   StringBuilder mockCalLog;
   StringBuilder mockCalManagerLog;
+  IController controller;
+
 
   @Before
   public void setUp() {
@@ -27,7 +31,7 @@ public class CommandShowTest {
   }
 
   @Test
-  public void testBasicShow1() {
+  public void testBasicShow1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -38,8 +42,8 @@ public class CommandShowTest {
 
     System.setOut(out);
 
-    Controller controller = new Controller(in, out);
-    controller.controllerGo(new CalendarManager());
+    controller = new InteractiveController(in, out, new CalendarManager());
+    controller.controllerGo();
 
     String expectedTerminalPrint = "Please enter a command." + System.lineSeparator()
         +
@@ -58,7 +62,7 @@ public class CommandShowTest {
   }
 
   @Test
-  public void testBasicShow2() {
+  public void testBasicShow2() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to " +
@@ -70,8 +74,8 @@ public class CommandShowTest {
 
     System.setOut(out);
 
-    Controller controller = new Controller(in, out);
-    controller.controllerGo(new CalendarManager());
+    controller = new InteractiveController(in, out, new CalendarManager());
+    controller.controllerGo();
 
     String expectedTerminalPrint = "Please enter a command." + System.lineSeparator()
         +
@@ -91,7 +95,7 @@ public class CommandShowTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testShowFail1() {
+  public void testShowFail1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 " +
@@ -103,12 +107,12 @@ public class CommandShowTest {
 
     System.setOut(out);
 
-    Controller controller = new Controller(in, out);
-    controller.controllerGo(new CalendarManager());
+    controller = new InteractiveController(in, out, new CalendarManager());
+    controller.controllerGo();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testShowFail2() {
+  public void testShowFail2() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
         "--timezone America/New_York\nuse calendar " +
         "--name cal1\ncreate event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 " +
@@ -118,8 +122,7 @@ public class CommandShowTest {
     PrintStream out = new PrintStream(bytes);
 
     System.setOut(out);
-
-    Controller controller = new Controller(in, out);
-    controller.controllerGo(new CalendarManager());
+    controller = new InteractiveController(in, out, new CalendarManager());
+    controller.controllerGo();
   }
 }

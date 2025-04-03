@@ -5,10 +5,13 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import controller.Controller;
+//import controller.Controller;
+import controller.IController;
+import controller.InteractiveController;
 import model.ICalendar;
 import model.ICalendarManager;
 
@@ -20,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class CommandCopyTest {
   ICalendar mockCal;
   ICalendarManager mockCalManager;
+  IController controller;
   StringBuilder mockCalLog;
   StringBuilder mockCalManagerLog;
 
@@ -27,10 +31,12 @@ public class CommandCopyTest {
   public void setUp() {
     mockCalLog = new StringBuilder();
     mockCalManagerLog = new StringBuilder();
+    mockCal = new MockCalendar(mockCalLog, 1111);
+    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
   }
 
   @Test
-  public void testBasicCopy1() {
+  public void testBasicCopy1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 --timezone " +
         "America/New_York\n" +
         "use calendar --name cal1\n" +
@@ -43,16 +49,14 @@ public class CommandCopyTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalManagerLog.toString().contains("copyEvent"));
   }
 
   @Test
-  public void testBasicCopy2() {
+  public void testBasicCopy2() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 --timezone " +
         "America/New_York\n" +
         "use calendar --name cal1\n" +
@@ -65,16 +69,14 @@ public class CommandCopyTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
 
     assertTrue(mockCalManagerLog.toString().contains("copyEventsOn"));
   }
 
   @Test
-  public void testBasicCopy3() {
+  public void testBasicCopy3() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 --timezone " +
         "America/New_York\n" +
         "use calendar --name cal1\n" +
@@ -87,15 +89,13 @@ public class CommandCopyTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
     assertTrue(mockCalManagerLog.toString().contains("copyEventsBetween"));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testIllegalCopy1() {
+  public void testIllegalCopy1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 --timezone " +
         "America/New_York\n" +
         "use calendar --name cal1\n" +
@@ -108,9 +108,7 @@ public class CommandCopyTest {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);
 
-    Controller controller = new Controller(in, out);
-    mockCal = new MockCalendar(mockCalLog, 1111);
-    mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-    controller.controllerGo(mockCalManager);
+    controller = new InteractiveController(in, out, mockCalManager);
+    controller.controllerGo();
   }
 }

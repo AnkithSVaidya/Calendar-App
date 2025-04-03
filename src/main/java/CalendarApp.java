@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import controller.Controller;
+import controller.IController;
+//import controller.Controller;
+import controller.HeadlessController;
+import controller.InteractiveController;
 import model.CalendarManager;
+import model.ICalendarManager;
 
 /**
  * Main class for the Calendar App. Run this class to start up the application.
@@ -21,10 +25,16 @@ public class CalendarApp {
     List<String> parseInputArr = new ArrayList<>(Arrays.asList(args));
     parseInputArr.replaceAll(String::toLowerCase);
 
+    IController controller;
+    ICalendarManager model = new CalendarManager();
+
     // Run interactive mode.
     if (parseInputArr.size() == 2) {
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("interactive")) {
-        new Controller(System.in, System.out).controllerGo(new CalendarManager());
+//        new Controller(System.in, System.out).controllerGo(new CalendarManager());
+        controller = new InteractiveController(System.in, System.out, model);
+        controller.controllerGo();
+
       }
     }
     // Run headless mode with file.
@@ -34,7 +44,11 @@ public class CalendarApp {
 
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("headless")
           && f.exists() && !f.isDirectory()) {
-        new Controller(System.in, System.out).controllerGo(new CalendarManager(), f);
+//        new Controller(System.in, System.out).controllerGo(new CalendarManager(), f);
+
+        controller = new HeadlessController(System.in, System.out, model, f);
+        controller.controllerGo();
+
       }
     }
   }
