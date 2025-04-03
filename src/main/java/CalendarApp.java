@@ -8,8 +8,11 @@ import controller.IController;
 //import controller.Controller;
 import controller.HeadlessController;
 import controller.InteractiveController;
+import controller.MVCCommandController;
 import model.CalendarManager;
 import model.ICalendarManager;
+import view.CalendarView;
+import view.IView;
 
 /**
  * Main class for the Calendar App. Run this class to start up the application.
@@ -31,7 +34,6 @@ public class CalendarApp {
     // Run interactive mode.
     if (parseInputArr.size() == 2) {
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("interactive")) {
-//        new Controller(System.in, System.out).controllerGo(new CalendarManager());
         controller = new InteractiveController(System.in, System.out, model);
         controller.controllerGo();
 
@@ -39,17 +41,18 @@ public class CalendarApp {
     }
     // Run headless mode with file.
     else if (parseInputArr.size() == 3) {
-
       File f = new File(parseInputArr.get(2));
 
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("headless")
           && f.exists() && !f.isDirectory()) {
-//        new Controller(System.in, System.out).controllerGo(new CalendarManager(), f);
-
         controller = new HeadlessController(System.in, System.out, model, f);
         controller.controllerGo();
-
       }
+    }
+    else if (parseInputArr.isEmpty()) {
+      IView view = new CalendarView();
+      controller = new MVCCommandController(model, view);
+      controller.controllerGo();
     }
   }
 }
