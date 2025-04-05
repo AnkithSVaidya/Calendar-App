@@ -5,143 +5,137 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 
 public class CalendarView extends JFrame implements IView {
+  private JFrame frame;
+  private JPanel calendarPanel;
+  private JPanel topButtons;
+  private JLabel monthLabel;
+  private JComboBox<String> calendarDropdown;
+  private Map<String, Color> calendars;
+  private Map<LocalDate, List<String>> events;
+  private YearMonth currentMonth;
+  private String selectedCalendar;
+  private JButton createCalButton;
   private JButton exportButton;
   private JButton importButton;
-  private JButton createCalendarButton;
-  private JPanel buttonPanelBottom;
-  private JPanel buttonPanelTop;
+  private JPanel topPanel;
+  private JPanel calendarStuffPanel;
+  private JPanel bottomPanel;
+  private JPanel bottomPanelButtons;
 
-  private JPanel calendarContainerPanel;
-  private JPanel calendarPanel;
-  private JLabel monthLabel;
-
-  private YearMonth currentMonth;
 
   public CalendarView() {
-    super();
-    this.setTitle("Calendar App");
-    this.setSize(1000, 500);
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame = new JFrame("Calendar App");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(500, 500);
+    frame.setLayout(new BorderLayout());
 
     currentMonth = YearMonth.now();
+    calendars = new HashMap<>();
+    events = new HashMap<>();
+    calendars.put("Work", Color.BLUE);
+    calendars.put("Personal", Color.GREEN);
+    calendars.put("Holidays", Color.RED);
+    selectedCalendar = "Work";
 
-    // Bottom buttons
-    buttonPanelBottom = new JPanel();
-    buttonPanelBottom.setLayout(new FlowLayout());
-    this.add(buttonPanelBottom, BorderLayout.SOUTH);
+    topPanel = new JPanel();
+    topPanel.setLayout(new BorderLayout());
 
-    exportButton = new JButton("Export Calendar");
-    buttonPanelBottom.add(exportButton);
+    topButtons = new JPanel();
+    createCalButton = new JButton("Create Calendar");
+    topButtons.add(createCalButton);
+    topPanel.add(topButtons, BorderLayout.NORTH);
 
-    importButton = new JButton("Import Calendar");
-    buttonPanelBottom.add(importButton);
 
-    //Top Buttons
-    buttonPanelTop = new JPanel();
-    buttonPanelTop.setLayout(new FlowLayout());
-    this.add(buttonPanelTop, BorderLayout.NORTH);
+    calendarStuffPanel = new JPanel();
 
-    createCalendarButton = new JButton("Create Calendar");
-    buttonPanelTop.add(createCalendarButton);
-
-    String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
-
-    JComboBox petList = new JComboBox(petStrings);
-    petList.setSelectedIndex(4);
-    buttonPanelTop.add(petList);
-
-    // Calendar grid.
-    calendarContainerPanel = new JPanel();
-    calendarContainerPanel.setLayout(new BorderLayout());
-    this.add(calendarContainerPanel, BorderLayout.CENTER);
-
-    monthLabel = new JLabel("", JLabel.CENTER);
-    updateMonthLabel();
-//    calendarContainerPanel.add(monthLabel, BorderLayout.NORTH);
-
-    JPanel navPanel = new JPanel();
     JButton prevButton = new JButton("<");
     JButton nextButton = new JButton(">");
+    monthLabel = new JLabel();
+    calendarDropdown = new JComboBox<>(calendars.keySet().toArray(new String[0]));
+    calendarStuffPanel.add(prevButton);
+    calendarStuffPanel.add(monthLabel);
+    calendarStuffPanel.add(nextButton);
+    calendarStuffPanel.add(calendarDropdown);
 
-    prevButton.addActionListener(e -> showPreviousMonth());
-    nextButton.addActionListener(e -> showNextMonth());
+    topPanel.add(calendarStuffPanel, BorderLayout.SOUTH);
 
-    navPanel.add(prevButton);
-    navPanel.add(monthLabel);
-    navPanel.add(nextButton);
+    frame.add(topPanel, BorderLayout.NORTH);
 
-    calendarContainerPanel.add(navPanel, BorderLayout.NORTH);
+    calendarPanel = new JPanel();
+    frame.add(calendarPanel, BorderLayout.CENTER);
 
-    calendarPanel = new JPanel(new GridLayout(6, 7));  // 6 rows, 7 columns
-    calendarContainerPanel.add(calendarPanel, BorderLayout.CENTER);
+    prevButton.addActionListener(e -> changeMonth(-1));
+    nextButton.addActionListener(e -> changeMonth(1));
+    calendarDropdown.addActionListener(e -> changeCalendar());
 
-    // Display the current month calendar
-    showCalendar();
+    // Bottom stuff.
+    bottomPanel = new JPanel();
 
+    bottomPanelButtons = new JPanel();
+    bottomPanelButtons.setLayout(new BorderLayout());
+    exportButton = new JButton("Export Calendar");
+    importButton = new JButton("Import Calendar");
+    bottomPanelButtons.add(exportButton, BorderLayout.WEST);
+    bottomPanelButtons.add(importButton, BorderLayout.EAST);
+    bottomPanel.add(bottomPanelButtons);
+    frame.add(bottomPanel, BorderLayout.SOUTH);
+
+    updateCalendar();
   }
 
   @Override
   public void makeVisible() {
-    this.setVisible(true);
+    frame.setVisible(true);
   }
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-    importButton.addActionListener(actionEvent);
+//    importButton.addActionListener(actionEvent);
   }
 
-  private void updateMonthLabel() {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
-    monthLabel.setText(currentMonth.format(formatter));
-  }
 
-  // Method to show the calendar for the current month
-  private void showCalendar() {
-    calendarPanel.removeAll();  // Clear previous calendar grid
+  private void updateCalendar() {
+    calendarPanel.removeAll();
+    calendarPanel.setLayout(new GridLayout(0, 7));
+    monthLabel.setText(currentMonth.getMonth() + " " + currentMonth.getYear());
+    calendarPanel.setBackground(calendars.get(selectedCalendar));
 
-    // Get the first day of the month and the number of days in the month
-    LocalDate firstDayOfMonth = currentMonth.atDay(1);
-    int daysInMonth = currentMonth.lengthOfMonth();
-
-    // Get the day of the week for the first day of the month
-    int startDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();  // 1 = Monday, 7 = Sunday
-
-    // Add empty labels for days before the start of the month
-    for (int i = 1; i < startDayOfWeek; i++) {
-      calendarPanel.add(new JLabel(""));
-    }
-
-    // Add buttons for each day of the month
-    for (int day = 1; day <= daysInMonth; day++) {
+    for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
+      LocalDate date = currentMonth.atDay(day);
       JButton dayButton = new JButton(String.valueOf(day));
-//      dayButton.addActionListener(e -> showDayDetails(day));
+      dayButton.addActionListener(e -> showEvents(date));
       calendarPanel.add(dayButton);
     }
 
-    // Add empty labels for remaining spaces to complete the grid
-    int remainingDays = (startDayOfWeek + daysInMonth - 1) % 7;
-    for (int i = remainingDays; i < 6; i++) {
-      calendarPanel.add(new JLabel(""));
+    frame.revalidate();
+    frame.repaint();
+  }
+
+  private void changeMonth(int offset) {
+    currentMonth = currentMonth.plusMonths(offset);
+    updateCalendar();
+  }
+
+  private void changeCalendar() {
+    selectedCalendar = (String) calendarDropdown.getSelectedItem();
+    updateCalendar();
+  }
+
+  private void showEvents(LocalDate date) {
+    List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
+    String eventList = dayEvents.isEmpty() ? "No events" : String.join("\n", dayEvents);
+    String newEvent = JOptionPane.showInputDialog(frame, "Events on " + date + ":\n" + eventList + "\n\nAdd new event:");
+    if (newEvent != null && !newEvent.trim().isEmpty()) {
+      dayEvents.add(newEvent);
+      events.put(date, dayEvents);
     }
-
-    // Revalidate and repaint the panel
-    calendarPanel.revalidate();
-    calendarPanel.repaint();
-  }
-
-  private void showPreviousMonth() {
-    currentMonth = currentMonth.minusMonths(1);
-    updateMonthLabel();
-    showCalendar();
-  }
-
-  private void showNextMonth() {
-    currentMonth = currentMonth.plusMonths(1);
-    updateMonthLabel();
-    showCalendar();
   }
 }
