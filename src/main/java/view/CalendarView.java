@@ -1,16 +1,20 @@
 package view;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.*;
+
+import model.Calendar;
 
 public class CalendarView extends JFrame implements IView {
   private JFrame frame;
@@ -18,7 +22,10 @@ public class CalendarView extends JFrame implements IView {
   private JPanel topButtons;
   private JLabel monthLabel;
   private JComboBox<String> calendarDropdown;
+
   private Map<String, Color> calendars;
+  private Map<String, Color> calendars2;
+
   private Map<LocalDate, List<String>> events;
   private YearMonth currentMonth;
   private String selectedCalendar;
@@ -29,12 +36,17 @@ public class CalendarView extends JFrame implements IView {
   private JPanel calendarStuffPanel;
   private JPanel bottomPanel;
   private JPanel bottomPanelButtons;
+  private JPanel createCalPanel;
+  private JButton createReal;
 
+  private String commandString;
+  private Map<String, Calendar> calendarsMap;
+  private ActionListener actionListener;
 
   public CalendarView() {
     frame = new JFrame("Calendar App");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(500, 500);
+    frame.setSize(1000, 500);
     frame.setLayout(new BorderLayout());
 
     currentMonth = YearMonth.now();
@@ -43,13 +55,16 @@ public class CalendarView extends JFrame implements IView {
     calendars.put("Work", Color.BLUE);
     calendars.put("Personal", Color.GREEN);
     calendars.put("Holidays", Color.RED);
+
+
     selectedCalendar = "Work";
 
     topPanel = new JPanel();
     topPanel.setLayout(new BorderLayout());
-
     topButtons = new JPanel();
+
     createCalButton = new JButton("Create Calendar");
+    createCalButton.addActionListener(e -> createCalendarPane());
     topButtons.add(createCalButton);
     topPanel.add(topButtons, BorderLayout.NORTH);
 
@@ -98,9 +113,19 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-//    importButton.addActionListener(actionEvent);
+    this.actionListener = actionEvent;
+//    createCalPanel.addActionListener(actionEvent);
+//    test.addActionListener(actionEvent);
   }
 
+  @Override
+  public String getCalendarCommand() {
+    String command = this.commandString;
+
+    // Reset command for next time.
+    this.commandString = "";
+    return command;
+  }
 
   private void updateCalendar() {
     calendarPanel.removeAll();
@@ -131,11 +156,80 @@ public class CalendarView extends JFrame implements IView {
 
   private void showEvents(LocalDate date) {
     List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
+
     String eventList = dayEvents.isEmpty() ? "No events" : String.join("\n", dayEvents);
-    String newEvent = JOptionPane.showInputDialog(frame, "Events on " + date + ":\n" + eventList + "\n\nAdd new event:");
+    String newEvent = JOptionPane.showInputDialog(frame, "Events on " + date + ":\n"
+        + eventList + "\n\nAdd new event:");
+
     if (newEvent != null && !newEvent.trim().isEmpty()) {
       dayEvents.add(newEvent);
       events.put(date, dayEvents);
     }
   }
+
+  private void createCalendarPane() {
+    JTextField nameField = new JTextField(10);
+    JTextField timezoneField = new JTextField(10);
+
+    // Panel to hold the fields
+    createCalPanel = new JPanel();
+    createCalPanel.add(new JLabel("Calendar Name:"));
+    createCalPanel.add(nameField);
+    createCalPanel.add(Box.createVerticalStrut(15)); // space between fields
+    createCalPanel.add(new JLabel("Timezone:"));
+    createCalPanel.add(timezoneField);
+
+    createReal = new JButton("Create");
+    createCalPanel.add(createReal);
+
+    int result = JOptionPane.showConfirmDialog(frame, createCalPanel,
+        "Create New Calendar", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+      String name = nameField.getText();
+      String timezone = timezoneField.getText();
+
+      this.commandString = "create_calendar " + name + " " + timezone;
+      System.out.println("Created calendar: " + name + " (" + timezone + ")");
+
+      JOptionPane.showMessageDialog(frame, "Calendar '" + name +
+          "' created with timezone '" + timezone + "'");
+
+    }
+
+    // After inputs are recorded, trigger action listener so command get the string.
+    actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+        "create_calendar"));
+  }
+
+  public void setCalendars(Map<String, Calendar> calMap) {
+    calendarsMap = calMap;
+    calendars.clear();
+
+    for (String key : calMap.keySet()) {
+      calendars.put(key, Color.MAGENTA);
+    }
+
+    calendarDropdown.removeAll();
+
+    // Refresh dropdown after calendar creation.
+    DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(calendars.keySet().toArray(new String[0]));
+    calendarDropdown.setModel(model);
+    frame.revalidate();
+    frame.repaint();
+  }
+
+
+  @Override
+  public void showErrorMessage(String error) {
+    JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+  }
+
+  @Override
+  public void refresh() {
+    frame.revalidate();
+    frame.repaint();
+
+  }
+
 }

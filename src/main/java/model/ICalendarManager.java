@@ -3,6 +3,7 @@ package model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * ICalendarManager interface represents a Calendar manager. A calendar manager contains a list
@@ -52,6 +53,12 @@ public interface ICalendarManager {
    * @return - Returns a list of all the calendars in the manager.
    */
   Collection<Calendar> getAllCalendars();
+
+  /**
+   * Method to return the name/calendar map.
+   * @return - Returns name as keys and calendar as values.
+   */
+  Map<String, Calendar> getAllCalendarsMap();
 
   /**
    * Method to copy a single event from the active calendar to another calendar.

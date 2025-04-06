@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import model.Calendar;
 import model.ICalendar;
@@ -63,6 +64,11 @@ public class MockCalendarManager implements ICalendarManager {
   @Override
   public Collection<Calendar> getAllCalendars() {
     return List.of();
+  }
+
+  @Override
+  public Map<String, Calendar> getAllCalendarsMap() {
+    return Map.of();
   }
 
   @Override

@@ -155,6 +155,14 @@ public class CalendarManager implements ICalendarManager {
   }
 
   /**
+   * Method to return the key/value pairs of calendar name and calendar.
+   * @return - Map of name/calendar.
+   */
+  public Map<String, Calendar> getAllCalendarsMap() {
+    return this.calendars;
+  }
+
+  /**
    * Copies a single event identified by its name and start time from the current calendar
    * to the target calendar, placing it at the specified new start time.
    * The new event is created in the target calendar’s timezone.
