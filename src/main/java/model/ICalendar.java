@@ -127,4 +127,11 @@ public interface ICalendar {
    * @return - List of events.
    */
   List<Event> getAllEventsList();
+
+
+  /**
+   * Method to get the name of the calendar.
+   * @return - Returns string name.
+   */
+  String getName();
 }

@@ -5,9 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +22,7 @@ public class CalendarView extends JFrame implements IView {
   private JComboBox<String> calendarDropdown;
 
   private Map<String, Color> calendars;
-  private Map<String, Color> calendars2;
+  private List<String> calendarNameList;
 
   private Map<LocalDate, List<String>> events;
   private YearMonth currentMonth;
@@ -38,10 +36,15 @@ public class CalendarView extends JFrame implements IView {
   private JPanel bottomPanelButtons;
   private JPanel createCalPanel;
   private JButton createReal;
+  private JButton exitButton;
+  private JLabel colorChooserDisplay;
+  JLabel activeCalLabel;
 
   private String commandString;
+  private List<String> commandList;
   private Map<String, Calendar> calendarsMap;
   private ActionListener actionListener;
+  private ActionListener createCalListener;
 
   public CalendarView() {
     frame = new JFrame("Calendar App");
@@ -52,21 +55,24 @@ public class CalendarView extends JFrame implements IView {
     currentMonth = YearMonth.now();
     calendars = new HashMap<>();
     events = new HashMap<>();
-    calendars.put("Work", Color.BLUE);
-    calendars.put("Personal", Color.GREEN);
-    calendars.put("Holidays", Color.RED);
+    commandList = new ArrayList<>();
 
-
-    selectedCalendar = "Work";
+    calendars.put("default", Color.GRAY);
+    selectedCalendar = "default";
 
     topPanel = new JPanel();
     topPanel.setLayout(new BorderLayout());
     topButtons = new JPanel();
 
     createCalButton = new JButton("Create Calendar");
-    createCalButton.addActionListener(e -> createCalendarPane());
+//    createCalButton.addActionListener();
+
     topButtons.add(createCalButton);
     topPanel.add(topButtons, BorderLayout.NORTH);
+
+    activeCalLabel = new JLabel("Active Calendar: " + this.getActiveCalendar());
+    activeCalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    topPanel.add(activeCalLabel);
 
 
     calendarStuffPanel = new JPanel();
@@ -97,9 +103,17 @@ public class CalendarView extends JFrame implements IView {
     bottomPanelButtons = new JPanel();
     bottomPanelButtons.setLayout(new BorderLayout());
     exportButton = new JButton("Export Calendar");
+    exportButton.setActionCommand("Export Calendar");
+
     importButton = new JButton("Import Calendar");
+    importButton.setActionCommand("Import Calendar");
     bottomPanelButtons.add(exportButton, BorderLayout.WEST);
     bottomPanelButtons.add(importButton, BorderLayout.EAST);
+
+    exitButton = new JButton("Exit");
+    exitButton.setActionCommand("Exit Button");
+    bottomPanelButtons.add(exitButton);
+
     bottomPanel.add(bottomPanelButtons);
     frame.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -113,9 +127,14 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-    this.actionListener = actionEvent;
+//    this.actionListener = actionEvent;
+//    calendarDropdown.addActionListener(actionEvent);
 //    createCalPanel.addActionListener(actionEvent);
 //    test.addActionListener(actionEvent);
+    createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
+    exportButton.addActionListener(actionEvent);
+    importButton.addActionListener(actionEvent);
+    exitButton.addActionListener(actionEvent);
   }
 
   @Override
@@ -125,6 +144,13 @@ public class CalendarView extends JFrame implements IView {
     // Reset command for next time.
     this.commandString = "";
     return command;
+  }
+
+  @Override
+  public List<String> getCalendarCommandList() {
+    ArrayList<String> copiedList = new ArrayList<>(commandList);
+    commandList.clear();
+    return copiedList;
   }
 
   private void updateCalendar() {
@@ -140,8 +166,7 @@ public class CalendarView extends JFrame implements IView {
       calendarPanel.add(dayButton);
     }
 
-    frame.revalidate();
-    frame.repaint();
+    this.refresh();
   }
 
   private void changeMonth(int offset) {
@@ -151,6 +176,9 @@ public class CalendarView extends JFrame implements IView {
 
   private void changeCalendar() {
     selectedCalendar = (String) calendarDropdown.getSelectedItem();
+    activeCalLabel.setText("Active Calendar: " + getActiveCalendar());
+
+    System.out.println("current cal: " + selectedCalendar);
     updateCalendar();
   }
 
@@ -167,47 +195,63 @@ public class CalendarView extends JFrame implements IView {
     }
   }
 
-  private void createCalendarPane() {
+  private void createCalendarPane(ActionListener e) {
     JTextField nameField = new JTextField(10);
     JTextField timezoneField = new JTextField(10);
 
     // Panel to hold the fields
     createCalPanel = new JPanel();
+    createCalPanel.setLayout(new GridLayout(0, 1));
+
     createCalPanel.add(new JLabel("Calendar Name:"));
     createCalPanel.add(nameField);
-    createCalPanel.add(Box.createVerticalStrut(15)); // space between fields
+    createCalPanel.add(Box.createVerticalStrut(15));
     createCalPanel.add(new JLabel("Timezone:"));
     createCalPanel.add(timezoneField);
-
-    createReal = new JButton("Create");
-    createCalPanel.add(createReal);
 
     int result = JOptionPane.showConfirmDialog(frame, createCalPanel,
         "Create New Calendar", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
     if (result == JOptionPane.OK_OPTION) {
+
       String name = nameField.getText();
       String timezone = timezoneField.getText();
 
-      this.commandString = "create_calendar " + name + " " + timezone;
+      commandList.add("create_calendar");
+      commandList.add(name);
+      commandList.add(timezone);
+
+      commandString = "create_calendar " + name + " " + timezone;
       System.out.println("Created calendar: " + name + " (" + timezone + ")");
 
       JOptionPane.showMessageDialog(frame, "Calendar '" + name +
           "' created with timezone '" + timezone + "'");
 
-    }
+      // After inputs are recorded, trigger action listener so command get the string.
+      e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,"Create Cal"));
+//      actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+//          "Create Cal"));
 
-    // After inputs are recorded, trigger action listener so command get the string.
-    actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-        "create_calendar"));
+//      createCalListener.setActionCommand("Echo Button");
+    }
   }
 
-  public void setCalendars(Map<String, Calendar> calMap) {
+  private void createEventAction(String calName, String timezone) {
+
+  }
+
+  private void exportCalendar() {
+    commandString = "export_calendar " + selectedCalendar;
+  }
+
+  public void setCalendars(Map<String, Calendar> calMap, String currentCal) {
+    selectedCalendar = currentCal;
+
     calendarsMap = calMap;
     calendars.clear();
 
     for (String key : calMap.keySet()) {
-      calendars.put(key, Color.MAGENTA);
+      calendars.put(key, Color.GRAY);
     }
 
     calendarDropdown.removeAll();
@@ -215,8 +259,12 @@ public class CalendarView extends JFrame implements IView {
     // Refresh dropdown after calendar creation.
     DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(calendars.keySet().toArray(new String[0]));
     calendarDropdown.setModel(model);
-    frame.revalidate();
-    frame.repaint();
+
+    this.refresh();
+  }
+
+  public String getActiveCalendar() {
+    return this.selectedCalendar;
   }
 
 
@@ -229,7 +277,6 @@ public class CalendarView extends JFrame implements IView {
   public void refresh() {
     frame.revalidate();
     frame.repaint();
-
   }
 
 }

@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Map;
 
 import model.Calendar;
@@ -13,9 +14,13 @@ public interface IView {
 
   String getCalendarCommand();
 
+  List<String> getCalendarCommandList();
+
   void showErrorMessage(String error);
 
   void refresh();
 
-  void setCalendars(Map<String, Calendar> calMap);
+  void setCalendars(Map<String, Calendar> calMap, String currentCal);
+
+  String getActiveCalendar();
 }

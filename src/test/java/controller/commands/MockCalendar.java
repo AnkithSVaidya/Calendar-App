@@ -106,6 +106,11 @@ class MockCalendar implements ICalendar {
     return List.of();
   }
 
+  @Override
+  public String getName() {
+    return "";
+  }
+
   protected void editHelper(String property, String newValue) {
     switch (property) {
       case "description":
