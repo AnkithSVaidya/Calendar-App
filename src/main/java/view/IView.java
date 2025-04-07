@@ -16,6 +16,7 @@ public interface IView {
   String getCalendarCommand();
 
   List<String> getCalendarCommandList();
+  void setCalendarCommandList(List<String> commandList);
 
   void showErrorMessage(String error);
 
@@ -23,7 +24,11 @@ public interface IView {
 
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
+  void setActiveCalendarEvents();
+
   String getActiveCalendar();
 
   LocalDate getActiveDate();
+
+  public void testPopup(ActionListener listener);
 }

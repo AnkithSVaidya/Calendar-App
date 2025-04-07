@@ -24,10 +24,11 @@ public class CalendarView extends JFrame implements IView {
   private Map<String, Color> calendars;
   private List<String> calendarNameList;
 
+  private IButtonPopups currentPopup;
+
   private Map<LocalDate, List<String>> events;
   private YearMonth currentMonth;
   private String selectedCalendar;
-  private JButton createCalButton;
   private JButton exportButton;
   private JButton importButton;
   private JPanel topPanel;
@@ -42,6 +43,7 @@ public class CalendarView extends JFrame implements IView {
   private JButton createReal;
   private JButton exitButton;
   private JButton createEventButton;
+  private JButton createCalButtonNew;
   private JButton createAllDayEventButton;
   private JButton createRecurringEventButton;
   private JLabel colorChooserDisplay;
@@ -75,12 +77,13 @@ public class CalendarView extends JFrame implements IView {
     createEventButton = new JButton("Create Event");
     createAllDayEventButton = new JButton("Create All Day Event");
     createRecurringEventButton = new JButton("Create Recurring Event");
-    createCalButton = new JButton("Create Calendar");
+    createCalButtonNew = new JButton("Create Calendar");
+    createCalButtonNew.setActionCommand("Create Calendar");
 
-    topButtons.add(createCalButton);
     topButtons.add(createEventButton);
     topButtons.add(createAllDayEventButton);
     topButtons.add(createRecurringEventButton);
+    topButtons.add(createCalButtonNew);
     topPanel.add(topButtons, BorderLayout.EAST);
 
     JPanel activeInfo = new JPanel();
@@ -107,7 +110,6 @@ public class CalendarView extends JFrame implements IView {
     calendarStuffPanel.add(calendarDropdown);
 
     topPanel.add(calendarStuffPanel, BorderLayout.SOUTH);
-
 
     frame.add(topPanel, BorderLayout.NORTH);
 
@@ -151,10 +153,12 @@ public class CalendarView extends JFrame implements IView {
     createEventButton.addActionListener(e -> createEventPane(actionEvent));
     createRecurringEventButton.addActionListener(e -> createRecurringEventPane(actionEvent));
     createAllDayEventButton.addActionListener(e -> createAllDayEventPane(actionEvent));
-    createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
+//    createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
     exportButton.addActionListener(actionEvent);
     importButton.addActionListener(actionEvent);
     exitButton.addActionListener(actionEvent);
+
+    createCalButtonNew.addActionListener(actionEvent);
   }
 
   @Override
@@ -171,6 +175,12 @@ public class CalendarView extends JFrame implements IView {
     ArrayList<String> copiedList = new ArrayList<>(commandList);
     commandList.clear();
     return copiedList;
+  }
+
+  @Override
+  public void setCalendarCommandList(List<String> commandList) {
+    this.commandList.clear();
+    this.commandList = commandList;
   }
 
   private void updateCalendar() {
@@ -198,17 +208,12 @@ public class CalendarView extends JFrame implements IView {
   private void changeCalendar() {
     selectedCalendar = (String) calendarDropdown.getSelectedItem();
     activeCalLabel.setText("Active Calendar: " + getActiveCalendar());
-
-    System.out.println("current cal: " + selectedCalendar);
     updateCalendar();
   }
 
   private void setActiveDate(LocalDate d) {
     this.activeDate  = d;
     activeDateLabel.setText("Active Date: " + getActiveDate());
-
-    System.out.println("active date: " + activeDate);
-
     updateCalendar();
   }
 
@@ -268,7 +273,6 @@ public class CalendarView extends JFrame implements IView {
   }
 
   private void createAllDayEventPane(ActionListener e) {
-
     // create event --autoDecline <eventName> on <dateStringTtimeString>
     JTextField eventNameField = new JTextField(10);
 
@@ -303,11 +307,9 @@ public class CalendarView extends JFrame implements IView {
   private void createRecurringEventPane(ActionListener e) {
     // create event --autoDecline <eventName> from <dateStringTtimeString>
     // to <dateStringTtimeString> repeats <weekdays> for <N> times
-
     JTextField eventNameField = new JTextField(10);
     JTextField fromDTField = new JTextField(10);
     JTextField toDTField = new JTextField(10);
-//    JTextField repeatsField = new JTextField(10);
     JTextField nField = new JTextField(10);
 
     createRecurringEventPanel = new JPanel();
@@ -344,7 +346,6 @@ public class CalendarView extends JFrame implements IView {
         "Create New Recurring Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
     if (result == JOptionPane.OK_OPTION) {
-
       String name = eventNameField.getText();
       String fromDateTime = fromDTField.getText();
       String toDateTime = toDTField.getText();
@@ -374,48 +375,9 @@ public class CalendarView extends JFrame implements IView {
     }
   }
 
-  private void createCalendarPane(ActionListener e) {
-    JTextField nameField = new JTextField(10);
-    JTextField timezoneField = new JTextField(10);
-
-    // Panel to hold the fields
-    createCalPanel = new JPanel();
-    createCalPanel.setLayout(new GridLayout(0, 1));
-
-    createCalPanel.add(new JLabel("Calendar Name:"));
-    createCalPanel.add(nameField);
-    createCalPanel.add(Box.createVerticalStrut(15));
-    createCalPanel.add(new JLabel("Timezone:"));
-    createCalPanel.add(timezoneField);
-
-    int result = JOptionPane.showConfirmDialog(frame, createCalPanel,
-        "Create New Calendar", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-    if (result == JOptionPane.OK_OPTION) {
-
-      String name = nameField.getText();
-      String timezone = timezoneField.getText();
-
-      commandList.add("create_calendar");
-      commandList.add(name);
-      commandList.add(timezone);
-
-      commandString = "create_calendar " + name + " " + timezone;
-      System.out.println("Created calendar: " + name + " (" + timezone + ")");
-
-      JOptionPane.showMessageDialog(frame, "Calendar '" + name +
-          "' created with timezone '" + timezone + "'");
-
-      // After inputs are recorded, trigger action listener so command get the string.
-      e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,"Create Cal"));
-    }
-  }
 
 
 
-  private void createEventAction(String calName, String timezone) {
-
-  }
 
   private void exportCalendar() {
     commandString = "export_calendar " + selectedCalendar;
@@ -438,6 +400,18 @@ public class CalendarView extends JFrame implements IView {
     calendarDropdown.setModel(model);
 
     this.refresh();
+  }
+
+  public void testPopup(ActionListener listener) {
+    currentPopup = new CreateCalendarPopup(this, frame);
+    currentPopup.setCommandButtonListener(listener);
+  }
+
+
+
+  @Override
+  public void setActiveCalendarEvents() {
+
   }
 
   public String getActiveCalendar() {

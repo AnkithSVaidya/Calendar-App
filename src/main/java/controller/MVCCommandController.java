@@ -13,6 +13,7 @@ import controller.commands.CommandCreate;
 import controller.commands.ICommand;
 import model.ICalendar;
 import model.ICalendarManager;
+import view.IButtonPopups;
 import view.IView;
 
 public class MVCCommandController implements IController, ActionListener {
@@ -122,6 +123,7 @@ public class MVCCommandController implements IController, ActionListener {
   @Override
   public void actionPerformed(ActionEvent e) {
 
+    IButtonPopups popup;
     // Retrieve active calendar.
     String activeCal = view.getActiveCalendar();
     model.useCalendar(activeCal);
@@ -131,15 +133,10 @@ public class MVCCommandController implements IController, ActionListener {
       //read from the input textfield
       case "Export Calendar":
         System.out.println("export actoin");
-//        String text = view.getInputString();
-//        //send text to the model
-//        model.setString(text);
-//
-//        //clear input textfield
-//        view.clearInputString();
-//        //finally echo the string in view
-//        text = model.getString();
-//        view.setEchoOutput(text);
+
+        view.testPopup(this);
+
+        System.out.println(e.getActionCommand());
 
         break;
 
@@ -147,12 +144,15 @@ public class MVCCommandController implements IController, ActionListener {
         System.out.println("import action");
         break;
 
-      case "Create Cal":
+      case "Create Calendar":
+        view.testPopup(this);
         command = view.getCalendarCommandList();
 
-        model.createCalendar(command.get(1), command.get(2));
+        if (!command.get(0).equals("close")) {
+          model.createCalendar(command.get(1), command.get(2));
+          System.out.println("create cal action");
+        }
 
-        System.out.println("create cal action");
         break;
 
       case "Create Event":
@@ -173,6 +173,14 @@ public class MVCCommandController implements IController, ActionListener {
         System.out.println(command);
 
         System.out.println("create recurring event");
+        break;
+
+      case "test":
+//        command = view.getCalendarCommandList();
+//        System.out.println(command);
+
+
+        System.out.println("test call");
         break;
 
       case "Exit Button":
