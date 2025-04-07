@@ -69,7 +69,7 @@ public interface ICalendarManager {
    * @return - Returns true on completion, false otherwise.
    */
   boolean copyEvent(String eventName, LocalDateTime eventStart,
-                             String targetCalendarName, LocalDateTime newTargetStart);
+                    String targetCalendarName, LocalDateTime newTargetStart);
 
   /**
    * Method to copy all events on a date to a target calendar.
@@ -89,6 +89,5 @@ public interface ICalendarManager {
    * @return - Returns true on success, false otherwise.
    */
   boolean copyEventsBetween(LocalDate sourceStartDate, LocalDate sourceEndDate,
-                                     String targetCalendarName, LocalDate targetStartDate);
-
+                            String targetCalendarName, LocalDate targetStartDate);
 }

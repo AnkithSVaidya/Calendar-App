@@ -3,7 +3,6 @@ package model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -15,9 +14,14 @@ import java.util.Map;
  * create, edit, and copy events across calendars.
  */
 public class CalendarManager implements ICalendarManager {
-  private Map<String, Calendar> calendars;
-  private Calendar currentCalendar;
+  private Map<String, ICalendar> calendars;
+  private ICalendar currentCalendar;
 
+  /**
+   * Constructs a new CalendarManager instance.
+   * This constructor initializes the internal calendars map to an empty hashmap
+   * and sets the currentCalendar to null.
+   */
   public CalendarManager() {
     calendars = new HashMap<>();
     currentCalendar = null;
@@ -34,13 +38,16 @@ public class CalendarManager implements ICalendarManager {
     if (calendars.containsKey(name)) {
       return false; // Calendar name must be unique.
     }
+
     try {
       // Validate timezone.
       ZoneId.of(timezone);
     } catch (Exception e) {
+      // Instead of throwing, return false to indicate failure
       return false;
     }
-    Calendar cal = new Calendar(name, timezone);
+
+    ICalendar cal = new Calendar(name, timezone);
     calendars.put(name, cal);
 
     if (this.currentCalendar == null) {
@@ -59,40 +66,41 @@ public class CalendarManager implements ICalendarManager {
    * @return true if the calendar was updated; false otherwise.
    */
   public boolean editCalendar(String calendarName, String property, String newValue) {
-    Calendar cal = calendars.get(calendarName);
+    ICalendar cal = calendars.get(calendarName);
     if (cal == null) {
       return false;
     }
+
     if (property.equalsIgnoreCase("name")) {
       // Check if new name is unique.
       if (calendars.containsKey(newValue)) {
-        return false;
+        return false; // Don't throw exception, just return false
       }
+
       // Remove old entry, update, and reinsert.
       calendars.remove(calendarName);
-      cal.setName(newValue);
+      ((Calendar)cal).setName(newValue);
       calendars.put(newValue, cal);
-      // Also update current calendar if needed.
-      if (currentCalendar == cal) {
-        currentCalendar = cal;
-      }
+
       return true;
     } else if (property.equalsIgnoreCase("timezone")) {
+      ZoneId newZoneId;
       try {
-        ZoneId.of(newValue);
+        newZoneId = ZoneId.of(newValue);
       } catch (Exception e) {
-        return false;
+        return false; // Invalid timezone
       }
-      ZoneId currZone = currentCalendar.getTimezone();
 
-      cal.setTimezone(newValue);
+      ZoneId currZone = cal.getTimezone();
+
+      ((Calendar)cal).setTimezone(newValue);
 
       // Swap all the current events datetime to the new timezone.
-      List<Event> eventList = currentCalendar.getAllEventsList();
+      List<Event> eventList = cal.getAllEventsList();
 
       for (Event e : eventList) {
         LocalDateTime newEventDateTime = e.getStart().atZone(currZone)
-            .withZoneSameInstant(ZoneId.of(newValue))
+            .withZoneSameInstant(newZoneId)
             .toLocalDateTime();
 
         LocalDateTime newEnd = null;
@@ -118,7 +126,7 @@ public class CalendarManager implements ICalendarManager {
    * @return true if calendar exists and is set; false otherwise.
    */
   public boolean useCalendar(String name) {
-    Calendar cal = calendars.get(name);
+    ICalendar cal = calendars.get(name);
     if (cal == null) {
       return false;
     }
@@ -150,27 +158,32 @@ public class CalendarManager implements ICalendarManager {
    *
    * @return collection of all Calendar objects.
    */
+  @SuppressWarnings("unchecked")
   public Collection<Calendar> getAllCalendars() {
-    return calendars.values();
+    // Need to cast since we're storing ICalendars but interface requires Calendar
+    return (Collection<Calendar>)(Collection<?>) calendars.values();
   }
 
   /**
-   * Method to return the key/value pairs of calendar name and calendar.
-   * @return - Map of name/calendar.
+   * Method to return the name/calendar map.
+   *
+   * @return - Returns name as keys and calendar as values.
    */
+  @SuppressWarnings("unchecked")
   public Map<String, Calendar> getAllCalendarsMap() {
-    return this.calendars;
+    // Need to cast since we're storing ICalendars but interface requires Calendar
+    return (Map<String, Calendar>)(Map<?, ?>) calendars;
   }
 
   /**
    * Copies a single event identified by its name and start time from the current calendar
    * to the target calendar, placing it at the specified new start time.
-   * The new event is created in the target calendar’s timezone.
+   * The new event is created in the target calendar's timezone.
    *
-   * @param eventName         the event title to copy.
-   * @param eventStart        the start time of the event to copy in current calendar's local time.
+   * @param eventName          the event title to copy.
+   * @param eventStart         the start time of the event to copy in current calendar's local time.
    * @param targetCalendarName the name of the target calendar.
-   * @param newTargetStart    the desired start time in the target calendar's local time.
+   * @param newTargetStart     the desired start time in the target calendar's local time.
    * @return true if event was successfully copied; false if event not found or conflict exists.
    */
   public boolean copyEvent(String eventName, LocalDateTime eventStart, String targetCalendarName,
@@ -178,7 +191,7 @@ public class CalendarManager implements ICalendarManager {
     if (currentCalendar == null) {
       return false;
     }
-    Calendar targetCal = calendars.get(targetCalendarName);
+    ICalendar targetCal = calendars.get(targetCalendarName);
     if (targetCal == null) {
       return false;
     }
@@ -196,15 +209,9 @@ public class CalendarManager implements ICalendarManager {
     }
 
     // Convert times if necessary.
-    // Assume toCopy's times are in the current calendar's timezone.
     ZoneId sourceZone = currentCalendar.getTimezone();
     ZoneId targetZone = targetCal.getTimezone();
 
-    // Create a ZonedDateTime for start and (if applicable) end in source calendar.
-    ZonedDateTime sourceStartZdt = toCopy.getStart().atZone(sourceZone);
-    ZonedDateTime targetStartZdt = sourceStartZdt.withZoneSameInstant(targetZone);
-
-    // However, we want the copied event to start at newTargetStart (target local time).
     // Calculate the difference between original event start and end (if end exists).
     LocalDateTime newStart = newTargetStart;
 
@@ -235,7 +242,7 @@ public class CalendarManager implements ICalendarManager {
 
   /**
    * Copies all events scheduled on a given date from the current calendar to the target calendar.
-   * The times are adjusted to the target calendar’s timezone.
+   * The times are adjusted to the target calendar's timezone.
    *
    * @param sourceDate         the date (in current calendar's local time) whose events
    *                           are to be copied.
@@ -249,7 +256,7 @@ public class CalendarManager implements ICalendarManager {
     if (currentCalendar == null) {
       return false;
     }
-    Calendar targetCal = calendars.get(targetCalendarName);
+    ICalendar targetCal = calendars.get(targetCalendarName);
     if (targetCal == null) {
       return false;
     }
@@ -295,10 +302,17 @@ public class CalendarManager implements ICalendarManager {
     if (currentCalendar == null) {
       return false;
     }
-    Calendar targetCal = calendars.get(targetCalendarName);
+
+    // Check if dates are out of order
+    if (sourceStartDate.isAfter(sourceEndDate)) {
+      return false; // Return false instead of throwing exception
+    }
+
+    ICalendar targetCal = calendars.get(targetCalendarName);
     if (targetCal == null) {
       return false;
     }
+
     boolean copiedAtLeastOne = false;
     // For simplicity, assume we copy each day individually.
     LocalDate date = sourceStartDate;

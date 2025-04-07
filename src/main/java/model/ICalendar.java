@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-
 /**
  * Defines the contract for calendar implementations.
  * that manage events and recurring events.
@@ -28,7 +27,6 @@ public interface ICalendar {
    *                       to generate instances from.
    * @param autoDecline    if {@code true}, skips adding conflicting instances.
    */
-
   void addRecurringEvent(RecurringEvent recurringEvent, boolean autoDecline);
 
   /**
@@ -42,7 +40,6 @@ public interface ICalendar {
    */
   List<AbstractEvent> getEventsOnDate(LocalDate date);
 
-
   /**
    * Finds events overlapping with a time range (inclusive).
    *
@@ -51,7 +48,6 @@ public interface ICalendar {
    * @return list of events overlapping the specified range.
    */
   List<AbstractEvent> getEventsBetween(LocalDateTime start, LocalDateTime end);
-
 
   /**
    * Checks for event conflicts at a specific moment.
@@ -72,7 +68,6 @@ public interface ICalendar {
    */
   String exportToCSV(String filename) throws IOException;
 
-
   /**
    * Edits a specific event identified by exact match of title, start time, and end time.
    *
@@ -89,7 +84,6 @@ public interface ICalendar {
                     LocalDateTime endTime,
                     String newValue);
 
-
   /**
    * Edits all events matching both title and start time.
    *
@@ -104,7 +98,6 @@ public interface ICalendar {
                      LocalDateTime startTime,
                      String newValue);
 
-
   /**
    * Edits all events with matching title, regardless of time.
    *
@@ -114,7 +107,6 @@ public interface ICalendar {
    * @return {@code true} if any matching events were modified
    */
   boolean editAllEvents(String property, String eventName, String newValue);
-
 
   /**
    * Method to return the calendar timezone.
@@ -127,7 +119,6 @@ public interface ICalendar {
    * @return - List of events.
    */
   List<Event> getAllEventsList();
-
 
   /**
    * Method to get the name of the calendar.
