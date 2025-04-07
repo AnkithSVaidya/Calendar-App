@@ -326,7 +326,7 @@ public class CommandCreate extends ICommand {
 
   /**
    * Helper method to check if a weekday input is valid. Also adds to map.
-   * @param weekdays - Weekdays in MTWRF format.
+   * @param weekdays - Weekdays in MTWRFSU format.
    * @return = Boolean to verify.
    */
   private boolean isValidWeekdayInput(String weekdays) {

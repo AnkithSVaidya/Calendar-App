@@ -43,6 +43,7 @@ public class CalendarApp {
     else if (parseInputArr.size() == 3) {
       File f = new File(parseInputArr.get(2));
 
+      // Readable and appendable
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("headless")
           && f.exists() && !f.isDirectory()) {
         controller = new HeadlessController(System.in, System.out, model, f);

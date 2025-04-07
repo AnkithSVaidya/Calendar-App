@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -23,4 +24,6 @@ public interface IView {
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
   String getActiveCalendar();
+
+  LocalDate getActiveDate();
 }

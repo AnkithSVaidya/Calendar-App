@@ -26,8 +26,6 @@ public class MVCCommandController implements IController, ActionListener {
 
     // Initialize default calendar.
     model.createCalendar("default", ZoneId.systemDefault().toString());
-//    model.createCalendar("bruh1", ZoneId.systemDefault().toString());
-//    model.createCalendar("bruh2", ZoneId.systemDefault().toString());
     model.useCalendar("default");
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
   }
@@ -161,6 +159,20 @@ public class MVCCommandController implements IController, ActionListener {
         command = view.getCalendarCommandList();
 
         System.out.println("create single event");
+        break;
+
+      case "Create All Day Event":
+        command = view.getCalendarCommandList();
+
+        System.out.println("create all day event");
+        break;
+
+
+      case "Create Recurring Event":
+        command = view.getCalendarCommandList();
+        System.out.println(command);
+
+        System.out.println("create recurring event");
         break;
 
       case "Exit Button":

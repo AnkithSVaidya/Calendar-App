@@ -35,21 +35,30 @@ public class CalendarView extends JFrame implements IView {
   private JPanel bottomPanel;
   private JPanel bottomPanelButtons;
   private JPanel createCalPanel;
+  private JPanel createEventPanel;
+  private JPanel createSingleEventPanel;
+  private JPanel createRecurringEventPanel;
+  private JPanel createAllDayEventPanel;
   private JButton createReal;
   private JButton exitButton;
+  private JButton createEventButton;
+  private JButton createAllDayEventButton;
+  private JButton createRecurringEventButton;
   private JLabel colorChooserDisplay;
-  JLabel activeCalLabel;
+  private JLabel activeCalLabel;
+  private JLabel activeDateLabel;
 
   private String commandString;
   private List<String> commandList;
   private Map<String, Calendar> calendarsMap;
+  private LocalDate activeDate;
   private ActionListener actionListener;
   private ActionListener createCalListener;
 
   public CalendarView() {
     frame = new JFrame("Calendar App");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1000, 500);
+    frame.setSize(1000, 750);
     frame.setLayout(new BorderLayout());
 
     currentMonth = YearMonth.now();
@@ -61,22 +70,33 @@ public class CalendarView extends JFrame implements IView {
     selectedCalendar = "default";
 
     topPanel = new JPanel();
-    topPanel.setLayout(new BorderLayout());
+    topPanel.setLayout(new GridLayout(0, 1));
     topButtons = new JPanel();
-
+    createEventButton = new JButton("Create Event");
+    createAllDayEventButton = new JButton("Create All Day Event");
+    createRecurringEventButton = new JButton("Create Recurring Event");
     createCalButton = new JButton("Create Calendar");
-//    createCalButton.addActionListener();
 
     topButtons.add(createCalButton);
-    topPanel.add(topButtons, BorderLayout.NORTH);
+    topButtons.add(createEventButton);
+    topButtons.add(createAllDayEventButton);
+    topButtons.add(createRecurringEventButton);
+    topPanel.add(topButtons, BorderLayout.EAST);
+
+    JPanel activeInfo = new JPanel();
+    activeInfo.setLayout(new GridLayout(0, 1));
 
     activeCalLabel = new JLabel("Active Calendar: " + this.getActiveCalendar());
-    activeCalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-    topPanel.add(activeCalLabel);
+    activeInfo.add(activeCalLabel);
+
+    // Default set active date to today.
+    activeDate = LocalDate.now();
+    activeDateLabel = new JLabel("Active Date: " + this.getActiveDate());
+    activeInfo.add(activeDateLabel);
+    topPanel.add(activeInfo);
 
 
     calendarStuffPanel = new JPanel();
-
     JButton prevButton = new JButton("<");
     JButton nextButton = new JButton(">");
     monthLabel = new JLabel();
@@ -87,6 +107,7 @@ public class CalendarView extends JFrame implements IView {
     calendarStuffPanel.add(calendarDropdown);
 
     topPanel.add(calendarStuffPanel, BorderLayout.SOUTH);
+
 
     frame.add(topPanel, BorderLayout.NORTH);
 
@@ -127,10 +148,9 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-//    this.actionListener = actionEvent;
-//    calendarDropdown.addActionListener(actionEvent);
-//    createCalPanel.addActionListener(actionEvent);
-//    test.addActionListener(actionEvent);
+    createEventButton.addActionListener(e -> createEventPane(actionEvent));
+    createRecurringEventButton.addActionListener(e -> createRecurringEventPane(actionEvent));
+    createAllDayEventButton.addActionListener(e -> createAllDayEventPane(actionEvent));
     createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
     exportButton.addActionListener(actionEvent);
     importButton.addActionListener(actionEvent);
@@ -162,7 +182,8 @@ public class CalendarView extends JFrame implements IView {
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
       LocalDate date = currentMonth.atDay(day);
       JButton dayButton = new JButton(String.valueOf(day));
-      dayButton.addActionListener(e -> showEvents(date));
+      dayButton.addActionListener(e -> setActiveDate(date));
+
       calendarPanel.add(dayButton);
     }
 
@@ -182,6 +203,15 @@ public class CalendarView extends JFrame implements IView {
     updateCalendar();
   }
 
+  private void setActiveDate(LocalDate d) {
+    this.activeDate  = d;
+    activeDateLabel.setText("Active Date: " + getActiveDate());
+
+    System.out.println("active date: " + activeDate);
+
+    updateCalendar();
+  }
+
   private void showEvents(LocalDate date) {
     List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
 
@@ -192,6 +222,155 @@ public class CalendarView extends JFrame implements IView {
     if (newEvent != null && !newEvent.trim().isEmpty()) {
       dayEvents.add(newEvent);
       events.put(date, dayEvents);
+    }
+  }
+
+  private void createEventPane(ActionListener e) {
+    // create event --autoDecline <eventName> from
+    // <dateStringTtimeString> to <dateStringTtimeString>
+    JTextField eventNameField = new JTextField(10);
+    JTextField fromDTField = new JTextField(10);
+    JTextField toDTField = new JTextField(10);
+
+    createSingleEventPanel = new JPanel();
+    createSingleEventPanel.setLayout(new GridLayout(0, 1));
+    JLabel instructions = new JLabel("Please input datetimes in <dateStringTtimeString> format.");
+    createSingleEventPanel.add(instructions);
+
+    createSingleEventPanel.add(new JLabel("Event Name:"));
+    createSingleEventPanel.add(eventNameField);
+    createSingleEventPanel.add(new JLabel("From Time:"));
+    createSingleEventPanel.add(fromDTField);
+    createSingleEventPanel.add(new JLabel("To Time:"));
+    createSingleEventPanel.add(toDTField);
+
+    int result = JOptionPane.showConfirmDialog(frame, createSingleEventPanel,
+        "Create New Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+
+      String name = eventNameField.getText();
+      String fromDateTime = fromDTField.getText();
+      String toDateTime = toDTField.getText();
+
+      commandList.add("create_event");
+      commandList.add(name);
+      commandList.add(fromDateTime);
+      commandList.add(toDateTime);
+      commandList.add(activeDate.toString());
+
+      JOptionPane.showMessageDialog(frame, "Creating Event " + name +
+          " from " + fromDateTime + " to " + toDateTime);
+
+      // After inputs are recorded, trigger action listener so command get the string.
+      e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,"Create Event"));
+    }
+  }
+
+  private void createAllDayEventPane(ActionListener e) {
+
+    // create event --autoDecline <eventName> on <dateStringTtimeString>
+    JTextField eventNameField = new JTextField(10);
+
+    createAllDayEventPanel = new JPanel();
+    createAllDayEventPanel.setLayout(new GridLayout(0, 1));
+    JLabel instructions = new JLabel("Please input a name for your all day event.");
+    createAllDayEventPanel.add(instructions);
+
+    createAllDayEventPanel.add(new JLabel("Event Name:"));
+    createAllDayEventPanel.add(eventNameField);
+
+    int result = JOptionPane.showConfirmDialog(frame, createAllDayEventPanel,
+        "Create New All Day Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+
+      String name = eventNameField.getText();
+
+      commandList.add("create_all_day_event");
+      commandList.add(name);
+      commandList.add(activeDate.toString());
+
+      JOptionPane.showMessageDialog(frame, "Creating All Day Event " + name +
+          " on " + activeDate.toString());
+
+      // After inputs are recorded, trigger action listener so command get the string.
+      e.actionPerformed(new ActionEvent(this,
+          ActionEvent.ACTION_PERFORMED,"Create All Day Event"));
+    }
+  }
+
+  private void createRecurringEventPane(ActionListener e) {
+    // create event --autoDecline <eventName> from <dateStringTtimeString>
+    // to <dateStringTtimeString> repeats <weekdays> for <N> times
+
+    JTextField eventNameField = new JTextField(10);
+    JTextField fromDTField = new JTextField(10);
+    JTextField toDTField = new JTextField(10);
+//    JTextField repeatsField = new JTextField(10);
+    JTextField nField = new JTextField(10);
+
+    createRecurringEventPanel = new JPanel();
+    createRecurringEventPanel.setLayout(new GridLayout(0, 1));
+    JLabel instructions = new JLabel("Please input datetimes in hh:mm format.");
+    createRecurringEventPanel.add(instructions);
+
+    createRecurringEventPanel.add(new JLabel("Event Name:"));
+    createRecurringEventPanel.add(eventNameField);
+    createRecurringEventPanel.add(new JLabel("From Time:"));
+    createRecurringEventPanel.add(fromDTField);
+    createRecurringEventPanel.add(new JLabel("To Time:"));
+    createRecurringEventPanel.add(toDTField);
+    createRecurringEventPanel.add(new JLabel("Times:"));
+    createRecurringEventPanel.add(nField);
+
+
+    JPanel weekdayPanel = new JPanel();
+    weekdayPanel.setLayout(new GridLayout(0, 4));
+
+    // MTWRFSU.
+    String[] days = {"M", "T", "W", "R", "F", "S", "U"};
+    Map<String, JCheckBox> dayCheckboxes = new HashMap<>();
+
+    for (String day : days) {
+      JCheckBox checkBox = new JCheckBox(day);
+      dayCheckboxes.put(day, checkBox);
+      weekdayPanel.add(checkBox);
+    }
+
+    createRecurringEventPanel.add(weekdayPanel);
+
+    int result = JOptionPane.showConfirmDialog(frame, createRecurringEventPanel,
+        "Create New Recurring Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+
+      String name = eventNameField.getText();
+      String fromDateTime = fromDTField.getText();
+      String toDateTime = toDTField.getText();
+      String nTimes = nField.getText();
+
+      List<String> selectedDays = new ArrayList<>();
+      for (String day : days) {
+        if (dayCheckboxes.get(day).isSelected()) {
+          selectedDays.add(day);
+        }
+      }
+      String weekdays = String.join("", selectedDays);
+
+      commandList.add("create_recurring_event");
+      commandList.add(name);
+      commandList.add(fromDateTime);
+      commandList.add(weekdays);
+      commandList.add(nTimes);
+
+      JOptionPane.showMessageDialog(frame, "Creating Recurring Event " + name +
+          " from " + fromDateTime + " to " + toDateTime + " on "
+          + weekdays + ", " + nTimes + " times");
+
+      // After inputs are recorded, trigger action listener so command get the string.
+      e.actionPerformed(new ActionEvent(this,
+          ActionEvent.ACTION_PERFORMED,"Create Recurring Event"));
     }
   }
 
@@ -229,12 +408,10 @@ public class CalendarView extends JFrame implements IView {
 
       // After inputs are recorded, trigger action listener so command get the string.
       e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,"Create Cal"));
-//      actionListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-//          "Create Cal"));
-
-//      createCalListener.setActionCommand("Echo Button");
     }
   }
+
+
 
   private void createEventAction(String calName, String timezone) {
 
@@ -265,6 +442,10 @@ public class CalendarView extends JFrame implements IView {
 
   public String getActiveCalendar() {
     return this.selectedCalendar;
+  }
+
+  public LocalDate getActiveDate() {
+    return this.activeDate;
   }
 
 
