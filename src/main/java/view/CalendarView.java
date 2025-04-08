@@ -16,6 +16,7 @@ import model.Calendar;
 
 public class CalendarView extends JFrame implements IView {
   private JFrame frame;
+  private JFrame showEventsFrame;
   private JPanel calendarPanel;
   private JPanel topButtons;
   private JLabel monthLabel;
@@ -74,15 +75,15 @@ public class CalendarView extends JFrame implements IView {
     topPanel = new JPanel();
     topPanel.setLayout(new GridLayout(0, 1));
     topButtons = new JPanel();
-    createEventButton = new JButton("Create Event");
+
     createAllDayEventButton = new JButton("Create All Day Event");
     createRecurringEventButton = new JButton("Create Recurring Event");
     createCalButtonNew = new JButton("Create Calendar");
     createCalButtonNew.setActionCommand("Create Calendar");
-
-    topButtons.add(createEventButton);
-    topButtons.add(createAllDayEventButton);
-    topButtons.add(createRecurringEventButton);
+//
+//    topButtons.add(createEventButton);
+//    topButtons.add(createAllDayEventButton);
+//    topButtons.add(createRecurringEventButton);
     topButtons.add(createCalButtonNew);
     topPanel.add(topButtons, BorderLayout.EAST);
 
@@ -150,9 +151,9 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-    createEventButton.addActionListener(e -> createEventPane(actionEvent));
-    createRecurringEventButton.addActionListener(e -> createRecurringEventPane(actionEvent));
-    createAllDayEventButton.addActionListener(e -> createAllDayEventPane(actionEvent));
+//    createEventButton.addActionListener(actionEvent);
+//    createRecurringEventButton.addActionListener(e -> createRecurringEventPane(actionEvent));
+//    createAllDayEventButton.addActionListener(e -> createAllDayEventPane(actionEvent));
 //    createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
     exportButton.addActionListener(actionEvent);
     importButton.addActionListener(actionEvent);
@@ -188,17 +189,34 @@ public class CalendarView extends JFrame implements IView {
     calendarPanel.setLayout(new GridLayout(0, 7));
     monthLabel.setText(currentMonth.getMonth() + " " + currentMonth.getYear());
     calendarPanel.setBackground(calendars.get(selectedCalendar));
+    IButtonPopups dayPopup;
 
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
       LocalDate date = currentMonth.atDay(day);
       JButton dayButton = new JButton(String.valueOf(day));
-      dayButton.addActionListener(e -> setActiveDate(date));
+//      dayButton.addActionListener(e -> showEvents(date));
+
+      dayButton.addActionListener(e->new DayPopup(this, date, frame));
+
 
       calendarPanel.add(dayButton);
     }
 
     this.refresh();
   }
+
+  @Override
+  public void showDayPopup(LocalDate date, ActionListener listener) {
+    DayPopup dayPopup = new DayPopup(this, date, frame);
+    dayPopup.setCreateEventListener(listener);
+  }
+
+  @Override
+  public void showCreateEventPopup(LocalDate date, ActionListener listener) {
+//    CreateEventPopup eventPopup = new CreateEventPopup(this, date, frame);
+//    eventPopup.setSubmitListener(listener);
+  }
+
 
   private void changeMonth(int offset) {
     currentMonth = currentMonth.plusMonths(offset);
@@ -218,6 +236,7 @@ public class CalendarView extends JFrame implements IView {
   }
 
   private void showEvents(LocalDate date) {
+
     List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
 
     String eventList = dayEvents.isEmpty() ? "No events" : String.join("\n", dayEvents);
@@ -402,8 +421,26 @@ public class CalendarView extends JFrame implements IView {
     this.refresh();
   }
 
-  public void testPopup(ActionListener listener) {
+  public void createCalendarPopup(ActionListener listener) {
     currentPopup = new CreateCalendarPopup(this, frame);
+    currentPopup.setCommandButtonListener(listener);
+  }
+
+
+  public void openDay(LocalDate date) {
+    currentPopup = new DayPopup(this, date, frame);
+//    currentPopup.setCommandButtonListener(listener);
+  }
+
+
+  public void createDayPopup(ActionListener listener, LocalDate date) {
+    currentPopup = new DayPopup(this, date, frame);
+    currentPopup.setCommandButtonListener(listener);
+    this.activeDate = date;
+  }
+
+  public void createEventPopup(ActionListener listener, LocalDate date) {
+    currentPopup = new DayPopup(this, date, frame);
     currentPopup.setCommandButtonListener(listener);
   }
 

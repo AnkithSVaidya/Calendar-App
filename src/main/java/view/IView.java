@@ -30,5 +30,9 @@ public interface IView {
 
   LocalDate getActiveDate();
 
-  public void testPopup(ActionListener listener);
+  public void createCalendarPopup(ActionListener listener);
+
+  void showDayPopup(LocalDate date, ActionListener listener);
+
+  void showCreateEventPopup(LocalDate date, ActionListener listener);
 }

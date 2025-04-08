@@ -8,8 +8,6 @@ import java.util.List;
 import javax.swing.*;
 
 public class CreateCalendarPopup extends JFrame implements IButtonPopups {
-  private JFrame popupFrame;
-  private JButton submitButton;
   private JPanel createCalPanel;
   private List<String> commandList;
 
@@ -39,7 +37,7 @@ public class CreateCalendarPopup extends JFrame implements IButtonPopups {
       if (name.isEmpty() || timezone.isEmpty()) {
         commandList.add("close");
         view.setCalendarCommandList(commandList);
-        JOptionPane.showMessageDialog(popupFrame, "Please fill out all fields");
+        JOptionPane.showMessageDialog(mainFrame, "Please fill out all fields");
       }
       else {
         commandList.add("create_calendar");
@@ -48,7 +46,7 @@ public class CreateCalendarPopup extends JFrame implements IButtonPopups {
 
         view.setCalendarCommandList(commandList);
 
-        JOptionPane.showMessageDialog(popupFrame, "Calendar '" + name +
+        JOptionPane.showMessageDialog(mainFrame, "Calendar '" + name +
             "' created with timezone '" + timezone + "'");
       }
     }
