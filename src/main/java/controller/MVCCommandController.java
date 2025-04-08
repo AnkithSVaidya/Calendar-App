@@ -2,12 +2,14 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import model.ICalendarManager;
 import view.IButtonPopups;
 import view.IView;
+
+
+import javax.swing.JOptionPane;
 
 public class MVCCommandController implements IController, ActionListener {
 
@@ -54,15 +56,47 @@ public class MVCCommandController implements IController, ActionListener {
         break;
 
       case "Create Calendar":
+        // pop up the dialog, user types name + tz
         view.createCalendarPopup(this);
-        command = view.getCalendarCommandList();
+        List<String> cmd = view.getCalendarCommandList();
 
-        if (!command.get(0).equals("close")) {
-          model.createCalendar(command.get(1), command.get(2));
-          System.out.println("create cal action");
+        // only proceed if they didn't hit “Cancel” or fail the popup’s own checks
+        if (!cmd.isEmpty() && cmd.get(0).equals("create_calendar")) {
+          String name     = cmd.get(1);
+          String timezone = cmd.get(2);
+
+          try {
+            boolean created = model.createCalendar(name, timezone);
+            if (created) {
+              JOptionPane.showMessageDialog(
+                  null,
+                  "Calendar '" + name + "' created with timezone '" + timezone + "'.",
+                  "Success",
+                  JOptionPane.INFORMATION_MESSAGE
+              );
+            } else {
+              // duplicate‐name case
+              JOptionPane.showMessageDialog(
+                  null,
+                  "A calendar named '" + name + "' already exists.",
+                  "Error",
+                  JOptionPane.ERROR_MESSAGE
+              );
+            }
+          } catch (IllegalArgumentException ex) {
+            // invalid‐timezone case (thrown by your model)
+            JOptionPane.showMessageDialog(
+                null,
+                ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+          }
         }
-
         break;
+
+
+
 
       case "Create Event":
         command = view.getCalendarCommandList();
