@@ -31,11 +31,16 @@ public interface IView {
 
   LocalDate getActiveDate();
 
+  void setActiveDateVarOnly(LocalDate date);
+
   public void createCalendarPopup(ActionListener listener);
 
   void showDayPopup(LocalDate date, ActionListener listener);
 
   void showCreateEventPopup(LocalDate date, ActionListener listener);
 
+  void setCommandButtonListenerForDays(ActionListener actionEvent);
 
-}
+
+
+  }

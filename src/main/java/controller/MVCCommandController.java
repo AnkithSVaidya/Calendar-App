@@ -2,6 +2,7 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import model.ICalendarManager;
@@ -40,11 +41,12 @@ public class MVCCommandController implements IController, ActionListener {
     String activeCal = view.getActiveCalendar();
     model.useCalendar(activeCal);
     List<String> command;
+    String actionCommand = e.getActionCommand();
 
+    LocalDate date = view.getActiveDate();
 
-
-    switch (e.getActionCommand()) {
-      //read from the input textfield
+    // Run behaviors based on action command.
+    switch (actionCommand) {
       case "Export Calendar":
         System.out.println("export actoin");
         System.out.println(e.getActionCommand());
@@ -95,13 +97,13 @@ public class MVCCommandController implements IController, ActionListener {
         }
         break;
 
-
-
-
       case "Create Event":
+        view.showCreateEventPopup(date, this);
         command = view.getCalendarCommandList();
 
-        System.out.println("create single event");
+        System.out.println(command);
+
+        System.out.println("create single event" + view.getActiveDate());
         break;
 
       case "Create All Day Event":
@@ -118,29 +120,11 @@ public class MVCCommandController implements IController, ActionListener {
         System.out.println("create recurring event");
         break;
 
-//      case "Day Button Clicked":
-//        // This will be triggered when a day is clicked in the calendar
-//        LocalDate date = (LocalDate) e.getSource();
-//        view.showDayPopup(date, this);
-//        break;
-//
-//      case "Create Event in Day":
-//        // This will be triggered when "Create Event" is clicked in DayPopup
-//        LocalDate eventDate = (LocalDate) e.getSource();
-//        view.showCreateEventPopup(eventDate, this);
-//        break;
-//
-//      case "Submit Event":
-//        // This will be triggered when event details are submitted
-//        command = view.getCalendarCommandList();
-//        // Process the event creation command
-//        System.out.println("Creating event with details: " + command);
-//        // Add your event creation logic here
-//        break;
 
+      case "Day Options":
+        view.showDayPopup(date, this);
 
-      case "Show Event":
-        System.out.println("show events");
+        System.out.println("day options");
         break;
 
       case "Exit Button":

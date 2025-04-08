@@ -12,7 +12,6 @@ public class DayPopup extends JDialog implements IButtonPopups {
 
   LocalDate date;
   JButton createEventButton;
-  private ActionListener createEventListener;
 
   DayPopup(IView view, LocalDate date, JFrame mainFrame) {
     this.date = date;
@@ -24,7 +23,6 @@ public class DayPopup extends JDialog implements IButtonPopups {
 
     createEventButton = new JButton("Create Event");
     createEventButton.setActionCommand("Create Event");
-    createEventButton.addActionListener(e -> new CreateEventPopup(view, mainFrame, date));
 
     JLabel label = new JLabel("This is a new window! " + date.toString());
     JButton closeBtn = new JButton("Close");
@@ -36,15 +34,9 @@ public class DayPopup extends JDialog implements IButtonPopups {
     popup.setVisible(true);
   }
 
-
-  public void setCreateEventListener(ActionListener listener) {
-    this.createEventListener = listener;
-  }
-
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-    System.out.println("actoin in day popup");
-//    createEventButton.addActionListener(actionEvent);
+    createEventButton.addActionListener(actionEvent);
   }
 
 

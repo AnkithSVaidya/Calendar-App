@@ -50,13 +50,20 @@ public class CalendarView extends JFrame implements IView {
   private JLabel colorChooserDisplay;
   private JLabel activeCalLabel;
   private JLabel activeDateLabel;
+  private JButton eventOptionsButton;
 
   private String commandString;
   private List<String> commandList;
   private Map<String, Calendar> calendarsMap;
   private LocalDate activeDate;
+
+  JButton prevButton;
+  JButton nextButton;
+
   private ActionListener actionListener;
   private ActionListener createCalListener;
+
+  private List<JButton> dayButtonList;
 
   public CalendarView() {
     frame = new JFrame("Calendar App");
@@ -80,7 +87,7 @@ public class CalendarView extends JFrame implements IView {
     createRecurringEventButton = new JButton("Create Recurring Event");
     createCalButtonNew = new JButton("Create Calendar");
     createCalButtonNew.setActionCommand("Create Calendar");
-//
+
 //    topButtons.add(createEventButton);
 //    topButtons.add(createAllDayEventButton);
 //    topButtons.add(createRecurringEventButton);
@@ -97,12 +104,16 @@ public class CalendarView extends JFrame implements IView {
     activeDate = LocalDate.now();
     activeDateLabel = new JLabel("Active Date: " + this.getActiveDate());
     activeInfo.add(activeDateLabel);
+
+    eventOptionsButton = new JButton("Options");
+    eventOptionsButton.setActionCommand("Day Options");
+    activeInfo.add(eventOptionsButton);
     topPanel.add(activeInfo);
 
 
     calendarStuffPanel = new JPanel();
-    JButton prevButton = new JButton("<");
-    JButton nextButton = new JButton(">");
+    prevButton = new JButton("<");
+    nextButton = new JButton(">");
     monthLabel = new JLabel();
     calendarDropdown = new JComboBox<>(calendars.keySet().toArray(new String[0]));
     calendarStuffPanel.add(prevButton);
@@ -119,7 +130,10 @@ public class CalendarView extends JFrame implements IView {
 
     prevButton.addActionListener(e -> changeMonth(-1));
     nextButton.addActionListener(e -> changeMonth(1));
+    prevButton.setActionCommand("Calendar Update");
+    nextButton.setActionCommand("Calendar Update");
     calendarDropdown.addActionListener(e -> changeCalendar());
+//    calendarDropdown.setActionCommand("Calendar Update");
 
     // Bottom stuff.
     bottomPanel = new JPanel();
@@ -151,15 +165,17 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-//    createEventButton.addActionListener(actionEvent);
-//    createRecurringEventButton.addActionListener(e -> createRecurringEventPane(actionEvent));
-//    createAllDayEventButton.addActionListener(e -> createAllDayEventPane(actionEvent));
-//    createCalButton.addActionListener(e -> createCalendarPane(actionEvent));
     exportButton.addActionListener(actionEvent);
     importButton.addActionListener(actionEvent);
     exitButton.addActionListener(actionEvent);
-
     createCalButtonNew.addActionListener(actionEvent);
+    createCalButtonNew.addActionListener(actionEvent);
+    eventOptionsButton.addActionListener(actionEvent);
+  }
+
+  @Override
+  public void setCommandButtonListenerForDays(ActionListener actionEvent) {
+    dayButtonList.forEach(button -> button.addActionListener(actionEvent));
   }
 
   @Override
@@ -189,16 +205,13 @@ public class CalendarView extends JFrame implements IView {
     calendarPanel.setLayout(new GridLayout(0, 7));
     monthLabel.setText(currentMonth.getMonth() + " " + currentMonth.getYear());
     calendarPanel.setBackground(calendars.get(selectedCalendar));
-    IButtonPopups dayPopup;
+
+    dayButtonList = new ArrayList<>();
 
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
       LocalDate date = currentMonth.atDay(day);
       JButton dayButton = new JButton(String.valueOf(day));
-//      dayButton.addActionListener(e -> showEvents(date));
-
-      dayButton.addActionListener(e->new DayPopup(this, date, frame));
-
-
+      dayButton.addActionListener(e -> showEvents(date));
       calendarPanel.add(dayButton);
     }
 
@@ -208,13 +221,13 @@ public class CalendarView extends JFrame implements IView {
   @Override
   public void showDayPopup(LocalDate date, ActionListener listener) {
     DayPopup dayPopup = new DayPopup(this, date, frame);
-    dayPopup.setCreateEventListener(listener);
+    dayPopup.setCommandButtonListener(listener);
   }
 
   @Override
   public void showCreateEventPopup(LocalDate date, ActionListener listener) {
-//    CreateEventPopup eventPopup = new CreateEventPopup(this, date, frame);
-//    eventPopup.setSubmitListener(listener);
+    CreateEventPopup eventPopup = new CreateEventPopup(this, frame, date);
+    eventPopup.setCommandButtonListener(listener);
   }
 
 
@@ -235,7 +248,17 @@ public class CalendarView extends JFrame implements IView {
     updateCalendar();
   }
 
+  @Override
+  public void setActiveDateVarOnly(LocalDate date) {
+    this.activeDate  = date;
+  }
+
+
   private void showEvents(LocalDate date) {
+
+    // Update selected date.
+    this.activeDate  = date;
+    activeDateLabel.setText("Active Date: " + getActiveDate());
 
     List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
 
