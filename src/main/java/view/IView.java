@@ -25,7 +25,9 @@ public interface IView {
 
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
-  void setActiveCalendarEvents();
+  void setEvents(List<EventDetails> eventDetails, String currentCal);
+
+  void setActiveCalendarEvents(List<EventDetails> eventDetails);
 
   String getActiveCalendar();
 

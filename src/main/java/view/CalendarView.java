@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.*;
 
 import model.Calendar;
+import model.Event;
 
 public class CalendarView extends JFrame implements IView {
   private JFrame frame;
@@ -28,6 +29,8 @@ public class CalendarView extends JFrame implements IView {
   private IButtonPopups currentPopup;
 
   private Map<LocalDate, List<String>> events;
+  private Map<LocalDate, List<EventDetails>> eventDetailsList;
+
   private YearMonth currentMonth;
   private String selectedCalendar;
   private JButton exportButton;
@@ -60,6 +63,7 @@ public class CalendarView extends JFrame implements IView {
     currentMonth = YearMonth.now();
     calendars = new HashMap<>();
     events = new HashMap<>();
+    eventDetailsList = new HashMap<>();
     commandList = new ArrayList<>();
 
     calendars.put("default", Color.GRAY);
@@ -255,23 +259,38 @@ public class CalendarView extends JFrame implements IView {
 
 
   private void showEvents(LocalDate date) {
-
     // Update selected date.
     this.activeDate  = date;
     activeDateLabel.setText("Active Date: " + getActiveDate());
 
-    List<String> dayEvents = events.getOrDefault(date, new ArrayList<>());
+    List<EventDetails> dayEvents = new ArrayList<>();
+    dayEvents = getEventDetailsOnDate(date);
+//    List<EventDetails> dayEvents = new ArrayList<>();
+    StringBuilder eventListBuilder = new StringBuilder();
 
-    String eventList = dayEvents.isEmpty() ? "No events" : String.join("\n", dayEvents);
-    String newEvent = JOptionPane.showInputDialog(frame, "Events on " + date + ":\n"
-        + eventList + "\n\nAdd new event:");
 
-    if (newEvent != null && !newEvent.trim().isEmpty()) {
-      dayEvents.add(newEvent);
-      events.put(date, dayEvents);
+    if (dayEvents.isEmpty()) {
+      eventListBuilder.append("No events");
     }
+    else {
+      for (int i = 0; i < dayEvents.size(); i++) {
+        EventDetails e = dayEvents.get(i);
+
+        String timeDisplay = (e.getEndTime() == null) ? "All Day" : e.getStartTime() + " - " + e.getEndTime();
+
+        String details = "-" + e.getName() + " " + timeDisplay + " Loc: " + e.getLocation()
+            + " Desc: " + e.getDescription() + System.lineSeparator();
+
+        eventListBuilder.append(details);
+      }
+    }
+
+    JOptionPane.showMessageDialog(frame, "Events on " + date + ":\n" + eventListBuilder);
   }
 
+  private List<EventDetails> getEventDetailsOnDate(LocalDate date) {
+    return eventDetailsList.getOrDefault(date, new ArrayList<>());
+  }
 
   private void exportCalendar() {
     commandString = "export_calendar " + selectedCalendar;
@@ -296,15 +315,24 @@ public class CalendarView extends JFrame implements IView {
     this.refresh();
   }
 
+  @Override
+  public void setEvents(List<EventDetails> eventDetails, String currentCal) {
+  }
+
   public void createCalendarPopup(ActionListener listener) {
     currentPopup = new CreateCalendarPopup(this, frame);
     currentPopup.setCommandButtonListener(listener);
   }
 
-
   @Override
-  public void setActiveCalendarEvents() {
+  public void setActiveCalendarEvents(List<EventDetails> eventDetails) {
+    eventDetailsList.clear();
 
+    for (EventDetails details : eventDetails) {
+      LocalDate date = details.getDate();
+      eventDetailsList.putIfAbsent(date, new ArrayList<>());
+      eventDetailsList.get(date).add(details);
+    }
   }
 
   public String getActiveCalendar() {
@@ -314,7 +342,6 @@ public class CalendarView extends JFrame implements IView {
   public LocalDate getActiveDate() {
     return this.activeDate;
   }
-
 
   @Override
   public void showErrorMessage(String error) {

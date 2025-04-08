@@ -3,9 +3,15 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+
+import model.Event;
 import model.ICalendarManager;
+import view.EventDetails;
 import view.IButtonPopups;
 import view.IView;
 
@@ -25,6 +31,8 @@ public class MVCCommandController implements IController, ActionListener {
     model.createCalendar("default", ZoneId.systemDefault().toString());
     model.useCalendar("default");
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
+    List<EventDetails> eventDetailsList = new ArrayList<>();
+    view.setActiveCalendarEvents(eventDetailsList);
   }
 
   @Override
@@ -101,7 +109,12 @@ public class MVCCommandController implements IController, ActionListener {
         view.showCreateEventPopup(date, this);
         command = view.getCalendarCommandList();
 
-        //todo call model
+        LocalDateTime startDateTime = buildDateTimeFromString(command.get(4), command.get(2));
+        LocalDateTime endDateTime = buildDateTimeFromString(command.get(4), command.get(3));
+
+        Event event = new Event(command.get(1), startDateTime, endDateTime, "desc", "loc", true);
+        model.getCurrentCalendar().addEvent(event, true);
+
         System.out.println(command);
         System.out.println("create single event" + view.getActiveDate());
         break;
@@ -128,6 +141,7 @@ public class MVCCommandController implements IController, ActionListener {
         view.showEditEventPopup(date, this);
         command = view.getCalendarCommandList();
 
+
         // call model
         System.out.println(command);
         System.out.println("edit single event");
@@ -137,6 +151,7 @@ public class MVCCommandController implements IController, ActionListener {
         view.showEditRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
 
+//        model.getCurrentCalendar().editEvents(command.get(1));
         // call model
         System.out.println(command);
         System.out.println("edit recurring event");
@@ -154,8 +169,37 @@ public class MVCCommandController implements IController, ActionListener {
         break;
     }
 
+
+    List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
+
+    List<EventDetails> eventDetailsList = new ArrayList<>();
+
+    for (Event event : currentEventList) {
+        EventDetails details = parseEventToEventDetail(event);
+        eventDetailsList.add(details);
+    }
+
+
+    view.setActiveCalendarEvents(eventDetailsList);
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
     view.refresh();
+  }
+
+  private EventDetails parseEventToEventDetail(Event event) {
+
+    LocalTime startDT = event.getStart().toLocalTime();
+    LocalTime endDT = event.getEnd().toLocalTime();
+    LocalDate d = event.getStart().toLocalDate();
+
+    return new EventDetails(event.getTitle(), event.getDescription(), event.getLocation(),
+        event.isPublic(), startDT, endDT, d);
+  }
+
+  private LocalDateTime buildDateTimeFromString(String date, String time) {
+    LocalDate d = LocalDate.parse(date);
+    LocalTime startTime = LocalTime.parse(time);
+
+    return LocalDateTime.of(d, startTime);
   }
 
 }

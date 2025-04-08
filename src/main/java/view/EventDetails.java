@@ -13,8 +13,8 @@ public class EventDetails implements IDetails {
   private LocalTime endTime;
   private LocalDate date;
 
-  EventDetails(String name, String description, String location, boolean isPublic,
-               LocalTime startTime, LocalTime endTime, LocalDate date) {
+  public EventDetails(String name, String description, String location, boolean isPublic,
+                      LocalTime startTime, LocalTime endTime, LocalDate date) {
     this.eventName = name;
     this.description = description;
     this.location = location;
@@ -22,6 +22,12 @@ public class EventDetails implements IDetails {
     this.startTime = startTime;
     this.endTime = endTime;
     this.date = date;
+  }
+
+  public String returnTest() {
+    String s = eventName + " " + description + " " + location + " " + isPublic
+        + " " + startTime.toString() + " " + endTime + " " + date.toString();
+    return s;
   }
 
   @Override
@@ -47,5 +53,9 @@ public class EventDetails implements IDetails {
 
   public LocalTime getEndTime() {
     return this.endTime;
+  }
+
+  public LocalDate getDate() {
+    return this.date;
   }
 }
