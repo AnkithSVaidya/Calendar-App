@@ -1,15 +1,13 @@
 package view;
 
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
 
-public class CreateEventPopup implements IButtonPopups {
-  private JPanel createCalPanel;
+public class CreateEventPopup extends JFrame {
   private List<String> commandList;
   private JPanel createSingleEventPanel;
 
@@ -62,15 +60,5 @@ public class CreateEventPopup implements IButtonPopups {
       commandList.add("close");
       view.setCalendarCommandList(commandList);
     }
-  }
-
-  @Override
-  public void setCommandButtonListener(ActionListener actionEvent) {
-
-  }
-
-  @Override
-  public List<String> getCalendarCommandList() {
-    return List.of();
   }
 }

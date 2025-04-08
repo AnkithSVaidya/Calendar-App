@@ -39,6 +39,14 @@ public interface IView {
 
   void showCreateEventPopup(LocalDate date, ActionListener listener);
 
+  void showCreateAllDayEventPopup(LocalDate date, ActionListener listener);
+
+  void showRecurringEventPopup(LocalDate date, ActionListener listener);
+
+  void showEditEventPopup(LocalDate date, ActionListener listener);
+
+  void showEditRecurringEventPopup(LocalDate date, ActionListener listener);
+
   void setCommandButtonListenerForDays(ActionListener actionEvent);
 
 

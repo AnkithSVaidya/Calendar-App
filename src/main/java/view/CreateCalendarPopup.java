@@ -74,9 +74,4 @@ public class CreateCalendarPopup extends JFrame implements IButtonPopups {
   public void setCommandButtonListener(ActionListener actionEvent) {
     // not needed here
   }
-
-  @Override
-  public List<String> getCalendarCommandList() {
-    return commandList;
-  }
 }

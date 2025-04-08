@@ -101,23 +101,45 @@ public class MVCCommandController implements IController, ActionListener {
         view.showCreateEventPopup(date, this);
         command = view.getCalendarCommandList();
 
+        //todo call model
         System.out.println(command);
-
         System.out.println("create single event" + view.getActiveDate());
         break;
 
       case "Create All Day Event":
+        view.showCreateAllDayEventPopup(date, this);
         command = view.getCalendarCommandList();
 
+        // todo: call model
+        System.out.println(command);
         System.out.println("create all day event");
         break;
 
-
       case "Create Recurring Event":
+        view.showRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
-        System.out.println(command);
 
+        // call model
+        System.out.println(command);
         System.out.println("create recurring event");
+        break;
+
+      case "Edit Event":
+        view.showEditEventPopup(date, this);
+        command = view.getCalendarCommandList();
+
+        // call model
+        System.out.println(command);
+        System.out.println("edit single event");
+        break;
+
+      case "Edit Events":
+        view.showEditRecurringEventPopup(date, this);
+        command = view.getCalendarCommandList();
+
+        // call model
+        System.out.println(command);
+        System.out.println("edit recurring event");
         break;
 
 

@@ -8,6 +8,4 @@ public interface IButtonPopups {
 
   void setCommandButtonListener(ActionListener actionEvent);
 
-  List<String> getCalendarCommandList();
-
 }
