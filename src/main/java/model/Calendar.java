@@ -94,10 +94,25 @@ public class Calendar implements ICalendar {
    * @param autoDecline    if {@code true}, skips adding conflicting instances
    */
   @Override
-  public void addRecurringEvent(RecurringEvent recurringEvent, boolean autoDecline) {
+  public void addRecurringEvent(RecurringEvent recurringEvent, boolean autoDecline) throws IllegalStateException {
     List<Event> generatedEvents = recurringEvent.generateEvents();
+
+    // First check for conflicts across all instances
+    if (autoDecline) {
+      for (Event event : generatedEvents) {
+        for (Event existing : events) {
+          if (existing.conflictsWith(event)) {
+            throw new IllegalStateException("Recurring event conflicts with existing event: " +
+                existing.getTitle() + " at " + existing.getStart());
+          }
+        }
+      }
+    }
+
+    // If no conflicts, add all events
     for (Event event : generatedEvents) {
-      addEvent(event, autoDecline);
+      // Use false for autoDecline since we've already checked for conflicts
+      addEvent(event, false);
     }
   }
 

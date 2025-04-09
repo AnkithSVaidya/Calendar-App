@@ -188,17 +188,21 @@ public class MVCCommandController implements IController, ActionListener {
           RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTimeRec,
               endDateTimeRec, command.get(7), command.get(8), isPublic, recurrenceDays, num);
 
-          model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
-
-          String message = "Creating Recurring Event " + command.get(1) +
-              " on " + command.get(4) + " over "
-              + command.get(5) +" times.";
-
-          view.showSuccessMessage(message);
+          try {
+            model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
+            JOptionPane.showMessageDialog(null, "Creating Recurring Event " + command.get(1) +
+                " on " + command.get(4) + " over " + command.get(5) + " times.");
+          } catch (IllegalStateException ex) {
+            // This is likely a conflict error
+            JOptionPane.showMessageDialog(null,
+                "Cannot create recurring event: Conflicts with existing event. " + ex.getMessage(),
+                "Scheduling Conflict", JOptionPane.ERROR_MESSAGE);
+          }
         }
-
       } catch (Exception ex) {
-        view.showErrorMessage(ex.getMessage());
+        JOptionPane.showMessageDialog(null,
+            "Error creating recurring event: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
       }
     }
     else if ("Edit Event".equals(actionCommand)) {

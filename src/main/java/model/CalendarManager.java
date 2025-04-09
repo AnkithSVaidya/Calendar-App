@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import view.EventDetails;
 
 /**
  * Manages multiple calendars, ensuring unique names,
