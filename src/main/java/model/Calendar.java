@@ -305,15 +305,13 @@ public class Calendar implements ICalendar {
       case "start":
         try {
           LocalDateTime newStart = LocalDateTime.parse(newValue);
-          // If this event has an end time, maintain the duration
-          if (event.getEnd() != null) {
-            long durationSeconds = java.time.Duration.between(
-                event.getStart(), event.getEnd()).getSeconds();
-            event.setStart(newStart);
-            event.setEnd(newStart.plusSeconds(durationSeconds));
-          } else {
-            event.setStart(newStart);
+          // Check that the new start is before the end (if end exists)
+          if (event.getEnd() != null && newStart.isAfter(event.getEnd())) {
+            throw new IllegalArgumentException("Start time must be before end time");
           }
+          event.setStart(newStart);
+        } catch (IllegalArgumentException e) {
+          throw e;
         } catch (Exception e) {
           throw new IllegalArgumentException("Invalid start time format: " + newValue);
         }
