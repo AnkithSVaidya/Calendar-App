@@ -39,7 +39,7 @@ public class CalendarManager implements ICalendarManager {
    */
   public boolean createCalendar(String name, String timezone) {
     if (calendars.containsKey(name)) {
-      return false; // Calendar name must be unique.
+      throw new IllegalArgumentException("Calendar with the name '" + name + "' already exists.");
     }
 
     try {
@@ -47,7 +47,7 @@ public class CalendarManager implements ICalendarManager {
       ZoneId.of(timezone);
     } catch (Exception e) {
       // Instead of throwing, return false to indicate failure
-      throw new IllegalArgumentException("Wrong format or Wrong Timezone given, please enter the timezone in correct format"+e);
+      throw new IllegalArgumentException(e);
     }
 
     ICalendar cal = new Calendar(name, timezone);

@@ -4,79 +4,76 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.*;
 
 public class EditEventPopup extends JFrame {
   private JPanel editEventPanel;
   private List<String> commandList;
 
-  EditEventPopup(IView view, JFrame mainFrame, LocalDate date) {
-    // edit event <property> <eventName> from <dateStringTtimeString>
-    // to <dateStringTtimeString> with <NewPropertyValue>
-
+  public EditEventPopup(IView view, JFrame mainFrame, LocalDate date) {
     commandList = new ArrayList<>();
+
     JTextField eventNameField = new JTextField(10);
-    JTextField propertyField = new JTextField(10);
+
+    // Use dropdown with EXACT property names that Calendar.applyEdit supports
+    String[] properties = {"subject", "description", "location", "start", "end", "ispublic"};
+    JComboBox<String> propertyBox = new JComboBox<>(properties);
+
     JTextField fromTimeField = new JTextField(10);
     JTextField toTimeField = new JTextField(10);
     JTextField newPropertyField = new JTextField(10);
 
+    editEventPanel = new JPanel(new GridLayout(0, 1));
 
-    editEventPanel = new JPanel();
-    editEventPanel.setLayout(new GridLayout(0, 1));
-    JLabel instructions = new JLabel("Edit a single event.");
+    JLabel instructions = new JLabel("Edit a single event");
+    JLabel formatNote = new JLabel("Time format: yyyy-MM-ddTHH:mm:ss");
+    formatNote.setForeground(Color.RED);
+
     editEventPanel.add(instructions);
+    editEventPanel.add(formatNote);
 
     editEventPanel.add(new JLabel("Event Name:"));
     editEventPanel.add(eventNameField);
 
-    editEventPanel.add(new JLabel("Edit Property:"));
-    editEventPanel.add(propertyField);
+    editEventPanel.add(new JLabel("Property to Edit:"));
+    editEventPanel.add(propertyBox);
 
-    editEventPanel.add(new JLabel("From Time:"));
+    editEventPanel.add(new JLabel("From Time (yyyy-MM-ddTHH:mm:ss):"));
     editEventPanel.add(fromTimeField);
 
-    editEventPanel.add(new JLabel("To Time:"));
+    editEventPanel.add(new JLabel("To Time (yyyy-MM-ddTHH:mm:ss):"));
     editEventPanel.add(toTimeField);
 
-    editEventPanel.add(new JLabel("New Property Value:"));
+    editEventPanel.add(new JLabel("New Value:"));
     editEventPanel.add(newPropertyField);
 
     int result = JOptionPane.showConfirmDialog(mainFrame, editEventPanel,
         "Edit an Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
     if (result == JOptionPane.OK_OPTION) {
-      String name = eventNameField.getText();
-      String property = propertyField.getText();
-      String fromTime = fromTimeField.getText();
-      String toTime = toTimeField.getText();
-      String newValue = newPropertyField.getText();
+      String eventName = eventNameField.getText().trim();
+      String property = (String) propertyBox.getSelectedItem(); // Get selected property
+      String fromTime = fromTimeField.getText().trim();
+      String toTime = toTimeField.getText().trim();
+      String newValue = newPropertyField.getText().trim();
 
-      if (name.isEmpty()) {
+      if (eventName.isEmpty() || property == null || fromTime.isEmpty() || toTime.isEmpty() || newValue.isEmpty()) {
         commandList.add("close");
-        view.setCalendarCommandList(commandList);
         JOptionPane.showMessageDialog(mainFrame, "Please fill out all fields");
-      }
-      else {
+      } else {
+        // Build the command list in the order expected by the controller
         commandList.add("edit_event");
-        commandList.add(name);
-        commandList.add(property); // timezone, description.
+        commandList.add(eventName);  // First add event name
+        commandList.add(property);   // Then add property
         commandList.add(fromTime);
         commandList.add(toTime);
-        commandList.add(newValue); // new value for selected property.
-        commandList.add(date.toString());
-
-        view.setCalendarCommandList(commandList);
-
-        JOptionPane.showMessageDialog(mainFrame, "Editing Event " + name +
-            " Property: " + property + " to value: " + newValue);
+        commandList.add(newValue);
       }
-    }
-    else {
+      // push back to controller in either case:
+      view.setCalendarCommandList(commandList);
+    } else {
       commandList.add("close");
       view.setCalendarCommandList(commandList);
     }
   }
-
 }

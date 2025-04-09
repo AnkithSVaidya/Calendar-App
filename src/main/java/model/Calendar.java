@@ -283,6 +283,14 @@ public class Calendar implements ICalendar {
    * @param newValue the new value for the property
    * @throws IllegalArgumentException for invalid property names
    */
+  /**
+   * Applies edits to an event based on the specified property.
+   *
+   * @param event    the event to modify
+   * @param property the property to update
+   * @param newValue the new value for the property
+   * @throws IllegalArgumentException for invalid property names or values
+   */
   private void applyEdit(Event event, String property, String newValue) {
     switch (property.toLowerCase()) {
       case "subject":
@@ -293,6 +301,45 @@ public class Calendar implements ICalendar {
         break;
       case "location":
         event.setLocation(newValue);
+        break;
+      case "start":
+        try {
+          LocalDateTime newStart = LocalDateTime.parse(newValue);
+          // If this event has an end time, maintain the duration
+          if (event.getEnd() != null) {
+            long durationSeconds = java.time.Duration.between(
+                event.getStart(), event.getEnd()).getSeconds();
+            event.setStart(newStart);
+            event.setEnd(newStart.plusSeconds(durationSeconds));
+          } else {
+            event.setStart(newStart);
+          }
+        } catch (Exception e) {
+          throw new IllegalArgumentException("Invalid start time format: " + newValue);
+        }
+        break;
+      case "end":
+        try {
+          LocalDateTime newEnd = LocalDateTime.parse(newValue);
+          // Validate that end is after start
+          if (newEnd.isBefore(event.getStart())) {
+            throw new IllegalArgumentException("End time must be after start time");
+          }
+          event.setEnd(newEnd);
+        } catch (IllegalArgumentException e) {
+          throw e;
+        } catch (Exception e) {
+          throw new IllegalArgumentException("Invalid end time format: " + newValue);
+        }
+        break;
+      case "ispublic":
+        // Handle boolean property
+        try {
+          boolean isPublic = Boolean.parseBoolean(newValue);
+          event.setPublic(isPublic);
+        } catch (Exception e) {
+          throw new IllegalArgumentException("Invalid boolean value for isPublic: " + newValue);
+        }
         break;
       default:
         throw new IllegalArgumentException("Invalid property: " + property);

@@ -11,19 +11,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import model.Event;
 import model.ICalendarManager;
 import model.RecurringEvent;
 import view.EventDetails;
-import view.IButtonPopups;
 import view.IView;
-
-
 import javax.swing.JOptionPane;
 
 public class MVCCommandController implements IController, ActionListener {
-
   private ICalendarManager model;
   private IView view;
 
@@ -32,11 +27,15 @@ public class MVCCommandController implements IController, ActionListener {
     this.view = view;
 
     // Initialize default calendar.
-    model.createCalendar("default", ZoneId.systemDefault().toString());
-    model.useCalendar("default");
+    try {
+      model.createCalendar("default", ZoneId.systemDefault().toString());
+      model.useCalendar("default");
+    } catch (Exception e) {
+      e.printStackTrace();
+      // If calendar creation fails, you could exit or show an error.
+    }
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
-    List<EventDetails> eventDetailsList = new ArrayList<>();
-    view.setActiveCalendarEvents(eventDetailsList);
+    view.setActiveCalendarEvents(new ArrayList<>());
   }
 
   @Override
@@ -47,102 +46,83 @@ public class MVCCommandController implements IController, ActionListener {
 
   @Override
   public void actionPerformed(ActionEvent e) {
+    String actionCommand = e.getActionCommand();
+    System.out.println("Action command received: " + actionCommand);
 
-    IButtonPopups popup;
-    // Retrieve active calendar.
+    // Preliminary setup.
     String activeCal = view.getActiveCalendar();
     model.useCalendar(activeCal);
-    List<String> command;
-    String actionCommand = e.getActionCommand();
-
     LocalDate date = view.getActiveDate();
+    List<String> command = new ArrayList<>();
 
-    // Run behaviors based on action command.
-    switch (actionCommand) {
-      case "Export Calendar":
-        System.out.println("export actoin");
-        System.out.println(e.getActionCommand());
-
-        break;
-
-      case "Import Calendar":
-        System.out.println("import action");
-        break;
-
-      case "Create Calendar":
-        // pop up the dialog, user types name + tz.
+    // Process based on the action command.
+    if ("Export Calendar".equals(actionCommand)) {
+      System.out.println("Export Calendar action");
+      // (Export logic here...)
+    }
+    else if ("Import Calendar".equals(actionCommand)) {
+      System.out.println("Import Calendar action");
+      // (Import logic here...)
+    }
+    else if ("Create Calendar".equals(actionCommand)) {
+      try {
         view.createCalendarPopup(this);
-        List<String> cmd = view.getCalendarCommandList();
+        command = view.getCalendarCommandList();
 
-        // only proceed if they didn't hit “Cancel” or fail the popup’s own checks
-        if (!cmd.isEmpty() && cmd.get(0).equals("create_calendar")) {
-          String name     = cmd.get(1);
-          String timezone = cmd.get(2);
-
-          try {
-            boolean created = model.createCalendar(name, timezone);
-            if (created) {
-              JOptionPane.showMessageDialog(
-                  null,
-                  "Calendar '" + name + "' created with timezone '" + timezone + "'.",
-                  "Success",
-                  JOptionPane.INFORMATION_MESSAGE
-              );
-            } else {
-              // duplicate‐name case
-              JOptionPane.showMessageDialog(
-                  null,
-                  "A calendar named '" + name + "' already exists.",
-                  "Error",
-                  JOptionPane.ERROR_MESSAGE
-              );
-            }
-          } catch (IllegalArgumentException ex) {
-            // invalid‐timezone case (thrown by your model)
-            JOptionPane.showMessageDialog(
-                null,
-                ex.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-            );
-          }
+        if (!command.isEmpty() && "create_calendar".equals(command.get(0))) {
+          String name = command.get(1);
+          String timezone = command.get(2);
+          model.createCalendar(name, timezone);
+          JOptionPane.showMessageDialog(null,
+              "Calendar '" + name + "' created with timezone '" + timezone + "'.",
+              "Success", JOptionPane.INFORMATION_MESSAGE);
         }
-        break;
-
-      case "Create Event":
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Create Event".equals(actionCommand)) {
+      try {
         view.showCreateEventPopup(date, this);
         command = view.getCalendarCommandList();
-
+        // Assume command format: ["create_event", title, fromTime, toTime, dateString]
         LocalDateTime startDateTime = buildDateTimeFromString(command.get(4), command.get(2));
         LocalDateTime endDateTime = buildDateTimeFromString(command.get(4), command.get(3));
-
         Event event = new Event(command.get(1), startDateTime, endDateTime, "desc", "loc", true);
         model.getCurrentCalendar().addEvent(event, true);
-
-        System.out.println(command);
-        System.out.println("create single event" + view.getActiveDate());
-        break;
-
-      case "Create All Day Event":
+        System.out.println("Created event for date: " + date);
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error creating event: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Create All Day Event".equals(actionCommand)) {
+      try {
         view.showCreateAllDayEventPopup(date, this);
         command = view.getCalendarCommandList();
-
+        // Assume command format: ["create_all_day_event", title, dateString, ...]
         LocalDate localDate = LocalDate.parse(command.get(2));
-        LocalTime localTime = LocalTime.NOON;
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
-
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.NOON);
         Event allDayEvent = new Event(command.get(1), localDateTime, "desc", "loc", true);
         model.getCurrentCalendar().addEvent(allDayEvent, true);
-
-        System.out.println(command);
-        System.out.println("create all day event");
-        break;
-
-      case "Create Recurring Event":
+        System.out.println("Created all-day event.");
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error creating all-day event: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Create Recurring Event".equals(actionCommand)) {
+      try {
         view.showRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
-
-        // {"M", "T", "W", "R", "F", "S", "U"};
+        // Assume command format: ["create_recurring_event", title, fromTime, toTime, daysString, extraDateString]
         Set<DayOfWeek> recurrenceDays = new HashSet<>();
         for (char dayChar : command.get(4).toCharArray()) {
           switch (dayChar) {
@@ -155,81 +135,122 @@ public class MVCCommandController implements IController, ActionListener {
             case 'U': recurrenceDays.add(DayOfWeek.SUNDAY); break;
           }
         }
-
-        LocalDateTime startDateTime1 = buildDateTimeFromString(command.get(6), command.get(2));
-        LocalDateTime endDateTime1 = buildDateTimeFromString(command.get(6), command.get(3));
-
-        RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTime1,
-            endDateTime1, "desc", "loc", true, recurrenceDays, 5);
-
+        LocalDateTime startDateTimeRec = buildDateTimeFromString(command.get(6), command.get(2));
+        LocalDateTime endDateTimeRec = buildDateTimeFromString(command.get(6), command.get(3));
+        RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTimeRec,
+            endDateTimeRec, "desc", "loc", true, recurrenceDays, 5);
         model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
-
-        // call model
-        System.out.println(command);
-        System.out.println("create recurring event");
-        break;
-
-      case "Edit Event":
+        System.out.println("Created recurring event.");
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error creating recurring event: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Edit Event".equals(actionCommand)) {
+      try {
         view.showEditEventPopup(date, this);
         command = view.getCalendarCommandList();
+        if (!command.isEmpty() && "edit_event".equals(command.get(0))) {
+          // Correct order: ["edit_event", eventName, property, fromISO, toISO, newValue]
+          String eventName = command.get(1);
+          String property = command.get(2).toLowerCase();
+          LocalDateTime from = LocalDateTime.parse(command.get(3));
+          LocalDateTime to = LocalDateTime.parse(command.get(4));
+          String newValue = command.get(5);
 
-
-        // call model
-        System.out.println(command);
-        System.out.println("edit single event");
-        break;
-
-      case "Edit Events":
+          if (!isValidProperty(property)) {
+            throw new IllegalArgumentException("Invalid property: " + property);
+          }
+          boolean ok = model.getCurrentCalendar().editEvent(property, eventName, from, to, newValue);
+          JOptionPane.showMessageDialog(null,
+              ok ? "Changes applied to event." : "Failed to edit event.",
+              ok ? "Success" : "Error",
+              ok ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error editing event: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Edit Events".equals(actionCommand)) {
+      try {
         view.showEditRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
-
-//        model.getCurrentCalendar().editEvents(command.get(1));
-        // call model
-        System.out.println(command);
-        System.out.println("edit recurring event");
-        break;
-
-
-      case "Day Options":
+        if (!command.isEmpty() && "edit_events".equals(command.get(0))) {
+          // Expected command order: ["edit_events", property, eventName, fromISO, newValue]
+          String property = command.get(1).toLowerCase();
+          String eventName = command.get(2);
+          LocalDateTime fromTime = LocalDateTime.parse(command.get(3));
+          String newValue = command.get(4);
+          if (!isValidProperty(property)) {
+            throw new IllegalArgumentException("Invalid property: " + property);
+          }
+          boolean ok = model.getCurrentCalendar().editEvents(property, eventName, fromTime, newValue);
+          JOptionPane.showMessageDialog(null,
+              ok ? "Changes applied to all events." : "Failed to edit events.",
+              ok ? "Success" : "Error",
+              ok ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error editing events: " + ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    else if ("Day Options".equals(actionCommand)) {
+      try {
         view.showDayPopup(date, this);
-
-        System.out.println("day options");
-        break;
-
-      case "Exit Button":
-        System.exit(0);
-        break;
+        System.out.println("Day options chosen.");
+      } catch(Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+    else if ("Exit Button".equals(actionCommand)) {
+      System.exit(0);
     }
 
-    List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
-    List<EventDetails> eventDetailsList = new ArrayList<>();
-
-    for (Event event : currentEventList) {
-        EventDetails details = parseEventToEventDetail(event);
-        eventDetailsList.add(details);
+    // Now update the view.
+    try {
+      List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
+      List<EventDetails> eventDetailsList = new ArrayList<>();
+      for (Event event : currentEventList) {
+        eventDetailsList.add(parseEventToEventDetail(event));
+      }
+      view.setActiveCalendarEvents(eventDetailsList);
+      view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
+      view.refresh();
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      System.err.println("Error updating view: " + ex.getMessage());
     }
+  }
 
-    // Update Active events and reset calendars.
-    view.setActiveCalendarEvents(eventDetailsList);
-    view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
-    view.refresh();
+  private boolean isValidProperty(String property) {
+    String[] validProperties = {"subject", "description", "location", "start", "end", "ispublic"};
+    for (String valid : validProperties) {
+      if (valid.equals(property)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private EventDetails parseEventToEventDetail(Event event) {
-
     LocalTime startDT = event.getStart().toLocalTime();
-    LocalTime endDT = event.getEnd().toLocalTime();
+    LocalTime endDT = event.getEnd() != null ? event.getEnd().toLocalTime() : null;
     LocalDate d = event.getStart().toLocalDate();
-
     return new EventDetails(event.getTitle(), event.getDescription(), event.getLocation(),
         event.isPublic(), startDT, endDT, d);
   }
 
   private LocalDateTime buildDateTimeFromString(String date, String time) {
     LocalDate d = LocalDate.parse(date);
-    LocalTime startTime = LocalTime.parse(time);
-
-    return LocalDateTime.of(d, startTime);
+    LocalTime t = LocalTime.parse(time);
+    return LocalDateTime.of(d, t);
   }
-
 }
