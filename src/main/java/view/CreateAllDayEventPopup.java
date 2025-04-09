@@ -29,6 +29,12 @@ public class CreateAllDayEventPopup extends JFrame {
 
     createAllDayEventPanel.add(new JLabel("Event Name:"));
     createAllDayEventPanel.add(eventNameField);
+    createAllDayEventPanel.add(new JLabel("Description:"));
+    createAllDayEventPanel.add(descField);
+    createAllDayEventPanel.add(new JLabel("Location:"));
+    createAllDayEventPanel.add(locField);
+    createAllDayEventPanel.add(new JLabel("Public:"));
+    createAllDayEventPanel.add(isPublicField);
 
     int result = JOptionPane.showConfirmDialog(mainFrame, createAllDayEventPanel,
         "Create New All Day Event", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -53,9 +59,6 @@ public class CreateAllDayEventPopup extends JFrame {
         commandList.add(isPublicString); // 5
 
         view.setCalendarCommandList(commandList);
-
-        JOptionPane.showMessageDialog(mainFrame, "Creating All Day Event " + name +
-            " on " + date.toString());
       }
     }
     else {

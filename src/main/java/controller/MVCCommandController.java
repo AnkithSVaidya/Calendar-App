@@ -27,10 +27,18 @@ import view.IView;
 
 import javax.swing.*;
 
+/**
+ * Controller class for a calendar application with a model and view.
+ */
 public class MVCCommandController implements IController, ActionListener {
   private ICalendarManager model;
   private IView view;
 
+  /**
+   * Constructor method for controller. Will initialize default calendar.
+   * @param model - Model of the application.
+   * @param view - View of the application.
+   */
   public MVCCommandController(ICalendarManager model, IView view) {
     this.model = model;
     this.view = view;
@@ -41,7 +49,6 @@ public class MVCCommandController implements IController, ActionListener {
       model.useCalendar("default");
     } catch (Exception e) {
       e.printStackTrace();
-      // If calendar creation fails, you could exit or show an error.
     }
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
     view.setAllCalendarEvents(new HashMap<String, List<EventDetails>>());
@@ -73,9 +80,7 @@ public class MVCCommandController implements IController, ActionListener {
         System.out.println("Export Filename: " + fileName);
       }
       catch (IOException err) {
-        JOptionPane.showMessageDialog(null,
-            err.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(err.getMessage());
       }
 
       System.out.println("Export Calendar action");
@@ -99,15 +104,13 @@ public class MVCCommandController implements IController, ActionListener {
           String name = command.get(1);
           String timezone = command.get(2);
           model.createCalendar(name, timezone);
-          JOptionPane.showMessageDialog(null,
-              "Calendar '" + name + "' created with timezone '" + timezone + "'.",
-              "Success", JOptionPane.INFORMATION_MESSAGE);
+
+          String message = "Calendar '" + name + "' created with timezone '" + timezone + "'.";
+
+          view.showSuccessMessage(message);
         }
       } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-            ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Create Event".equals(actionCommand)) {
@@ -125,15 +128,12 @@ public class MVCCommandController implements IController, ActionListener {
               command.get(6), isPublic);
           model.getCurrentCalendar().addEvent(event, true);
 
-          System.out.println("Created event for date: " + date);
-
-          JOptionPane.showMessageDialog(null, "Creating Event " + command.get(1));
+          String message = "Creating Event " + command.get(1) + " on " + command.get(4) + " from "
+              + command.get(2) + " to " + command.get(3);
+          view.showSuccessMessage(message);
         }
-
       } catch (DateTimeException | IllegalStateException | IllegalArgumentException ex) {
-        JOptionPane.showMessageDialog(null,
-            "Error creating event: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Create All Day Event".equals(actionCommand)) {
@@ -150,14 +150,15 @@ public class MVCCommandController implements IController, ActionListener {
           Event allDayEvent = new Event(command.get(1), localDateTime, command.get(3),
               command.get(4), isPublic);
           model.getCurrentCalendar().addEvent(allDayEvent, true);
-          System.out.println("Created all-day event.");
+
+          String message = "Creating All Day Event " + command.get(1) +
+              " on " + command.get(2);
+
+          view.showSuccessMessage(message);
         }
 
       } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-            "Error creating all-day event: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Create Recurring Event".equals(actionCommand)) {
@@ -188,21 +189,17 @@ public class MVCCommandController implements IController, ActionListener {
               endDateTimeRec, command.get(7), command.get(8), isPublic, recurrenceDays, num);
 
           model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
-          System.out.println("Created recurring event.");
 
-          JOptionPane.showMessageDialog(null, "Creating Event " + command.get(1));
+          String message = "Creating Recurring Event " + command.get(1) +
+              " on " + command.get(4) + " over "
+              + command.get(5) +" times.";
 
-          JOptionPane.showMessageDialog(null, "Creating Recurring Event " + command.get(1) +
-               " on " + command.get(4) + " over "
-              + command.get(5) +" times.");
+          view.showSuccessMessage(message);
         }
 
       } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null,
-            "Error creating recurring event: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
-
     }
     else if ("Edit Event".equals(actionCommand)) {
       try {
@@ -261,9 +258,8 @@ public class MVCCommandController implements IController, ActionListener {
     else if ("Day Options".equals(actionCommand)) {
       try {
         view.showDayPopup(date, this);
-        System.out.println("Day options chosen.");
       } catch(Exception ex) {
-        ex.printStackTrace();
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Exit Button".equals(actionCommand)) {
@@ -272,7 +268,6 @@ public class MVCCommandController implements IController, ActionListener {
 
     // Now update the view.
     try {
-
       Map<String, Calendar> calList = model.getAllCalendarsMap();
       Map<String, List<EventDetails>> eventDetailsMap = new HashMap<>();
 
@@ -296,8 +291,7 @@ public class MVCCommandController implements IController, ActionListener {
       view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
       view.refresh();
     } catch(Exception ex) {
-      ex.printStackTrace();
-      System.err.println("Error updating view: " + ex.getMessage());
+      view.showErrorMessage(ex.getMessage());
     }
   }
 
@@ -311,6 +305,11 @@ public class MVCCommandController implements IController, ActionListener {
     return false;
   }
 
+  /**
+   * Helper method to parse an event into an event detail for the view to use.
+   * @param event - Event object.
+   * @return - Returns an EventDetail.
+   */
   private EventDetails parseEventToEventDetail(Event event) {
     LocalTime startDT = event.getStart().toLocalTime();
     LocalTime endDT = event.getEnd() != null ? event.getEnd().toLocalTime() : null;
@@ -319,6 +318,13 @@ public class MVCCommandController implements IController, ActionListener {
         event.isPublic(), startDT, endDT, d);
   }
 
+  /**
+   * Helper method to parse a date and a time into a datetime.
+   * @param date - String date.
+   * @param time - String time.
+   * @return - Returns a LocalDateTime object of the combined fields.
+   * @throws DateTimeParseException - If invalid inputs, throw error.
+   */
   private LocalDateTime buildDateTimeFromString(String date, String time) throws DateTimeParseException {
     try {
       LocalDate d = LocalDate.parse(date);

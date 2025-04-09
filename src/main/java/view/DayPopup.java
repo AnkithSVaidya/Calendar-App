@@ -21,13 +21,17 @@ public class DayPopup extends JDialog implements IButtonPopups {
   JButton editSingleEventButton;
   JButton editEventsButton;
 
-  DayPopup(IView view, LocalDate date, JFrame mainFrame) {
+  /**
+   * Constructor method for day options popup.
+   * @param date - Date of selected day.
+   */
+  DayPopup(LocalDate date) {
     this.date = date;
 
     JFrame popup = new JFrame("Options for date: " + date.toString());
-    popup.setSize(400, 400);
+    popup.setSize(200, 300);
     popup.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Closes this popup only.
-    popup.setLayout(new FlowLayout());
+    popup.setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.Y_AXIS));
 
     // Create single event button.
     createEventButton = new JButton("Create Event");

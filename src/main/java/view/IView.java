@@ -36,7 +36,6 @@ public interface IView {
    */
   void setCalendarCommandList(List<String> commandList);
 
-  void showErrorMessage(String error);
 
   /**
    * Method to refresh the frame.
@@ -51,19 +50,10 @@ public interface IView {
    */
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
-//  void setEvents(List<EventDetails> eventDetails, String currentCal);
-
-  /**
-   * Function to
-   * @param eventDetails
-   */
-//  void setActiveCalendarEvents(List<EventDetails> eventDetails);
 
   String getActiveCalendar();
 
   LocalDate getActiveDate();
-
-  void setActiveDateVarOnly(LocalDate date);
 
   /**
    * Method to show a create calendar popup on button click.
@@ -118,4 +108,8 @@ public interface IView {
   void showEditRecurringEventPopup(LocalDate date, ActionListener listener);
 
   void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap);
+
+  void showErrorMessage(String error);
+
+  void showSuccessMessage(String success);
   }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-public class CreateCalendarPopup extends JFrame implements IButtonPopups {
+public class CreateCalendarPopup extends JFrame {
   private List<String> commandList = new ArrayList<>();
 
   public CreateCalendarPopup(IView view, JFrame mainFrame) {
@@ -68,10 +68,5 @@ public class CreateCalendarPopup extends JFrame implements IButtonPopups {
 
     // push it back into the view
     view.setCalendarCommandList(commandList);
-  }
-
-  @Override
-  public void setCommandButtonListener(ActionListener actionEvent) {
-    // not needed here
   }
 }

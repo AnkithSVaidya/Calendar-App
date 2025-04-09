@@ -157,7 +157,6 @@ public class CalendarView extends JFrame implements IView {
     importButton.addActionListener(actionEvent);
     exitButton.addActionListener(actionEvent);
     createCalButtonNew.addActionListener(actionEvent);
-    createCalButtonNew.addActionListener(actionEvent);
     eventOptionsButton.addActionListener(actionEvent);
   }
 
@@ -196,7 +195,7 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void showDayPopup(LocalDate date, ActionListener listener) {
-    DayPopup dayPopup = new DayPopup(this, date, frame);
+    DayPopup dayPopup = new DayPopup(date);
     dayPopup.setCommandButtonListener(listener);
   }
 
@@ -260,8 +259,7 @@ public class CalendarView extends JFrame implements IView {
   }
 
   public void createCalendarPopup(ActionListener listener) {
-    currentPopup = new CreateCalendarPopup(this, frame);
-    currentPopup.setCommandButtonListener(listener);
+    JFrame popup = new CreateCalendarPopup(this, frame);
   }
 
   private void changeMonth(int offset) {
@@ -274,13 +272,6 @@ public class CalendarView extends JFrame implements IView {
     activeCalLabel.setText("Active Calendar: " + getActiveCalendar());
     updateCalendar();
   }
-
-
-  @Override
-  public void setActiveDateVarOnly(LocalDate date) {
-    this.activeDate  = date;
-  }
-
 
   private void showEvents(LocalDate date) {
     // Update selected date.
@@ -360,6 +351,11 @@ public class CalendarView extends JFrame implements IView {
   @Override
   public void showErrorMessage(String error) {
     JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+  }
+
+  @Override
+  public void showSuccessMessage(String message) {
+    JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
   }
 
   @Override
