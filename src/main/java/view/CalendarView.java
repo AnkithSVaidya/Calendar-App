@@ -75,6 +75,7 @@ public class CalendarView extends JFrame implements IView {
     calendars = new HashMap<>();
     events = new HashMap<>();
     eventDetailsList = new HashMap<>();
+    detailsForEachCalendarList = new HashMap<>();
     commandList = new ArrayList<>();
 
     calendars.put("default", Color.GRAY);
@@ -168,8 +169,6 @@ public class CalendarView extends JFrame implements IView {
     eventOptionsButton.addActionListener(actionEvent);
   }
 
-
-
   @Override
   public List<String> getCalendarCommandList() {
     ArrayList<String> copiedList = new ArrayList<>(commandList);
@@ -189,6 +188,10 @@ public class CalendarView extends JFrame implements IView {
     monthLabel.setText(currentMonth.getMonth() + " " + currentMonth.getYear());
     calendarPanel.setBackground(calendars.get(selectedCalendar));
 
+    // Then set the active calendar events.
+    List<EventDetails> eventsDetails = detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
+    setActiveCalendarEvents(eventsDetails);
+
     dayButtonList = new ArrayList<>();
 
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
@@ -197,6 +200,7 @@ public class CalendarView extends JFrame implements IView {
       dayButton.addActionListener(e -> showEvents(date));
       calendarPanel.add(dayButton);
     }
+
 
     this.refresh();
   }
@@ -232,7 +236,10 @@ public class CalendarView extends JFrame implements IView {
     JFrame popup = new EditRecurringEventPopup(this, frame, date);
   }
 
-
+  public void createCalendarPopup(ActionListener listener) {
+    currentPopup = new CreateCalendarPopup(this, frame);
+    currentPopup.setCommandButtonListener(listener);
+  }
 
   private void changeMonth(int offset) {
     currentMonth = currentMonth.plusMonths(offset);
@@ -264,7 +271,6 @@ public class CalendarView extends JFrame implements IView {
 
     List<EventDetails> dayEvents = new ArrayList<>();
     dayEvents = getEventDetailsOnDate(date);
-//    List<EventDetails> dayEvents = new ArrayList<>();
     StringBuilder eventListBuilder = new StringBuilder();
 
 
@@ -311,17 +317,21 @@ public class CalendarView extends JFrame implements IView {
     this.refresh();
   }
 
-  @Override
-  public void setEvents(List<EventDetails> eventDetails, String currentCal) {
-  }
+//  @Override
+//  public void setEvents(List<EventDetails> eventDetails, String currentCal) {
+//    // Clear the existing map for a fresh start
+//    eventDetailsList.clear();
+//
+//    for (EventDetails details : eventDetails) {
+//      LocalDate date = details.getDate();
+//      eventDetailsList.putIfAbsent(date, new ArrayList<>());
+//      eventDetailsList.get(date).add(details);
+//    }
+//  }
 
-  public void createCalendarPopup(ActionListener listener) {
-    currentPopup = new CreateCalendarPopup(this, frame);
-    currentPopup.setCommandButtonListener(listener);
-  }
 
-  @Override
-  public void setActiveCalendarEvents(List<EventDetails> eventDetails) {
+
+  private void setActiveCalendarEvents(List<EventDetails> eventDetails) {
     eventDetailsList.clear();
 
     for (EventDetails details : eventDetails) {
@@ -329,12 +339,18 @@ public class CalendarView extends JFrame implements IView {
       eventDetailsList.putIfAbsent(date, new ArrayList<>());
       eventDetailsList.get(date).add(details);
     }
+
+    this.refresh();
   }
 
   public void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap) {
     detailsForEachCalendarList = detailsPerMap;
+
+    List<EventDetails> eventsDetails = detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
+    setActiveCalendarEvents(eventsDetails);
   }
 
+  @Override
   public String getActiveCalendar() {
     return this.selectedCalendar;
   }

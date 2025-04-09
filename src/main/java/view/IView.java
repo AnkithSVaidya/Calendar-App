@@ -51,13 +51,13 @@ public interface IView {
    */
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
-  void setEvents(List<EventDetails> eventDetails, String currentCal);
+//  void setEvents(List<EventDetails> eventDetails, String currentCal);
 
   /**
    * Function to
    * @param eventDetails
    */
-  void setActiveCalendarEvents(List<EventDetails> eventDetails);
+//  void setActiveCalendarEvents(List<EventDetails> eventDetails);
 
   String getActiveCalendar();
 
@@ -113,4 +113,5 @@ public interface IView {
    */
   void showEditRecurringEventPopup(LocalDate date, ActionListener listener);
 
+  void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap);
   }

@@ -8,9 +8,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import model.Calendar;
 import model.Event;
 import model.ICalendarManager;
 import model.RecurringEvent;
@@ -35,7 +40,9 @@ public class MVCCommandController implements IController, ActionListener {
       // If calendar creation fails, you could exit or show an error.
     }
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
-    view.setActiveCalendarEvents(new ArrayList<>());
+//    view.setActiveCalendarEvents(new ArrayList<>());
+
+    view.setAllCalendarEvents(new HashMap<String, List<EventDetails>>());
   }
 
   @Override
@@ -216,12 +223,35 @@ public class MVCCommandController implements IController, ActionListener {
 
     // Now update the view.
     try {
-      List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
-      List<EventDetails> eventDetailsList = new ArrayList<>();
-      for (Event event : currentEventList) {
-        eventDetailsList.add(parseEventToEventDetail(event));
+
+      Map<String, Calendar> calList = model.getAllCalendarsMap();
+      Map<String, List<EventDetails>> eventDetailsMap = new HashMap<>();
+
+      // For each calendar, get all events.
+      for (Map.Entry<String, Calendar> entry : calList.entrySet()) {
+        String calendarName = entry.getKey();
+        Calendar calendar = entry.getValue();
+
+        // For each event in that list, turn it into a EventDetail to send to view.
+        List<EventDetails> eventDetailsList = new ArrayList<>();
+        for (Event event : calendar.getAllEventsList()) {
+          EventDetails details = parseEventToEventDetail(event);
+          eventDetailsList.add(details);
+        }
+
+        // Add calendar name, then the event detail list to the new map.
+        eventDetailsMap.put(calendarName, eventDetailsList);
       }
-      view.setActiveCalendarEvents(eventDetailsList);
+
+//
+//      List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
+//      List<EventDetails> eventDetailsList = new ArrayList<>();
+//      for (Event event : currentEventList) {
+//        eventDetailsList.add(parseEventToEventDetail(event));
+//      }
+//      view.setActiveCalendarEvents(eventDetailsList);
+
+      view.setAllCalendarEvents(eventDetailsMap);
       view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
       view.refresh();
     } catch(Exception ex) {
