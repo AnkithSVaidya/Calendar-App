@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -10,41 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JCheckBox;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.*;
 
 import model.Calendar;
-import model.Event;
 
 public class CalendarView extends JFrame implements IView {
+  // JFrame variables.
   private JFrame frame;
   private JFrame showEventsFrame;
   private JPanel calendarPanel;
   private JPanel topButtons;
   private JLabel monthLabel;
   private JComboBox<String> calendarDropdown;
-
-  private Map<String, Color> calendars;
-  private List<String> calendarNameList;
-
   private IButtonPopups currentPopup;
-
-  private Map<LocalDate, List<String>> events;
-  private Map<LocalDate, List<EventDetails>> eventDetailsList;
-
-  private Map<LocalDate, List<EventDetails>> activeEventDetailsList;
-  private Map<String, List<EventDetails>> detailsForEachCalendarList;
-
-
-  private YearMonth currentMonth;
-  private String selectedCalendar;
   private JButton exportButton;
   private JButton importButton;
   private JPanel topPanel;
@@ -56,14 +35,18 @@ public class CalendarView extends JFrame implements IView {
   private JLabel activeCalLabel;
   private JLabel activeDateLabel;
   private JButton eventOptionsButton;
-
-  private List<String> commandList;
-  private Map<String, Calendar> calendarsMap;
-  private LocalDate activeDate;
-
   private JButton prevButton;
   private JButton nextButton;
-  private List<JButton> dayButtonList;
+
+  private Map<String, Color> calendars;
+  private Map<LocalDate, List<String>> events;
+  private Map<LocalDate, List<EventDetails>> eventDetailsList;
+  private Map<String, List<EventDetails>> detailsForEachCalendarList;
+  private YearMonth currentMonth;
+  private String selectedCalendar;
+  private List<String> commandList;
+  private LocalDate activeDate;
+
 
   public CalendarView() {
     frame = new JFrame("Calendar App");
@@ -81,18 +64,13 @@ public class CalendarView extends JFrame implements IView {
     calendars.put("default", Color.GRAY);
     selectedCalendar = "default";
 
+    // Main top stuff.
     topPanel = new JPanel();
-    topPanel.setLayout(new GridLayout(0, 1));
-    topButtons = new JPanel();
+    topPanel.setLayout(new BorderLayout());
 
-    createCalButtonNew = new JButton("Create Calendar");
-    createCalButtonNew.setActionCommand("Create Calendar");
-
-    topButtons.add(createCalButtonNew);
-    topPanel.add(topButtons, BorderLayout.EAST);
-
+    // Active Info for lables.
     JPanel activeInfo = new JPanel();
-    activeInfo.setLayout(new GridLayout(0, 1));
+    activeInfo.setLayout(new BoxLayout(activeInfo, BoxLayout.Y_AXIS));
 
     activeCalLabel = new JLabel("Active Calendar: " + this.getActiveCalendar());
     activeInfo.add(activeCalLabel);
@@ -102,12 +80,26 @@ public class CalendarView extends JFrame implements IView {
     activeDateLabel = new JLabel("Active Date: " + this.getActiveDate());
     activeInfo.add(activeDateLabel);
 
-    eventOptionsButton = new JButton("Options");
+    topPanel.add(activeInfo, BorderLayout.WEST);
+
+    // Buttons panel
+    JPanel buttonInfo = new JPanel();
+    buttonInfo.setLayout(new BoxLayout(buttonInfo, BoxLayout.Y_AXIS));
+
+    createCalButtonNew = new JButton("Create Calendar");
+    createCalButtonNew.setActionCommand("Create Calendar");
+    createCalButtonNew.setPreferredSize(new Dimension(150, 30));
+    buttonInfo.add(createCalButtonNew);
+
+    eventOptionsButton = new JButton("Day Options");
     eventOptionsButton.setActionCommand("Day Options");
-    activeInfo.add(eventOptionsButton);
-    topPanel.add(activeInfo);
+    eventOptionsButton.setPreferredSize(new Dimension(150, 30));
+    buttonInfo.add(eventOptionsButton);
+
+    topPanel.add(buttonInfo, BorderLayout.EAST);
 
 
+    // Calendar arrows and selector.
     calendarStuffPanel = new JPanel();
     prevButton = new JButton("<");
     nextButton = new JButton(">");
@@ -192,15 +184,12 @@ public class CalendarView extends JFrame implements IView {
     List<EventDetails> eventsDetails = detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
     setActiveCalendarEvents(eventsDetails);
 
-    dayButtonList = new ArrayList<>();
-
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
       LocalDate date = currentMonth.atDay(day);
       JButton dayButton = new JButton(String.valueOf(day));
       dayButton.addActionListener(e -> showEvents(date));
       calendarPanel.add(dayButton);
     }
-
 
     this.refresh();
   }
@@ -236,6 +225,40 @@ public class CalendarView extends JFrame implements IView {
     JFrame popup = new EditRecurringEventPopup(this, frame, date);
   }
 
+  @Override
+  public File showImportPopup(ActionListener listener) {
+
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    int result = fileChooser.showOpenDialog(frame);
+
+    // Get the selected file.
+    if (result == JFileChooser.APPROVE_OPTION) {
+      File f = fileChooser.getSelectedFile();
+      System.out.println("Selected file: " + f.getAbsolutePath());
+
+      return f;
+    } else {
+      System.out.println("No file selected");
+      return null;
+    }
+  }
+
+  @Override
+  public String showExportPopup() {
+    String fileName = JOptionPane.showInputDialog(this, "Enter a file name. " +
+        "Do not include file type.", "Export File Name", JOptionPane.PLAIN_MESSAGE);
+
+    if (fileName != null && !fileName.trim().isEmpty()) {
+      JOptionPane.showMessageDialog(this, "You have chosen to export the file as: " + fileName);
+      System.out.println("Export file name: " + fileName);
+    } else {
+      JOptionPane.showMessageDialog(this, "No file name entered.");
+    }
+
+    return fileName;
+  }
+
   public void createCalendarPopup(ActionListener listener) {
     currentPopup = new CreateCalendarPopup(this, frame);
     currentPopup.setCommandButtonListener(listener);
@@ -252,11 +275,6 @@ public class CalendarView extends JFrame implements IView {
     updateCalendar();
   }
 
-  private void setActiveDate(LocalDate d) {
-    this.activeDate  = d;
-    activeDateLabel.setText("Active Date: " + getActiveDate());
-    updateCalendar();
-  }
 
   @Override
   public void setActiveDateVarOnly(LocalDate date) {
@@ -273,7 +291,6 @@ public class CalendarView extends JFrame implements IView {
     dayEvents = getEventDetailsOnDate(date);
     StringBuilder eventListBuilder = new StringBuilder();
 
-
     if (dayEvents.isEmpty()) {
       eventListBuilder.append("No events");
     }
@@ -281,11 +298,7 @@ public class CalendarView extends JFrame implements IView {
       for (int i = 0; i < dayEvents.size(); i++) {
         EventDetails e = dayEvents.get(i);
 
-        String timeDisplay = (e.getEndTime() == null) ? "All Day" : e.getStartTime() + " - " + e.getEndTime();
-
-        String details = "-" + e.getName() + " " + timeDisplay + " Loc: " + e.getLocation()
-            + " Desc: " + e.getDescription() + System.lineSeparator();
-
+        String details = e.getDetailsPrintable();
         eventListBuilder.append(details);
       }
     }
@@ -300,8 +313,6 @@ public class CalendarView extends JFrame implements IView {
 
   public void setCalendars(Map<String, Calendar> calMap, String currentCal) {
     selectedCalendar = currentCal;
-
-    calendarsMap = calMap;
     calendars.clear();
 
     for (String key : calMap.keySet()) {
@@ -316,19 +327,6 @@ public class CalendarView extends JFrame implements IView {
 
     this.refresh();
   }
-
-//  @Override
-//  public void setEvents(List<EventDetails> eventDetails, String currentCal) {
-//    // Clear the existing map for a fresh start
-//    eventDetailsList.clear();
-//
-//    for (EventDetails details : eventDetails) {
-//      LocalDate date = details.getDate();
-//      eventDetailsList.putIfAbsent(date, new ArrayList<>());
-//      eventDetailsList.get(date).add(details);
-//    }
-//  }
-
 
 
   private void setActiveCalendarEvents(List<EventDetails> eventDetails) {

@@ -240,14 +240,19 @@ public class CommandCreate extends ICommand {
       throw new IllegalStateException("Calendar not created and/or set.");
     }
 
-    if (this.type != EventType.CREATE_CAL) {
-      // Add event to calendar.
-      if (event instanceof Event) {
-        cal.addEvent(event, this.autoDecline);
+    try {
+      if (this.type != EventType.CREATE_CAL) {
+        // Add event to calendar.
+        if (event instanceof Event) {
+          cal.addEvent(event, true);
+        }
+        else {
+          cal.addRecurringEvent((RecurringEvent) event, true);
+        }
       }
-      else {
-        cal.addRecurringEvent((RecurringEvent) event, this.autoDecline);
-      }
+    }
+    catch (IllegalStateException e) {
+      System.out.println(e.getMessage());
     }
   }
 

@@ -47,7 +47,7 @@ public class CalendarManager implements ICalendarManager {
       ZoneId.of(timezone);
     } catch (Exception e) {
       // Instead of throwing, return false to indicate failure
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException("Incorrect timezone.");
     }
 
     ICalendar cal = new Calendar(name, timezone);

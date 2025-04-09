@@ -28,8 +28,6 @@ public class HeadlessController implements IController {
 
   @Override
   public void controllerGo() throws IOException {
-    System.out.println("here");
-
     try (BufferedReader reader = new BufferedReader(new FileReader(this.f))) {
       String line;
       while ((line = reader.readLine()) != null) {

@@ -48,7 +48,7 @@ public class RecurringEvent extends AbstractEvent {
     super(title, start, description, location, isPublic);
     this.end = end;
     this.recurrenceDays = recurrenceDays;
-    this.occurrences = occurrences;
+    this.occurrences = occurrences * 7; // Multiple to repeat over each week. 2 times will repeat over 2 weeks.
     this.until = null;
   }
 

@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ public interface IView {
   void refresh();
 
   /**
-   * TODO: fix this
    * Method to set the calendars from the controller. This method is supposed to be called after
    * every communication with the controller.
    * @param calMap - Map of Calendar Name,
@@ -105,6 +105,10 @@ public interface IView {
    * @param listener - Action listener.
    */
   void showEditEventPopup(LocalDate date, ActionListener listener);
+
+  File showImportPopup(ActionListener listener);
+
+  String showExportPopup();
 
   /**
    * Method to show a edit recurring event popup.

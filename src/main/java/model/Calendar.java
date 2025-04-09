@@ -68,7 +68,7 @@ public class Calendar implements ICalendar {
    * @param autoDecline if {@code true}, skips adding conflicting events
    */
   @Override
-  public void addEvent(AbstractEvent event, boolean autoDecline) {
+  public void addEvent(AbstractEvent event, boolean autoDecline) throws IllegalStateException {
     if (event instanceof Event) {
       Event singleEvent = (Event) event;
       boolean conflictExists = false;
@@ -80,7 +80,7 @@ public class Calendar implements ICalendar {
       }
       // If a conflict exists and autoDecline is requested, do not add the event.
       if (conflictExists && autoDecline) {
-        return;
+        throw new IllegalStateException("Event conflict detected");
       }
       // Otherwise, add the event (even if it conflicts).
       events.add(singleEvent);

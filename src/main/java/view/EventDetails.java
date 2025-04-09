@@ -24,10 +24,13 @@ public class EventDetails implements IDetails {
     this.date = date;
   }
 
-  public String returnTest() {
-    String s = eventName + " " + description + " " + location + " " + isPublic
-        + " " + startTime.toString() + " " + endTime + " " + date.toString();
-    return s;
+  public String getDetailsPrintable() {
+    String timeDisplay = (endTime == null) ? "All Day" : startTime + " - " + endTime;
+
+    String details = "-" + eventName + " " + timeDisplay + " Loc: " + location
+        + " Desc: " + description + System.lineSeparator();
+
+    return details;
   }
 
   @Override

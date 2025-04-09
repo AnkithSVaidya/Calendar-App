@@ -152,6 +152,11 @@ public abstract class AbstractEvent {
     LocalDateTime otherStart = (LocalDateTime) other.start;
     LocalDateTime thisStart = (LocalDateTime) this.start;
 
+    // All day events don't cause conflicts.
+    if (this.getEnd() == null || other.getEnd() == null) {
+      return false;
+    }
+
     LocalDateTime end1 = this.getEnd() != null ? this.getEnd() : thisStart.plusDays(1);
     LocalDateTime end2 = other.getEnd() != null ? other.getEnd() : otherStart.plusDays(1);
     return thisStart.isBefore(end2) && otherStart.isBefore(end1);

@@ -20,12 +20,8 @@ public class Event extends AbstractEvent {
    * @param location    where the event will take place
    * @param isPublic    {@code true} if the event is publicly visible
    */
-  public Event(String title,
-               LocalDateTime start,
-               LocalDateTime end,
-               String description,
-               String location,
-               boolean isPublic) {
+  public Event(String title, LocalDateTime start, LocalDateTime end, String description,
+               String location, boolean isPublic) {
     super(title, start, description, location, isPublic);
     this.end = end;
   }

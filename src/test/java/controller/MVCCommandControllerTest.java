@@ -9,8 +9,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import model.AbstractEvent;
+import model.CalendarManager;
 import model.Event;
+import model.ICalendarManager;
+import view.CalendarView;
 import view.EventDetails;
+import view.IView;
 
 import static org.junit.Assert.*;
 
@@ -19,26 +23,13 @@ public class MVCCommandControllerTest {
   @Test
   public void sandbox() {
 
-    LocalDateTime now = LocalDateTime.now();
-    LocalDateTime nextTime = now.plusHours(2);
-
-    Event event = new Event("titleTest", now, nextTime, "desc", "loc", true);
-
-    EventDetails d = parseEventToEventDetail(event);
-    System.out.println(d.returnTest());
+    IView v = new CalendarView();
+    ICalendarManager m = new CalendarManager();
+    IController c = new MVCCommandController(m, v);
 
   }
 
-  public EventDetails parseEventToEventDetail(AbstractEvent event) {
 
-    LocalTime startDT = event.getStart().toLocalTime();
-    LocalTime endDT = event.getEnd().toLocalTime();
-    LocalDate d = event.getStart().toLocalDate();
-
-
-    return new EventDetails(event.getTitle(), event.getDescription(), event.getLocation(),
-        event.isPublic(), startDT, endDT, d);
-  }
 
 
 }

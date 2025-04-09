@@ -18,6 +18,9 @@ public class CreateAllDayEventPopup extends JFrame {
     // create event --autoDecline <eventName> on <dateStringTtimeString>
     commandList = new ArrayList<>();
     JTextField eventNameField = new JTextField(10);
+    JTextField descField = new JTextField(10);
+    JTextField locField = new JTextField(10);
+    JCheckBox isPublicField = new JCheckBox();
 
     createAllDayEventPanel = new JPanel();
     createAllDayEventPanel.setLayout(new GridLayout(0, 1));
@@ -32,6 +35,9 @@ public class CreateAllDayEventPopup extends JFrame {
 
     if (result == JOptionPane.OK_OPTION) {
       String name = eventNameField.getText();
+      String desc = descField.getText();
+      String loc = locField.getText();
+      String isPublicString = Boolean.toString(isPublicField.isSelected());
 
       if (name.isEmpty()) {
         commandList.add("close");
@@ -39,9 +45,12 @@ public class CreateAllDayEventPopup extends JFrame {
         JOptionPane.showMessageDialog(mainFrame, "Please fill out all fields");
       }
       else {
-        commandList.add("create_all_day_event");
-        commandList.add(name);
-        commandList.add(date.toString());
+        commandList.add("create_all_day_event"); // 0
+        commandList.add(name); // 1
+        commandList.add(date.toString()); // 2
+        commandList.add(desc); // 3
+        commandList.add(loc); // 4
+        commandList.add(isPublicString); // 5
 
         view.setCalendarCommandList(commandList);
 
