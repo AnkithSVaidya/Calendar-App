@@ -61,10 +61,10 @@ public class EditEventPopup extends JFrame {
       else {
         commandList.add("edit_event");
         commandList.add(name);
-        commandList.add(property);
+        commandList.add(property); // timezone, description.
         commandList.add(fromTime);
         commandList.add(toTime);
-        commandList.add(newValue);
+        commandList.add(newValue); // new value for selected property.
         commandList.add(date.toString());
 
         view.setCalendarCommandList(commandList);

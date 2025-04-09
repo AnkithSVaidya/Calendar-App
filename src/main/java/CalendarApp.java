@@ -1,5 +1,8 @@
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,18 +38,23 @@ public class CalendarApp {
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("interactive")) {
         controller = new InteractiveController(System.in, System.out, model);
         controller.controllerGo();
-
       }
     }
     // Run headless mode with file.
     else if (parseInputArr.size() == 3) {
       File f = new File(parseInputArr.get(2));
 
-      // Readable and appendable
       if (parseInputArr.get(0).equals("--mode") && parseInputArr.get(1).equals("headless")
           && f.exists() && !f.isDirectory()) {
-        controller = new HeadlessController(System.in, System.out, model, f);
-        controller.controllerGo();
+
+        // Readable and appendable for terminal output.
+        Readable r = new InputStreamReader(System.in);
+
+        try {
+          new HeadlessController(r, System.out, model, f).controllerGo();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
     else if (parseInputArr.isEmpty()) {

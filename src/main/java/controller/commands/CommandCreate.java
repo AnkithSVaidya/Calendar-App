@@ -179,6 +179,7 @@ public class CommandCreate extends ICommand {
     List<LocalDateTime> range;
     AbstractEvent event = null;
 
+    boolean success = true;
     // Create new event based on parameters.
     switch (this.type) {
       case SINGLE_EVENT:
@@ -221,11 +222,16 @@ public class CommandCreate extends ICommand {
         break;
 
       case CREATE_CAL:
-        calManager.createCalendar(this.calName, this.timezone.toString());
+        success = calManager.createCalendar(this.calName, this.timezone.toString());
         break;
 
       default:
         break;
+    }
+
+    if (!success) {
+      System.out.println("Failed to create calendar");
+      throw new IllegalStateException("Calendar not created due to name conflict");
     }
 
     ICalendar cal = calManager.getCurrentCalendar();

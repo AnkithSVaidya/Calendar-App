@@ -61,23 +61,28 @@ public class CommandCopy extends ICommand {
 
   @Override
   void executeCommand(ICalendarManager calManager) {
+    boolean success = true;
     switch (this.type) {
       case COPY_EVENT:
-        calManager.copyEvent(this.eventName, this.onDateTime.getDt(),
+        success = calManager.copyEvent(this.eventName, this.onDateTime.getDt(),
             this.targetCal, this.toDateTime.getDt());
         break;
 
       case COPY_ALL_EVENT:
-        calManager.copyEventsOn(this.onDateTime.getD(), this.targetCal, this.toDateTime.getD());
+        success = calManager.copyEventsOn(this.onDateTime.getD(), this.targetCal, this.toDateTime.getD());
         break;
 
       case COPY_ALL_EVENT_INTERVAL:
-        calManager.copyEventsBetween(this.betweenStart.getD(),
+        success = calManager.copyEventsBetween(this.betweenStart.getD(),
             this.betweenEnd.getD(), this.targetCal, this.toDateTime.getD());
         break;
 
       default:
         break;
+    }
+
+    if (!success) {
+      System.out.println("Copy failed");
     }
   }
 

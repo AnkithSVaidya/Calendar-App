@@ -1,0 +1,2 @@
+create calendar --name cal1 --timezone America/New_York
+create calendar --name cal1 --timezone America/New_York

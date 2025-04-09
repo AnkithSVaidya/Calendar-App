@@ -31,6 +31,10 @@ public class CalendarView extends JFrame implements IView {
   private Map<LocalDate, List<String>> events;
   private Map<LocalDate, List<EventDetails>> eventDetailsList;
 
+  private Map<LocalDate, List<EventDetails>> activeEventDetailsList;
+  private Map<String, List<EventDetails>> detailsForEachCalendarList;
+
+
   private YearMonth currentMonth;
   private String selectedCalendar;
   private JButton exportButton;
@@ -45,7 +49,6 @@ public class CalendarView extends JFrame implements IView {
   private JLabel activeDateLabel;
   private JButton eventOptionsButton;
 
-  private String commandString;
   private List<String> commandList;
   private Map<String, Calendar> calendarsMap;
   private LocalDate activeDate;
@@ -157,19 +160,7 @@ public class CalendarView extends JFrame implements IView {
     eventOptionsButton.addActionListener(actionEvent);
   }
 
-  @Override
-  public void setCommandButtonListenerForDays(ActionListener actionEvent) {
-    dayButtonList.forEach(button -> button.addActionListener(actionEvent));
-  }
 
-  @Override
-  public String getCalendarCommand() {
-    String command = this.commandString;
-
-    // Reset command for next time.
-    this.commandString = "";
-    return command;
-  }
 
   @Override
   public List<String> getCalendarCommandList() {
@@ -292,9 +283,6 @@ public class CalendarView extends JFrame implements IView {
     return eventDetailsList.getOrDefault(date, new ArrayList<>());
   }
 
-  private void exportCalendar() {
-    commandString = "export_calendar " + selectedCalendar;
-  }
 
   public void setCalendars(Map<String, Calendar> calMap, String currentCal) {
     selectedCalendar = currentCal;
@@ -333,6 +321,10 @@ public class CalendarView extends JFrame implements IView {
       eventDetailsList.putIfAbsent(date, new ArrayList<>());
       eventDetailsList.get(date).add(details);
     }
+  }
+
+  public void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap) {
+    detailsForEachCalendarList = detailsPerMap;
   }
 
   public String getActiveCalendar() {

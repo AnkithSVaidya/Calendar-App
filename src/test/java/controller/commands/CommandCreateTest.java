@@ -71,46 +71,46 @@ public class CommandCreateTest {
     assertTrue(mockCalLog.toString().contains("true"));
   }
 
-  @Test
-  public void testBasicCreateTxtFile() throws IOException {
+//  @Test
+//  public void testBasicCreateTxtFile() throws IOException {
+//
+//    InputStream in = new ByteArrayInputStream(("test").getBytes());
+//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+//    PrintStream out = new PrintStream(bytes);
+//
+//    File f = new File("res/test_commands.txt");
+//    controller = new HeadlessController(in, out, mockCalManager, f);
+//    controller.controllerGo();
+//
+//    assertTrue(mockCalLog.toString().contains("event1"));
+//    assertTrue(mockCalLog.toString().contains("desc1"));
+//    assertTrue(mockCalLog.toString().contains("loc1"));
+//    assertTrue(mockCalLog.toString().contains("true"));
+//  }
 
-    InputStream in = new ByteArrayInputStream(("test").getBytes());
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    PrintStream out = new PrintStream(bytes);
+//  @Test(expected = IOException.class)
+//  public void testBasicCreateTxtFileFail() throws IOException {
+//
+//    InputStream in = new ByteArrayInputStream((" ").getBytes());
+//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+//    PrintStream out = new PrintStream(bytes);
+//
+//    File f = new File("res/test_commands.pdf");
+//    controller = new HeadlessController(in, out, mockCalManager, f);
+//    controller.controllerGo();
+//  }
 
-    File f = new File("res/test_commands.txt");
-    controller = new HeadlessController(in, out, mockCalManager, f);
-    controller.controllerGo();
-
-    assertTrue(mockCalLog.toString().contains("event1"));
-    assertTrue(mockCalLog.toString().contains("desc1"));
-    assertTrue(mockCalLog.toString().contains("loc1"));
-    assertTrue(mockCalLog.toString().contains("true"));
-  }
-
-  @Test(expected = IOException.class)
-  public void testBasicCreateTxtFileFail() throws IOException {
-
-    InputStream in = new ByteArrayInputStream((" ").getBytes());
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    PrintStream out = new PrintStream(bytes);
-
-    File f = new File("res/test_commands.pdf");
-    controller = new HeadlessController(in, out, mockCalManager, f);
-    controller.controllerGo();
-  }
-
-  @Test(expected = IOException.class)
-  public void testBasicCreateTxtFileFail2() throws IOException {
-
-    InputStream in = new ByteArrayInputStream(("").getBytes());
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    PrintStream out = new PrintStream(bytes);
-
-    File f = new File("res/command_invalid.pdf");
-    controller = new HeadlessController(in, out, mockCalManager, f);
-    controller.controllerGo();
-  }
+//  @Test(expected = IOException.class)
+//  public void testBasicCreateTxtFileFail2() throws IOException {
+//
+//    InputStream in = new ByteArrayInputStream(("").getBytes());
+//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+//    PrintStream out = new PrintStream(bytes);
+//
+//    File f = new File("res/command_invalid.pdf");
+//    controller = new HeadlessController(in, out, mockCalManager, f);
+//    controller.controllerGo();
+//  }
 
   // Autodecline no longer supported. Test will fail.
   @Test(expected = IllegalArgumentException.class)

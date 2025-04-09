@@ -2,15 +2,19 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import model.Event;
 import model.ICalendarManager;
+import model.RecurringEvent;
 import view.EventDetails;
 import view.IButtonPopups;
 import view.IView;
@@ -66,7 +70,7 @@ public class MVCCommandController implements IController, ActionListener {
         break;
 
       case "Create Calendar":
-        // pop up the dialog, user types name + tz
+        // pop up the dialog, user types name + tz.
         view.createCalendarPopup(this);
         List<String> cmd = view.getCalendarCommandList();
 
@@ -123,7 +127,13 @@ public class MVCCommandController implements IController, ActionListener {
         view.showCreateAllDayEventPopup(date, this);
         command = view.getCalendarCommandList();
 
-        // todo: call model
+        LocalDate localDate = LocalDate.parse(command.get(2));
+        LocalTime localTime = LocalTime.NOON;
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+
+        Event allDayEvent = new Event(command.get(1), localDateTime, "desc", "loc", true);
+        model.getCurrentCalendar().addEvent(allDayEvent, true);
+
         System.out.println(command);
         System.out.println("create all day event");
         break;
@@ -131,6 +141,28 @@ public class MVCCommandController implements IController, ActionListener {
       case "Create Recurring Event":
         view.showRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
+
+        // {"M", "T", "W", "R", "F", "S", "U"};
+        Set<DayOfWeek> recurrenceDays = new HashSet<>();
+        for (char dayChar : command.get(4).toCharArray()) {
+          switch (dayChar) {
+            case 'M': recurrenceDays.add(DayOfWeek.MONDAY); break;
+            case 'T': recurrenceDays.add(DayOfWeek.TUESDAY); break;
+            case 'W': recurrenceDays.add(DayOfWeek.WEDNESDAY); break;
+            case 'R': recurrenceDays.add(DayOfWeek.THURSDAY); break;
+            case 'F': recurrenceDays.add(DayOfWeek.FRIDAY); break;
+            case 'S': recurrenceDays.add(DayOfWeek.SATURDAY); break;
+            case 'U': recurrenceDays.add(DayOfWeek.SUNDAY); break;
+          }
+        }
+
+        LocalDateTime startDateTime1 = buildDateTimeFromString(command.get(6), command.get(2));
+        LocalDateTime endDateTime1 = buildDateTimeFromString(command.get(6), command.get(3));
+
+        RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTime1,
+            endDateTime1, "desc", "loc", true, recurrenceDays, 5);
+
+        model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
 
         // call model
         System.out.println(command);
@@ -169,9 +201,7 @@ public class MVCCommandController implements IController, ActionListener {
         break;
     }
 
-
     List<Event> currentEventList = model.getCurrentCalendar().getAllEventsList();
-
     List<EventDetails> eventDetailsList = new ArrayList<>();
 
     for (Event event : currentEventList) {
@@ -179,7 +209,7 @@ public class MVCCommandController implements IController, ActionListener {
         eventDetailsList.add(details);
     }
 
-
+    // Update Active events and reset calendars.
     view.setActiveCalendarEvents(eventDetailsList);
     view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
     view.refresh();

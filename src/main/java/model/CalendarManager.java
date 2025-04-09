@@ -3,10 +3,13 @@ package model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import view.EventDetails;
 
 /**
  * Manages multiple calendars, ensuring unique names,
@@ -325,5 +328,22 @@ public class CalendarManager implements ICalendarManager {
       date = date.plusDays(1);
     }
     return copiedAtLeastOne;
+  }
+
+  /**
+   * Function to return each event associated with a calendar name key.
+   * @return - Returns a map of calendar name key to event list value.
+   */
+  public Map<String, List<Event>> getAllEventsForEachCalendar() {
+    Map<String, List<Event>> m = new HashMap<>();
+
+    List<Event> eventList = new ArrayList<>();
+
+//    return (Map<String, Calendar>)(Map<?, ?>) calendars;
+
+
+
+
+    return m;
   }
 }

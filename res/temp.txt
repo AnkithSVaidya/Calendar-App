@@ -1,0 +1,9 @@
+create calendar --name cal1 --timezone America/New_York
+use calendar --name cal1
+create event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public
+create calendar --name cal2 --timezone America/New_York
+copy event event1 on 2025-03-01T08:07 --target cal2 to 2025-03-01T08:07
+copy event event1 on 2025-03-01T08:07 --target cal2 to 2025-03-01T08:07
+use calendar --name cal2
+print events on 2025-03-01
+q

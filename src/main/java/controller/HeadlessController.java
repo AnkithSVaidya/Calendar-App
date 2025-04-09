@@ -12,12 +12,14 @@ import model.ICalendarManager;
 
 public class HeadlessController implements IController {
 
-  final InputStream in;
-  final PrintStream out;
+//  final InputStream in;
+//  final PrintStream out;
+  final Readable in;
+  final Appendable out;
   ICalendarManager calendarManager;
   File f;
 
-  public HeadlessController(InputStream in, PrintStream out, ICalendarManager calManager, File f) {
+  public HeadlessController(Readable in, Appendable out, ICalendarManager calManager, File f) {
     this.calendarManager = calManager;
     this.f = f;
     this.in = in;
@@ -26,6 +28,8 @@ public class HeadlessController implements IController {
 
   @Override
   public void controllerGo() throws IOException {
+    System.out.println("here");
+
     try (BufferedReader reader = new BufferedReader(new FileReader(this.f))) {
       String line;
       while ((line = reader.readLine()) != null) {
