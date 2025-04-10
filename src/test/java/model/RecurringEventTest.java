@@ -12,7 +12,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 
 /**
  * JUnit Test case for RecurringEvent Class with high mutation coverage.
@@ -78,7 +84,7 @@ public class RecurringEventTest {
     assertEquals("Conference Room", occurrenceBasedEvent.getLocation());
     assertTrue(occurrenceBasedEvent.isPublic());
     assertEquals(weekdays, occurrenceBasedEvent.getRecurrenceDays());
-    assertEquals(Integer.valueOf(21), occurrenceBasedEvent.getOccurrences()); // 3 * 7 in implementation
+    assertEquals(Integer.valueOf(21), occurrenceBasedEvent.getOccurrences());
     assertNull(occurrenceBasedEvent.getUntil());
   }
 
@@ -247,11 +253,13 @@ public class RecurringEventTest {
 
     // Use reflection to set both fields to null
     try {
-      java.lang.reflect.Field occurrencesField = RecurringEvent.class.getDeclaredField("occurrences");
+      java.lang.reflect.Field occurrencesField =
+          RecurringEvent.class.getDeclaredField("occurrences");
       occurrencesField.setAccessible(true);
       occurrencesField.set(invalidEvent, null);
 
-      java.lang.reflect.Field untilField = RecurringEvent.class.getDeclaredField("until");
+      java.lang.reflect.Field untilField =
+          RecurringEvent.class.getDeclaredField("until");
       untilField.setAccessible(true);
       untilField.set(invalidEvent, null);
     } catch (Exception e) {
@@ -339,11 +347,13 @@ public class RecurringEventTest {
 
     List<Event> events = event.generateEvents();
 
-    assertEquals(14, events.size()); // Changed from 2 to 14
+    assertEquals(14, events.size());
 
     // Check first and second events are on Mondays
-    assertEquals(LocalDate.of(2025, 3, 10), events.get(0).getStart().toLocalDate()); // First Monday
-    assertEquals(LocalDate.of(2025, 3, 17), events.get(1).getStart().toLocalDate()); // Second Monday
+    assertEquals(LocalDate.of(2025, 3, 10),
+        events.get(0).getStart().toLocalDate()); // First Monday
+    assertEquals(LocalDate.of(2025, 3, 17),
+        events.get(1).getStart().toLocalDate()); // Second Monday
   }
 
   @Test
@@ -364,11 +374,13 @@ public class RecurringEventTest {
 
     List<Event> events = event.generateEvents();
 
-    assertEquals(14, events.size()); // Changed from 2 to 14
+    assertEquals(14, events.size());
 
     // Check first and second Tuesday events
-    assertEquals(LocalDate.of(2025, 3, 11), events.get(0).getStart().toLocalDate()); // First Tuesday
-    assertEquals(LocalDate.of(2025, 3, 18), events.get(1).getStart().toLocalDate()); // Second Tuesday
+    assertEquals(LocalDate.of(2025, 3, 11),
+        events.get(0).getStart().toLocalDate()); // First Tuesday
+    assertEquals(LocalDate.of(2025, 3, 18),
+        events.get(1).getStart().toLocalDate()); // Second Tuesday
   }
 
   @Test
@@ -443,22 +455,19 @@ public class RecurringEventTest {
         5 // occurrences
     );
 
-    // Get the events list
     List<Event> events = emptyRecurrence.generateEvents();
 
-    // Check that it's not a Collections.emptyList()
     assertNotNull("Generated list should not be null", events);
     assertTrue("No events should be generated", events.isEmpty());
 
-    // This will fail if Collections.emptyList() is returned
-    // because emptyList() is immutable
+
     try {
-      events.add(new Event("Test", LocalDateTime.now(), "Test", "Test", true));
-      // If we get here, the list is mutable (ArrayList)
-      assertTrue(true);
+      Event testEvent = new Event("Test", LocalDateTime.now(), "Test", "Test", true);
+      events.add(testEvent);
+      assertEquals("List should contain one element after addition", 1, events.size());
     } catch (UnsupportedOperationException e) {
-      // If we get here, the list is immutable (Collections.emptyList())
       fail("The returned list should be mutable (ArrayList), not Collections.emptyList()");
     }
   }
+
 }

@@ -153,8 +153,12 @@ public abstract class AbstractEvent {
     LocalDateTime thisStart = (LocalDateTime) this.start;
 
     // Get the end times, treating all-day events as ending at the end of their day
-    LocalDateTime end1 = this.getEnd() != null ? this.getEnd() : thisStart.plusDays(1).withHour(0).withMinute(0).withSecond(0);
-    LocalDateTime end2 = other.getEnd() != null ? other.getEnd() : otherStart.plusDays(1).withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime end1 = this.getEnd() != null
+        ?
+        this.getEnd() : thisStart.plusDays(1).withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime end2 = other.getEnd() != null
+        ?
+        other.getEnd() : otherStart.plusDays(1).withHour(0).withMinute(0).withSecond(0);
 
     // Events conflict if one starts before the other ends
     return thisStart.isBefore(end2) && otherStart.isBefore(end1);

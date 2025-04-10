@@ -46,6 +46,7 @@ public class Event extends AbstractEvent {
 
   /**
    * {@inheritDoc}
+   *
    * @return the end time of the event, or {@code null} for all-day events
    */
   @Override

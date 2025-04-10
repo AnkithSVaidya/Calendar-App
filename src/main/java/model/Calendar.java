@@ -68,7 +68,8 @@ public class Calendar implements ICalendar {
    * @param autoDecline if {@code true}, skips adding conflicting events
    */
   @Override
-  public void addEvent(AbstractEvent event, boolean autoDecline) throws IllegalStateException {
+  public void addEvent(AbstractEvent event, boolean autoDecline)
+      throws IllegalStateException {
     if (event instanceof Event) {
       Event singleEvent = (Event) event;
       boolean conflictExists = false;
@@ -94,7 +95,9 @@ public class Calendar implements ICalendar {
    * @param autoDecline    if {@code true}, skips adding conflicting instances
    */
   @Override
-  public void addRecurringEvent(RecurringEvent recurringEvent, boolean autoDecline) throws IllegalStateException {
+  public void addRecurringEvent(RecurringEvent recurringEvent,
+                                boolean autoDecline)
+      throws IllegalStateException {
     List<Event> generatedEvents = recurringEvent.generateEvents();
 
     // First check for conflicts across all instances
@@ -223,7 +226,7 @@ public class Calendar implements ICalendar {
    *
    * @param filename the input file path
    * @return the number of events successfully imported
-   * @throws IOException if an I/O error occurs during reading
+   * @throws IOException              if an I/O error occurs during reading
    * @throws IllegalArgumentException if the file format is invalid
    */
   @Override
@@ -261,14 +264,13 @@ public class Calendar implements ICalendar {
     for (int i = 1; i < lines.size(); i++) {
       String line = lines.get(i);
       if (line.trim().isEmpty()) {
-        continue; // Skip empty lines
+        continue;
       }
 
       // Parse CSV line
       String[] fields = parseCSVLine(line);
 
       try {
-        // Extract fields with error checking
         String title = getFieldValue(fields, subjectIdx, "");
         String startDateStr = getFieldValue(fields, startDateIdx, "");
         String startTimeStr = getFieldValue(fields, startTimeIdx, "00:00:00");
@@ -301,12 +303,10 @@ public class Calendar implements ICalendar {
           event = new Event(title, start, end, description, location, isPublic);
         }
 
-        // Add to calendar (skip if conflict exists and autoDecline is true)
         addEvent(event, true);
         importedCount++;
       } catch (Exception e) {
-        // Skip invalid events but continue processing
-        System.err.println("Error parsing event at line " + (i+1) + ": " + e.getMessage());
+        System.err.println("Error parsing event at line " + (i + 1) + ": " + e.getMessage());
       }
     }
 
@@ -314,8 +314,9 @@ public class Calendar implements ICalendar {
   }
 
   /**
-   * Finds the index of a column in the CSV header
-   * @param headers Array of header strings
+   * Finds the index of a column in the CSV header.
+   *
+   * @param headers    Array of header strings
    * @param columnName Name of column to find
    * @return Index of column or -1 if not found
    */
@@ -329,9 +330,10 @@ public class Calendar implements ICalendar {
   }
 
   /**
-   * Safely gets a field value from the fields array with bounds checking
-   * @param fields Array of field values
-   * @param index Index to retrieve
+   * Safely gets a field value from the fields array with bounds checking.
+   *
+   * @param fields       Array of field values
+   * @param index        Index to retrieve
    * @param defaultValue Default value if index is out of bounds
    * @return Field value or default
    */
@@ -343,7 +345,8 @@ public class Calendar implements ICalendar {
   }
 
   /**
-   * Parses a date string in various common formats
+   * Parses a date string in various common formats.
+   *
    * @param dateStr Date string to parse
    * @return LocalDate object
    */
@@ -384,7 +387,8 @@ public class Calendar implements ICalendar {
   }
 
   /**
-   * Parses a time string in various common formats
+   * Parses a time string in various common formats.
+   *
    * @param timeStr Time string to parse
    * @return LocalTime object
    */
@@ -394,10 +398,19 @@ public class Calendar implements ICalendar {
       // Try standard ISO format (HH:mm:ss)
       return LocalTime.parse(timeStr);
     } catch (Exception e) {
+      try {
+        // Try HH:mm format
+        if (timeStr.matches("\\d{1,2}:\\d{2}")) {
+          return LocalTime.parse(timeStr + ":00");
+        }
+      } catch (Exception e2) {
+        // Fall through to next attempt
+      }
 
       try {
         // Try 12-hour format with AM/PM
-        if (timeStr.toLowerCase().contains("am") || timeStr.toLowerCase().contains("pm")) {
+        if (timeStr.toLowerCase().contains("am") ||
+            timeStr.toLowerCase().contains("pm")) {
           String[] parts = timeStr.split(" ");
           String time = parts[0];
           boolean isPM = parts[1].toLowerCase().contains("pm");
@@ -424,8 +437,10 @@ public class Calendar implements ICalendar {
     }
   }
 
+
   /**
-   * Parses a CSV line properly handling quoted fields
+   * Parses a CSV line properly handling quoted fields.
+   *
    * @param line The CSV line to parse
    * @return Array of field values
    */
@@ -484,8 +499,7 @@ public class Calendar implements ICalendar {
           LocalTime newTime = LocalTime.parse(temp);
           LocalDateTime newDateTime = LocalDateTime.of(currentStartDate, newTime);
           temp = newDateTime.toString();
-        }
-        else if (property.equals("end")) {
+        } else if (property.equals("end")) {
           LocalDateTime currentEndDT = event.getEnd();
           LocalDate currentEndDate = currentEndDT.toLocalDate();
 
@@ -522,7 +536,7 @@ public class Calendar implements ICalendar {
       LocalTime targetStart = event.getStart().toLocalTime();
 
       if (event.getTitle().equals(eventName) && targetStart.equals(initialEventStart)
-          && (startTime.isBefore(event.getStart()) || startTime.isEqual(event.getStart()))) {
+          && startTime.isBefore(event.getStart()) || startTime.isEqual(event.getStart())) {
 
         String temp = newValue;
 
@@ -534,8 +548,7 @@ public class Calendar implements ICalendar {
           LocalTime newTime = LocalTime.parse(temp);
           LocalDateTime newDateTime = LocalDateTime.of(currentStartDate, newTime);
           temp = newDateTime.toString();
-        }
-        else if (property.equals("end")) {
+        } else if (property.equals("end")) {
           LocalDateTime currentEndDT = event.getEnd();
           LocalDate currentEndDate = currentEndDT.toLocalDate();
 
@@ -571,14 +584,6 @@ public class Calendar implements ICalendar {
     return modified;
   }
 
-  /**
-   * Applies edits to an event based on the specified property.
-   *
-   * @param event    the event to modify
-   * @param property the property to update ("subject", "description", or "location")
-   * @param newValue the new value for the property
-   * @throws IllegalArgumentException for invalid property names
-   */
   /**
    * Applies edits to an event based on the specified property.
    *

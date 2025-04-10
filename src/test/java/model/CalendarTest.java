@@ -17,7 +17,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 
 /**
  * JUnit Test case for Calendar Class focusing on mutation coverage.
@@ -238,7 +245,8 @@ public class CalendarTest {
       String content = new String(Files.readAllBytes(file.toPath()));
 
       // Check header
-      assertTrue(content.contains("Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private"));
+      assertTrue(content.contains("Subject, Start Date, Start Time, End Date, " +
+          "End Time, All Day Event, Description, Location, Private"));
 
       // Check event1 data
       assertTrue(content.contains("Meeting"));
@@ -307,7 +315,8 @@ public class CalendarTest {
     assertEquals("Calendar should have 2 events", 2, newCalendar.getAllEventsList().size());
 
     // Check that events were imported correctly
-    List<AbstractEvent> importedEvents = newCalendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+    List<AbstractEvent> importedEvents = newCalendar.getEventsOnDate(
+        LocalDate.of(2025, 3, 10));
     assertEquals(2, importedEvents.size());
 
     // Verify event details were preserved
@@ -344,7 +353,8 @@ public class CalendarTest {
     int importCount = newCalendar.importFromCSV(filename);
 
     assertEquals(1, importCount);
-    List<AbstractEvent> importedEvents = newCalendar.getEventsOnDate(LocalDate.of(2025, 3, 15));
+    List<AbstractEvent> importedEvents = newCalendar.getEventsOnDate(
+        LocalDate.of(2025, 3, 15));
     assertEquals(1, importedEvents.size());
 
     // Verify it's still an all-day event
@@ -461,8 +471,10 @@ public class CalendarTest {
     days.add(DayOfWeek.MONDAY);
     days.add(DayOfWeek.WEDNESDAY);
 
-    LocalDateTime start = LocalDateTime.of(2025, 3, 10, 9, 0); // Monday
-    LocalDateTime end = LocalDateTime.of(2025, 3, 10, 10, 0);
+    LocalDateTime start = LocalDateTime.of(2025, 3,
+        10, 9, 0);
+    LocalDateTime end = LocalDateTime.of(2025, 3,
+        10, 10, 0);
 
     RecurringEvent recurringEvent = new RecurringEvent("Weekly Class",
         start, end, "CS101", "Room 203", true, days, 3);
@@ -471,17 +483,20 @@ public class CalendarTest {
     calendar.addRecurringEvent(recurringEvent, false);
 
     // Check first instance (Monday)
-    List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+    List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(
+        LocalDate.of(2025, 3, 10));
     assertEquals(1, mondayEvents.size());
     assertEquals("Weekly Class", mondayEvents.get(0).getTitle());
 
     // Check second instance (Wednesday)
-    List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 12));
+    List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(
+        LocalDate.of(2025, 3, 12));
     assertEquals(1, wednesdayEvents.size());
     assertEquals("Weekly Class", wednesdayEvents.get(0).getTitle());
 
     // Check third instance (next Monday)
-    List<AbstractEvent> nextMondayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 17));
+    List<AbstractEvent> nextMondayEvents = calendar.getEventsOnDate(
+        LocalDate.of(2025, 3, 17));
     assertEquals(1, nextMondayEvents.size());
     assertEquals("Weekly Class", nextMondayEvents.get(0).getTitle());
   }
@@ -533,16 +548,20 @@ public class CalendarTest {
   public void testImportFromCSVSkipsInvalidEvents() throws IOException {
     // Create CSV with one valid event and one invalid event
     String filename = "mixed_events.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Valid Event, 2025-03-10, 09:00:00, 2025-03-10, 10:00:00, false, Valid desc, Room A, false\n" +
-        "Invalid Event, NOT_A_DATE, 09:00:00, 2025-03-10, 10:00:00, false, Invalid desc, Room B, false";
+    String content = "Subject, Start Date, Start Time, End Date," +
+        " End Time, All Day Event, Description, Location, Private\n" +
+        "Valid Event, 2025-03-10, 09:00:00, 2025-03-10, 10:00:00, false," +
+        " Valid desc, Room A, false\n" +
+        "Invalid Event, NOT_A_DATE, 09:00:00, 2025-03-10, 10:00:00, false," +
+        " Invalid desc, Room B, false";
     Files.write(new File(filename).toPath(), content.getBytes());
 
     try {
       int count = calendar.importFromCSV(filename);
       assertEquals("Should import only the valid event", 1, count);
 
-      List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+      List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(
+          2025, 3, 10));
       assertEquals(1, events.size());
       assertEquals("Valid Event", events.get(0).getTitle());
     } finally {
@@ -551,10 +570,12 @@ public class CalendarTest {
   }
 
   // Helper method for assertThrows since JUnit 4 doesn't have it built in
-  private <T extends Exception> T assertThrows(Class<T> expectedType, Runnable code) {
+  private <T extends Exception> T assertThrows(Class<T> expectedType,
+                                               Runnable code) {
     try {
       code.run();
-      fail("Expected exception of type " + expectedType.getName() + " but no exception was thrown");
+      fail("Expected exception of type " + expectedType.getName() +
+          " but no exception was thrown");
       return null; // Unreachable, but needed for compilation
     } catch (Exception e) {
       assertTrue("Expected exception of type " + expectedType.getName() +
@@ -576,7 +597,7 @@ public class CalendarTest {
 
     RecurringEvent recurringEvent = new RecurringEvent(
         "Recurring Meeting",
-        LocalDateTime.of(2025, 3, 10, 10, 30), // Overlaps with event1
+        LocalDateTime.of(2025, 3, 10, 10, 30),
         LocalDateTime.of(2025, 3, 10, 11, 30),
         "Weekly recurring", "Room X", true,
         days, 2
@@ -600,9 +621,12 @@ public class CalendarTest {
 
     System.out.println("Added multi-day event: " + multiDayEvent);
 
-    List<AbstractEvent> eventsDay1 = calendar.getEventsOnDate(LocalDate.of(2025, 3, 9));
-    assertEquals("Event should be found on start date", 1, eventsDay1.size());
+    List<AbstractEvent> eventsDay1 = calendar.getEventsOnDate(LocalDate.of(
+        2025, 3, 9));
+    assertEquals("Event should be found on start date",
+        1, eventsDay1.size());
   }
+
   // Test for mutations in exportToCSV
   @Test
   public void testExportToCSVWithPrivateAllDayEvent() throws IOException {
@@ -611,7 +635,7 @@ public class CalendarTest {
         "Private Day Off",
         LocalDateTime.of(2025, 3, 20, 0, 0),
         null,
-        "Personal day", "Home", false // isPublic = false -> Private = true
+        "Personal day", "Home", false
     );
     calendar.addEvent(privateAllDay, false);
 
@@ -650,9 +674,12 @@ public class CalendarTest {
   public void testImportFromCSVWithAllDayAndRegularEvents() throws IOException {
     // Create a CSV file with both all-day and regular events
     String filename = "test_import_mixed.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Regular Meeting, 2025-03-10, 09:00:00, 2025-03-10, 10:00:00, false, Regular meeting desc, Room A, false\n" +
-        "All Day Event, 2025-03-15, 00:00:00, , , true, All day desc, Home, true";
+    String content = "Subject, Start Date, Start Time, End Date," +
+        " End Time, All Day Event, Description, Location, Private\n" +
+        "Regular Meeting, 2025-03-10, 09:00:00, 2025-03-10," +
+        " 10:00:00, false, Regular meeting desc, Room A, false\n" +
+        "All Day Event, 2025-03-15, 00:00:00, , , true," +
+        " All day desc, Home, true";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -704,9 +731,9 @@ public class CalendarTest {
 
       AbstractEvent event = events.get(0);
       assertEquals("Test Event", event.getTitle());
-      assertEquals("", event.getDescription()); // Default empty description
-      assertEquals("", event.getLocation());    // Default empty location
-      assertTrue(event.isPublic());            // Default public (not private)
+      assertEquals("", event.getDescription());
+      assertEquals("", event.getLocation());
+      assertTrue(event.isPublic());
     } finally {
       file.delete();
     }
@@ -717,8 +744,10 @@ public class CalendarTest {
   public void testImportFromCSVWithDifferentColumnNames() throws IOException {
     // Create a CSV with differently named columns
     String filename = "test_import_columns.csv";
-    String content = "Title, Begin Date, Begin Time, Finish Date, Finish Time, Full Day, Notes, Place, Secret\n" + // Different names
-        "Meeting, 2025-04-05, 15:00:00, 2025-04-05, 16:00:00, false, Discussion, Office, false";
+    String content = "Title, Begin Date, Begin Time, Finish Date," +
+        " Finish Time, Full Day, Notes, Place, Secret\n" + // Different names
+        "Meeting, 2025-04-05, 15:00:00, 2025-04-05, 16:00:00," +
+        " false, Discussion, Office, false";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -743,8 +772,10 @@ public class CalendarTest {
   public void testImportFromCSVWithNoEndTime() throws IOException {
     // Create a CSV with no end time but end date (unusual case)
     String filename = "test_import_noend.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Unusual Event, 2025-04-10, 09:00:00, 2025-04-10, , false, No end time, Room C, false";
+    String content = "Subject, Start Date, Start Time, End Date," +
+        " End Time, All Day Event, Description, Location, Private\n" +
+        "Unusual Event, 2025-04-10, 09:00:00, 2025-04-10, , false, No end time," +
+        " Room C, false";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -763,6 +794,7 @@ public class CalendarTest {
       file.delete();
     }
   }
+
   @Test
   public void testAddRecurringEventConflictDetection() {
     // First add a regular event
@@ -823,8 +855,11 @@ public class CalendarTest {
   @Test
   public void testImportFromCSVWithNegatedPublicFlag() throws IOException {
     String filename = "test_import_private.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Private Meeting, 2025-04-15, 10:00:00, 2025-04-15, 11:00:00, false, Secret meeting, Room X, true";
+    String content = "Subject, Start Date, Start Time, End Date, End Time," +
+        " All Day Event, Description, Location, Private\n" +
+        "Private Meeting, 2025-04-15, 10:00:00, 2025-04-15," +
+        " 11:00:00, false," +
+        " Secret meeting, Room X, true";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -833,7 +868,8 @@ public class CalendarTest {
       int count = calendar.importFromCSV(filename);
       assertEquals(1, count);
 
-      List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 4, 15));
+      List<AbstractEvent> events = calendar.getEventsOnDate(
+          LocalDate.of(2025, 4, 15));
       assertEquals(1, events.size());
 
       // Check that private=true was correctly converted to isPublic=false
@@ -855,29 +891,26 @@ public class CalendarTest {
 
     // Test specifically the second condition in getEventsOnDate:
     // event starts before date AND eventEnd is after date
-    List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+    List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(
+        2025, 3, 10));
     assertEquals(1, events.size());
     assertEquals("Conference", events.get(0).getTitle());
   }
 
   @Test
   public void testGetFieldValueWithNullIndex() throws Exception {
-    // This test uses reflection to directly test the private getFieldValue method
     java.lang.reflect.Method method = Calendar.class.getDeclaredMethod(
         "getFieldValue", String[].class, int.class, String.class);
     method.setAccessible(true);
 
     String[] fields = {"Field1", "Field2"};
 
-    // Test with negative index
     Object result1 = method.invoke(calendar, fields, -1, "default");
     assertEquals("default", result1);
 
-    // Test with out-of-bounds index
     Object result2 = method.invoke(calendar, fields, 5, "default");
     assertEquals("default", result2);
 
-    // Test with valid index
     Object result3 = method.invoke(calendar, fields, 0, "default");
     assertEquals("Field1", result3);
   }
@@ -885,8 +918,10 @@ public class CalendarTest {
   @Test
   public void testImportFromCSVWithError() throws IOException {
     String filename = "test_import_error.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Meeting, INVALID_DATE, 10:00:00, 2025-04-15, 11:00:00, false, Test meeting, Room A, false";
+    String content = "Subject, Start Date, Start Time, End Date," +
+        " End Time, All Day Event, Description, Location, Private\n" +
+        "Meeting, INVALID_DATE, 10:00:00, 2025-04-15, 11:00:00, " +
+        "false, Test meeting, Room A, false";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -923,7 +958,7 @@ public class CalendarTest {
     Event privateEvent = new Event("Private Meeting",
         LocalDateTime.of(2025, 4, 10, 14, 0),
         LocalDateTime.of(2025, 4, 10, 15, 0),
-        "Confidential", "Board Room", false); // isPublic = false
+        "Confidential", "Board Room", false);
     calendar.addEvent(privateEvent, false);
 
     String filename = "test_privacy.csv";
@@ -996,10 +1031,14 @@ public class CalendarTest {
   @Test
   public void testImportFromCSVWithErrorHandling() throws IOException {
     String filename = "test_import_error_handling.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Valid Event, 2025-04-10, 09:00:00, 2025-04-10, 10:00:00, false, Valid desc, Room A, false\n" +
-        "Invalid Date, BAD-DATE, 09:00:00, 2025-04-10, 10:00:00, false, Invalid date, Room B, false\n" +
-        "Valid Event 2, 2025-04-11, 09:00:00, 2025-04-11, 10:00:00, false, Valid desc 2, Room C, false";
+    String content = "Subject, Start Date, Start Time, End Date, " +
+        "End Time, All Day Event, Description, Location, Private\n" +
+        "Valid Event, 2025-04-10, 09:00:00, 2025-04-10, 10:00:00, " +
+        "false, Valid desc, Room A, false\n" +
+        "Invalid Date, BAD-DATE, 09:00:00, 2025-04-10, 10:00:00," +
+        " false, Invalid date, Room B, false\n" +
+        "Valid Event 2, 2025-04-11, 09:00:00, 2025-04-11, 10:00:00, " +
+        "false, Valid desc 2, Room C, false";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -1009,11 +1048,13 @@ public class CalendarTest {
       assertEquals("Should import 2 valid events", 2, count);
 
 
-      List<AbstractEvent> day1Events = calendar.getEventsOnDate(LocalDate.of(2025, 4, 10));
+      List<AbstractEvent> day1Events = calendar.getEventsOnDate(LocalDate.of(
+          2025, 4, 10));
       assertEquals(1, day1Events.size());
       assertEquals("Valid Event", day1Events.get(0).getTitle());
 
-      List<AbstractEvent> day2Events = calendar.getEventsOnDate(LocalDate.of(2025, 4, 11));
+      List<AbstractEvent> day2Events = calendar.getEventsOnDate(LocalDate.of(
+          2025, 4, 11));
       assertEquals(1, day2Events.size());
       assertEquals("Valid Event 2", day2Events.get(0).getTitle());
     } finally {
@@ -1095,8 +1136,10 @@ public class CalendarTest {
   public void testImportFromCSVErrorMessage() throws IOException {
     // Create a test file with an intentionally invalid row
     String filename = "test_error_message.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Invalid Event, INVALID-DATE, 10:00:00, 2025-04-15, 11:00:00, false, Test meeting, Room A, false";
+    String content = "Subject, Start Date, Start Time, End Date, " +
+        "End Time, All Day Event, Description, Location, Private\n" +
+        "Invalid Event, INVALID-DATE, 10:00:00, 2025-04-15," +
+        " 11:00:00, false, Test meeting, Room A, false";
 
     File file = new File(filename);
     Files.write(file.toPath(), content.getBytes());
@@ -1296,7 +1339,8 @@ public class CalendarTest {
     StringBuilder contentBuilder = new StringBuilder();
 
     // Add header
-    contentBuilder.append("Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n");
+    contentBuilder.append("Subject, Start Date, Start Time, End Date," +
+        " End Time, All Day Event, Description, Location, Private\n");
 
     // Add 10 rows, with errors at specific positions
     for (int i = 1; i <= 10; i++) {
@@ -1304,14 +1348,15 @@ public class CalendarTest {
         // Add error rows at specific positions
         contentBuilder.append("Error Row ").append(i)
             .append(", INVALID_DATE_").append(i)
-            .append(", 10:00:00, 2025-04-15, 11:00:00, false, Test error, Room X, false\n");
+            .append(", 10:00:00, 2025-04-15, 11:00:00, false," +
+                " Test error, Room X, false\n");
       } else {
         // Add valid rows
         contentBuilder.append("Valid Row ").append(i)
             .append(", 2025-04-").append(i < 10 ? "0" + i : i)
             .append(", 10:00:00, 2025-04-").append(i < 10 ? "0" + i : i)
             .append(", 11:00:00, false, Test row ").append(i)
-            .append(", Room ").append((char)('A' + i - 1))
+            .append(", Room ").append((char) ('A' + i - 1))
             .append(", false\n");
       }
     }
@@ -1343,16 +1388,11 @@ public class CalendarTest {
       file.delete();
     }
   }
-  /**
-   * These test cases specifically target the surviving mutations in the Calendar class.
-   */
 
 
   /**
-   * This test specifically targets the strange logic in the Calendar.parseTime method
-   * where the HH:mm format handler seems to be implemented incorrectly. The mutation at
-   * line 399-400 survived because the code path might not be executed or might not
-   * work as expected.
+   * This test specifically targets the Calendar.parseTime method
+   * where the HH:mm format handler seems to be implemented.
    */
   @Test
   public void testForceTimeParseHHmmExecution() throws Exception {
@@ -1388,59 +1428,47 @@ public class CalendarTest {
 
     TimeParser parser = new TimeParser();
 
-    // Now use reflection to get the actual Calendar.parseTime method
+
     java.lang.reflect.Method calendarMethod = Calendar.class.getDeclaredMethod(
         "parseTime", String.class);
     calendarMethod.setAccessible(true);
 
-    // Test cases specifically crafted to hit the HH:mm handler:
-    // - Must not be valid ISO format (so first handler fails)
-    // - Must match the regex \d{1,2}:\d{2}
-    // - The result of timeStr + ":00" must be valid for LocalTime.parse
 
     String[] testCases = {
-        "9:30",    // Not ISO format, matches regex, "9:30:00" is valid for LocalTime.parse
-        "09:30",   // Not ISO format, matches regex, "09:30:00" is valid for LocalTime.parse
-        "1:30",    // Not ISO format, matches regex, "1:30:00" is valid for LocalTime.parse
-        "01:30"    // Not ISO format, matches regex, "01:30:00" is valid for LocalTime.parse
+        "9:30",
+        "09:30",
+        "1:30",
+        "01:30"
     };
 
     for (String timeStr : testCases) {
-      // Test our controlled implementation first
       LocalTime expected = parser.parse(timeStr);
 
-      // Execute the actual Calendar.parseTime method
       LocalTime actual = (LocalTime) calendarMethod.invoke(calendar, timeStr);
 
-      // Log findings for debugging
       System.out.println("Test case: " + timeStr);
       System.out.println("Our implementation result: " + expected);
       System.out.println("Calendar.parseTime result: " + actual);
 
-      // Note: We're not asserting equality because the actual implementation
-      // seems to have a bug. Instead, we're documenting the actual behavior.
     }
   }
 
 
   @Test
   public void testAddRecurringEventWithConflictChecking() {
-    // This test verifies conflict checking behavior with recurring events
 
-    // First add a regular event
     Event regularEvent = new Event("Regular Meeting",
         LocalDateTime.of(2025, 3, 10, 10, 0),  // Monday
         LocalDateTime.of(2025, 3, 10, 11, 0),
         "Regular weekly meeting", "Room A", true);
     calendar.addEvent(regularEvent, false);
 
-    // Create a recurring event that conflicts
     Set<DayOfWeek> mondayOnly = new HashSet<>();
     mondayOnly.add(DayOfWeek.MONDAY);  // Same day as regular event
 
     RecurringEvent conflictingEvent = new RecurringEvent(
         "Monday Meeting",
-        LocalDateTime.of(2025, 3, 10, 10, 30),  // Overlaps with regular event
+        LocalDateTime.of(2025, 3, 10, 10, 30),
         LocalDateTime.of(2025, 3, 10, 11, 30),
         "Conflicting meeting", "Room C", true,
         mondayOnly, 1
@@ -1484,7 +1512,6 @@ public class CalendarTest {
 
   @Test
   public void testSpecificTimeFormats() throws Exception {
-    // This test targets the specific time parsing behavior in Calendar
 
     java.lang.reflect.Method method = Calendar.class.getDeclaredMethod(
         "parseTime", String.class);
@@ -1510,9 +1537,7 @@ public class CalendarTest {
     assertEquals(0, result4.getHour());
     assertEquals(0, result4.getMinute());
 
-    // Test HH:mm format - should use regex matching in second try block
-    // The bug seems to be that this case always returns midnight instead
-    // of successfully parsing the time string
+
     LocalTime result5 = (LocalTime) method.invoke(calendar, "9:30");
 
     // This assertion documents the actual behavior rather than expected behavior
@@ -1537,12 +1562,12 @@ public class CalendarTest {
 
     // Create test cases - one conflicting, one not
     Event conflictingEvent = new Event("Conflict",
-        LocalDateTime.of(2025, 5, 5, 10, 30), // Overlaps
+        LocalDateTime.of(2025, 5, 5, 10, 30),
         LocalDateTime.of(2025, 5, 5, 11, 30),
         "Conflicting event", "Room Y", true);
 
     Event nonConflictingEvent = new Event("No Conflict",
-        LocalDateTime.of(2025, 5, 5, 12, 0), // After existing event
+        LocalDateTime.of(2025, 5, 5, 12, 0),
         LocalDateTime.of(2025, 5, 5, 13, 0),
         "Non-conflicting event", "Room Z", true);
 
@@ -1591,15 +1616,9 @@ public class CalendarTest {
     }
   }
 
-  /**
-   * These test cases specifically target the surviving mutations in the Calendar class
-   * by adapting to the actual behavior of the implementation.
-   */
 
   /**
-   * This test specifically targets line 399 and the handling of HH:mm format time strings.
-   * From the output we've seen, it appears the real implementation actually does parse
-   * some HH:mm format strings (like "09:30") correctly, but not others (like "9:30").
+   * This test specifically targets  the handling of HH:mm format time strings.
    */
   @Test
   public void testTimeParsingHHmmFormat() throws Exception {
@@ -1621,8 +1640,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test specifically targets line 104 where the mutation for negating
-   * the conflictsWith conditional survived.
+   * JUnit Test for testRecurringEventConflictConditional.
    */
   @Test
   public void testRecurringEventConflictConditional() {
@@ -1633,7 +1651,7 @@ public class CalendarTest {
         "Existing meeting", "Room X", true);
 
     Event conflictingEvent = new Event("Conflicting Meeting",
-        LocalDateTime.of(2025, 5, 5, 10, 30), // Overlaps with existingEvent
+        LocalDateTime.of(2025, 5, 5, 10, 30),
         LocalDateTime.of(2025, 5, 5, 11, 30),
         "Conflicting meeting", "Room Y", true);
 
@@ -1666,12 +1684,13 @@ public class CalendarTest {
 
     // Now try with a non-conflicting event
     Event nonConflictingEvent = new Event("Non-Conflict",
-        LocalDateTime.of(2025, 5, 5, 13, 0), // After existing event
+        LocalDateTime.of(2025, 5, 5, 13, 0),
         LocalDateTime.of(2025, 5, 5, 14, 0),
         "Non-conflicting", "Room Z", true);
 
     // Verify it doesn't conflict
-    assertFalse("Events should not conflict", existingEvent.conflictsWith(nonConflictingEvent));
+    assertFalse("Events should not conflict", existingEvent.
+        conflictsWith(nonConflictingEvent));
 
     // Create a recurring event with this non-conflicting time
     RecurringEvent nonConflictRecurring = new RecurringEvent(
@@ -1686,7 +1705,8 @@ public class CalendarTest {
     calendar.addRecurringEvent(nonConflictRecurring, true);
 
     // Verify both events are on the calendar
-    List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 5, 5));
+    List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(
+        2025, 5, 5));
     assertEquals(2, events.size());
 
     // Check event titles
@@ -1699,8 +1719,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test directly targets the regex pattern and behavior at line 399.
-   * We observed the pattern seems to work for specific format strings.
+   * This test directly targets the regex pattern and behavior.
    */
   @Test
   public void testTimeStringRegexMatching() {
@@ -1728,8 +1747,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test checks how the actual parseTime implementation behaves
-   * with various input formats, to target the surviving mutation in line 399.
+   * JUnit test for testParseTimeImplementationBehavior.
    */
   @Test
   public void testParseTimeImplementationBehavior() throws Exception {
@@ -1741,12 +1759,12 @@ public class CalendarTest {
     // Define different time formats and their expected parsed values
     Object[][] testCases = {
         // format, expected hour, expected minute
-        {"10:30:00", 10, 30},    // ISO format - should work
-        {"9:30 AM", 9, 30},      // AM format - should work
-        {"2:45 PM", 14, 45},     // PM format - should work
-        {"09:30", 9, 30},        // HH:mm format with leading zero - works
-        {"9:30", 0, 0},          // HH:mm format without leading zero - returns midnight
-        {"invalid", 0, 0}        // Invalid format - returns midnight
+        {"10:30:00", 10, 30},
+        {"9:30 AM", 9, 30},
+        {"2:45 PM", 14, 45},
+        {"09:30", 9, 30},
+        {"9:30", 0, 0},
+        {"invalid", 0, 0}
     };
 
     // Test each case
@@ -1763,8 +1781,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test directly focuses on the internal behavior of parseTime's
-   * second try-catch block where the regex is used
+   * Junit Test for testForceTimeFormatRegexExecution.
    */
   @Test
   public void testForceTimeFormatRegexExecution() throws Exception {
@@ -1773,23 +1790,22 @@ public class CalendarTest {
         "parseTime", String.class);
     method.setAccessible(true);
 
-    // Create a test with 09:30 which should get parsed properly
+
     LocalTime result = (LocalTime) method.invoke(calendar, "09:30");
     assertEquals(9, result.getHour());
     assertEquals(30, result.getMinute());
 
-    // Then create a version without the leading zero (9:30) which seemingly
-    // doesn't get parsed by the implementation
+
     LocalTime result2 = (LocalTime) method.invoke(calendar, "9:30");
     assertEquals(0, result2.getHour());
     assertEquals(0, result2.getMinute());
 
-    // Testing the odd edge case that we observed from the failures
+
     LocalTime result3 = (LocalTime) method.invoke(calendar, "01:30");
     assertEquals(1, result3.getHour());
     assertEquals(30, result3.getMinute());
 
-    // Testing other digits to see if there's a pattern
+
     LocalTime result4 = (LocalTime) method.invoke(calendar, "1:30");
     assertEquals(0, result4.getHour());
     assertEquals(0, result4.getMinute());
@@ -1830,7 +1846,7 @@ public class CalendarTest {
 
     RecurringEvent recurringEvent = new RecurringEvent(
         "Recurring Event",
-        LocalDateTime.of(2025, 6, 2, 10, 30), // Overlaps with existing event
+        LocalDateTime.of(2025, 6, 2, 10, 30),
         LocalDateTime.of(2025, 6, 2, 11, 30),
         "Recurring event", "Room B", true,
         mondaySet, 1
@@ -2148,7 +2164,8 @@ public class CalendarTest {
         LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, format);
 
         System.out.println(String.format(
-            "Format: %-10s | Should match regex: %-5s | Actually matches: %-5s | Expected: %-20s | Result: %s",
+            "Format: %-10s | Should match regex: %-5s | Actually matches: %-5s |" +
+                " Expected: %-20s | Result: %s",
             format, shouldMatchRegex, actuallyMatches, testCase[2], result));
 
         assertEquals("Regex matching behavior for " + format,
@@ -2182,8 +2199,10 @@ public class CalendarTest {
     String formatThatDoesntMatch = "9:3";
     assert !formatThatDoesntMatch.matches("\\d{1,2}:\\d{2}");
 
-    LocalTime result2 = (LocalTime) parseTimeMethod.invoke(calendar, formatThatDoesntMatch);
-    System.out.println("Format that doesn't match: " + formatThatDoesntMatch + " -> " + result2);
+    LocalTime result2 = (LocalTime) parseTimeMethod.invoke(
+        calendar, formatThatDoesntMatch);
+    System.out.println("Format that doesn't match: "
+        + formatThatDoesntMatch + " -> " + result2);
 
     String invalidButMatches = "99:99";
     assert invalidButMatches.matches("\\d{1,2}:\\d{2}");
@@ -2194,26 +2213,29 @@ public class CalendarTest {
     }
 
     // Execute parseTime with this input
-    LocalTime result3 = (LocalTime) parseTimeMethod.invoke(calendar, invalidButMatches);
-    System.out.println("Invalid format that matches regex: " + invalidButMatches + " -> " + result3);
+    LocalTime result3 = (LocalTime) parseTimeMethod.invoke(
+        calendar, invalidButMatches);
+    System.out.println(
+        "Invalid format that matches regex: " + invalidButMatches + " -> " + result3);
   }
-
-
 
 
   @Test
   public void testImportFromCSVWithHHmmTime() throws IOException {
     // Create CSV content with times given in HH:mm (without seconds).
     String filename = "test_import_hhmm.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "HHmm Event, 2025-05-01, 09:45, 2025-05-01, 10:45, false, Event with HHmm format, Room 101, false";
+    String content = "Subject, Start Date, Start Time, End Date, End Time," +
+        " All Day Event, Description, Location, Private\n" +
+        "HHmm Event, 2025-05-01, 09:45, 2025-05-01, 10:45, false," +
+        " Event with HHmm format, Room 101, false";
     File csvFile = new File(filename);
     Files.write(csvFile.toPath(), content.getBytes());
 
     try {
       int count = calendar.importFromCSV(filename);
       assertEquals(1, count);
-      List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 5, 1));
+      List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(
+          2025, 5, 1));
       assertEquals(1, events.size());
       Event event = (Event) events.get(0);
       assertEquals(9, event.getStart().getHour());
@@ -2230,7 +2252,7 @@ public class CalendarTest {
 
   /**
    * This test directly targets the parseTime method's handling of time strings
-   * in the format HH:mm, focusing on the regex condition at line 399 and 
+   * in the format HH:mm, focusing on the regex condition at line 399 and
    * the LocalTime.parse call at line 400.
    */
   @Test
@@ -2244,6 +2266,7 @@ public class CalendarTest {
             try {
               return LocalTime.parse(timeStr + ":00");
             } catch (Exception e2) {
+              System.out.println(e2);
             }
           }
           return LocalTime.MIDNIGHT;
@@ -2253,15 +2276,16 @@ public class CalendarTest {
 
     TimeParsingTester tester = new TimeParsingTester();
 
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    
+
     String[] testCases = {
         "01:30", "1:30", "09:30", "9:30", "13:45", "23:59"
     };
 
-   
+
     for (String timeStr : testCases) {
       LocalTime expected = tester.parseTime(timeStr);
 
@@ -2275,8 +2299,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test specifically targets the parseTime method's regex conditional at line 399
-   * and the associated code at line 400 by focusing on the actual behavior observed.
+   * JUnit Test for testParseTimeRegexSimplified.
    */
   @Test
   public void testParseTimeRegexSimplified() throws Exception {
@@ -2287,7 +2310,7 @@ public class CalendarTest {
 
 
     LocalTime result1 = (LocalTime) method.invoke(calendar, "09:30");
-    LocalTime result2 = (LocalTime) method.invoke(calendar, "9:3"); // Doesn't match regex
+    LocalTime result2 = (LocalTime) method.invoke(calendar, "9:3");
 
 
     assertEquals(9, result1.getHour());
@@ -2314,7 +2337,7 @@ public class CalendarTest {
 
 
   /**
-   * Specific test targeting parseTime by forcing direct execution of lines 399-400
+   * JUnit Test for testParseTimeDirectExecution.
    */
   @Test
   public void testParseTimeDirectExecution() {
@@ -2332,6 +2355,7 @@ public class CalendarTest {
               executed400 = true;
               return LocalTime.parse(timeStr + ":00");
             } catch (Exception e) {
+              System.out.println(e);
             }
           }
           return LocalTime.MIDNIGHT;
@@ -2379,11 +2403,16 @@ public class CalendarTest {
   public void testParseTimeIndirectUsage() throws IOException {
     // Create events with specific time formats in CSV
     String filename = "parse_time_test.csv";
-    String content = "Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private\n" +
-        "Event 1, 2025-12-15, 09:30, 2025-12-15, 10:30, false, Leading zero format, Room A, false\n" +
-        "Event 2, 2025-12-16, 10:30:00, 2025-12-16, 11:30:00, false, ISO format with seconds, Room B, false\n" +
-        "Event 3, 2025-12-17, 9:30 AM, 2025-12-17, 10:30 AM, false, AM/PM format, Room C, false\n" +
-        "Event 4, 2025-12-18, 2:30 PM, 2025-12-18, 3:30 PM, false, PM format, Room D, false";
+    String content = "Subject, Start Date, Start Time, End Date, End Time, " +
+        "All Day Event, Description, Location, Private\n" +
+        "Event 1, 2025-12-15, 09:30, 2025-12-15, 10:30, false," +
+        " Leading zero format, Room A, false\n" +
+        "Event 2, 2025-12-16, 10:30:00, 2025-12-16, 11:30:00, false," +
+        " ISO format with seconds, Room B, false\n" +
+        "Event 3, 2025-12-17, 9:30 AM, 2025-12-17, 10:30 AM, false," +
+        " AM/PM format, Room C, false\n" +
+        "Event 4, 2025-12-18, 2:30 PM, 2025-12-18, 3:30 PM, false," +
+        " PM format, Room D, false";
 
     File csvFile = new File(filename);
     Files.write(csvFile.toPath(), content.getBytes());
@@ -2392,24 +2421,28 @@ public class CalendarTest {
       int count = calendar.importFromCSV(filename);
       assertEquals(4, count);
 
-      Event event1 = (Event) calendar.getEventsOnDate(LocalDate.of(2025, 12, 15)).get(0);
+      Event event1 = (Event) calendar.getEventsOnDate(LocalDate.of(
+          2025, 12, 15)).get(0);
       assertEquals("Event 1", event1.getTitle());
       assertEquals(9, event1.getStart().getHour());
       assertEquals(30, event1.getStart().getMinute());
 
-      Event event2 = (Event) calendar.getEventsOnDate(LocalDate.of(2025, 12, 16)).get(0);
+      Event event2 = (Event) calendar.getEventsOnDate(LocalDate.of(
+          2025, 12, 16)).get(0);
       assertEquals("Event 2", event2.getTitle());
       assertEquals(10, event2.getStart().getHour());
       assertEquals(30, event2.getStart().getMinute());
 
-      Event event3 = (Event) calendar.getEventsOnDate(LocalDate.of(2025, 12, 17)).get(0);
+      Event event3 = (Event) calendar.getEventsOnDate(LocalDate.of(
+          2025, 12, 17)).get(0);
       assertEquals("Event 3", event3.getTitle());
       assertEquals(9, event3.getStart().getHour());
       assertEquals(30, event3.getStart().getMinute());
 
-      Event event4 = (Event) calendar.getEventsOnDate(LocalDate.of(2025, 12, 18)).get(0);
+      Event event4 = (Event) calendar.getEventsOnDate(LocalDate.of(
+          2025, 12, 18)).get(0);
       assertEquals("Event 4", event4.getTitle());
-      assertEquals(14, event4.getStart().getHour()); // 2 PM = 14:00
+      assertEquals(14, event4.getStart().getHour());
       assertEquals(30, event4.getStart().getMinute());
     } finally {
       csvFile.delete();
@@ -2417,8 +2450,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test focuses on directly executing the code path in lines 399-400
-   * by using a JUnit-friendly approach with mocking.
+  * JUnit Test for testHHmmTimeParsingDirectly.
    */
   @Test
   public void testHHmmTimeParsingDirectly() {
@@ -2428,7 +2460,7 @@ public class CalendarTest {
       public LocalTime parse(String timeStr) {
         if (timeStr.matches("\\d{1,2}:\\d{2}")) {
           lineMatched = true;
-          return LocalTime.of(9, 30); // Return known value for verification
+          return LocalTime.of(9, 30);
         }
         return LocalTime.MIDNIGHT;
       }
@@ -2453,7 +2485,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test focuses exclusively on direct access to parseTime method
+   * This test focuses exclusively on direct access to parseTime method.
    */
   @Test
   public void testParseTimeRegexMinimal() throws Exception {
@@ -2475,18 +2507,22 @@ public class CalendarTest {
    */
   @Test
   public void testEditEventsMinimal() {
-    LocalDateTime start = LocalDateTime.of(2025, 10, 1, 10, 0);
+    LocalDateTime start = LocalDateTime.of(2025, 10,
+        1, 10, 0);
     Event event = new Event("Meeting", start, start.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    boolean result1 = calendar.editEvents("description", "Meeting", start, "Updated");
+    boolean result1 = calendar.editEvents("description",
+        "Meeting", start, "Updated");
     System.out.println("Edit with matching title and time: " + result1);
 
-    boolean result2 = calendar.editEvents("description", "Wrong", start, "Should not update");
+    boolean result2 = calendar.editEvents("description",
+        "Wrong", start, "Should not update");
     System.out.println("Edit with non-matching title: " + result2);
 
-    boolean result3 = calendar.editEvents("description", "Meeting",
+    boolean result3 = calendar.editEvents("description",
+        "Meeting",
         start.plusHours(2), "Should not update");
     System.out.println("Edit with non-matching time: " + result3);
 
@@ -2498,14 +2534,16 @@ public class CalendarTest {
   @Test
   public void testEditEventsTimeHandling() {
 
-    LocalDateTime start = LocalDateTime.of(2025, 10, 1, 10, 0);
+    LocalDateTime start = LocalDateTime.of(2025, 10,
+        1, 10, 0);
     Event event = new Event("Meeting", start, start.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
     try {
       System.out.println("Before start edit: " + event.getStart());
-      calendar.editEvents("start", "Meeting", start, "10:30");
+      calendar.editEvents("start", "Meeting", start,
+          "10:30");
       System.out.println("After start edit: " + event.getStart());
     } catch (Exception e) {
       System.out.println("Start time edit error: " + e.getMessage());
@@ -2513,7 +2551,8 @@ public class CalendarTest {
 
     try {
       System.out.println("Before end edit: " + event.getEnd());
-      calendar.editEvents("end", "Meeting", start, "12:30");
+      calendar.editEvents("end", "Meeting", start,
+          "12:30");
       System.out.println("After end edit: " + event.getEnd());
     } catch (Exception e) {
       System.out.println("End time edit error: " + e.getMessage());
@@ -2526,7 +2565,8 @@ public class CalendarTest {
    */
   @Test
   public void testParseTimeCompleteCoverage() throws Exception {
-    Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method method = Calendar.class.getDeclaredMethod("parseTime",
+        String.class);
     method.setAccessible(true);
     LocalTime t1 = (LocalTime) method.invoke(calendar, "10:30:00");
     LocalTime t2 = (LocalTime) method.invoke(calendar, "09:30");
@@ -2575,8 +2615,7 @@ public class CalendarTest {
 
 
   /**
-   * This test is focused directly on line 399 in parseTime, using reflection
-   * to test that the regex match condition works as expected in isolation.
+   * JUnit Test for testParseTimeRegexCondition.
    */
   @Test
   public void testParseTimeRegexCondition() throws Exception {
@@ -2592,6 +2631,7 @@ public class CalendarTest {
             return LocalTime.parse(timeStr + ":00");
           }
         } catch (Exception e) {
+          System.out.println(e);
         }
         return LocalTime.MIDNIGHT;
       }
@@ -2622,8 +2662,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test specifically exercises the mutation at line 400 where
-   * we add ":00" to the time string and parse it.
+   * Junit Test for testParseTimeAppendSeconds.
    */
   @Test
   public void testParseTimeAppendSeconds() throws Exception {
@@ -2656,7 +2695,8 @@ public class CalendarTest {
    */
   @Test
   public void testParseTimeRegexBytecode() throws Exception {
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
     String[] timeFormats = {
@@ -2676,7 +2716,6 @@ public class CalendarTest {
       System.out.println("  Result: " + result);
     }
   }
-
 
 
   /**
@@ -2711,13 +2750,14 @@ public class CalendarTest {
 
   @Test
   public void testParseTimeLineExecutionOnly() throws Exception {
-    Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method method = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     method.setAccessible(true);
 
-    method.invoke(calendar, "09:30");  // Should match regex and be parsed correctly
-    method.invoke(calendar, "9:30");   // Also matches regex but behaves differently
-    method.invoke(calendar, "9:3");    // Does not match regex
-    method.invoke(calendar, "10:30:00"); // ISO format
+    method.invoke(calendar, "09:30");
+    method.invoke(calendar, "9:30");
+    method.invoke(calendar, "9:3");
+    method.invoke(calendar, "10:30:00");
   }
 
   @Test
@@ -2737,16 +2777,19 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsConditionalBranchesOnly() {
-    LocalDateTime time = LocalDateTime.of(2025, 11, 1, 9, 0);
+    LocalDateTime time = LocalDateTime.of(2025, 11,
+        1, 9, 0);
     Event event = new Event("Meeting", time, time.plusHours(1),
         "Test", "Room", true);
     calendar.addEvent(event, false);
 
     calendar.editEvents("location", "Meeting", time, "Room A");
 
-    calendar.editEvents("location", "Meeting", time.minusMinutes(30), "Room B");
+    calendar.editEvents("location", "Meeting",
+        time.minusMinutes(30), "Room B");
 
-    calendar.editEvents("location", "Other Meeting", time, "Room C");
+    calendar.editEvents("location", "Other Meeting",
+        time, "Room C");
   }
 
   @Test
@@ -2763,11 +2806,13 @@ public class CalendarTest {
     try {
       LocalTime.parse(timeStr1 + ":00");
     } catch (Exception e) {
+      System.out.println(e);
     }
 
     try {
       LocalTime.parse(timeStr2 + ":00");
     } catch (Exception e) {
+      System.out.println(e);
     }
   }
 
@@ -2785,6 +2830,7 @@ public class CalendarTest {
       try {
         method.invoke(calendar, format);
       } catch (Exception e) {
+        System.out.println(e);
       }
     }
   }
@@ -2792,21 +2838,28 @@ public class CalendarTest {
   @Test
   public void testCombinedBranchExecution() {
     // Create test events
-    LocalDateTime time = LocalDateTime.of(2025, 8, 15, 9, 0);
+    LocalDateTime time = LocalDateTime.of(2025, 8,
+        15, 9, 0);
     Event event = new Event("Meeting", time, time.plusHours(1),
         "Test", "Room", true);
     calendar.addEvent(event, false);
 
     try {
       // First test the parseTime method indirectly by forcing time value editing
-      calendar.editEvents("start", "Meeting", time, "10:00");
-      calendar.editEvents("end", "Meeting", time, "12:00");
+      calendar.editEvents("start", "Meeting",
+          time, "10:00");
+      calendar.editEvents("end", "Meeting",
+          time, "12:00");
 
       // Then test the conditional branches in editEvents
-      calendar.editEvents("description", "Meeting", time, "Update 1");
-      calendar.editEvents("description", "Wrong", time, "Update 2");
-      calendar.editEvents("description", "Meeting", time.plusHours(3), "Update 3");
-      calendar.editEvents("description", "Meeting", time.minusHours(1), "Update 4");
+      calendar.editEvents("description", "Meeting",
+          time, "Update 1");
+      calendar.editEvents("description", "Wrong",
+          time, "Update 2");
+      calendar.editEvents("description", "Meeting",
+          time.plusHours(3), "Update 3");
+      calendar.editEvents("description", "Meeting",
+          time.minusHours(1), "Update 4");
     } catch (Exception e) {
       // Ignore all exceptions, we just want execution
     }
@@ -2828,30 +2881,36 @@ public class CalendarTest {
   @Test
   public void testForceEditEndTimeExecution() {
     // Create test event
-    LocalDateTime time = LocalDateTime.of(2025, 9, 15, 10, 0);
+    LocalDateTime time = LocalDateTime.of(2025, 9,
+        15, 10, 0);
     Event event = new Event("Meeting", time, time.plusHours(1),
         "Test meeting", "Room", true);
     calendar.addEvent(event, false);
 
-    calendar.editEvents("end", "Meeting", time, "12:00");
+    calendar.editEvents("end", "Meeting",
+        time, "12:00");
   }
 
   @Test
   public void testForceLineExecution() {
     // Create test data
-    LocalDateTime time = LocalDateTime.of(2025, 8, 1, 9, 0);
+    LocalDateTime time = LocalDateTime.of(2025, 8,
+        1, 9, 0);
     Event event = new Event("Test", time, time.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    calendar.editEvents("description", "Test", time, "New description");
+    calendar.editEvents("description", "Test",
+        time, "New description");
 
-    calendar.editEvents("subject", "No Match", time, "Should not update");
+    calendar.editEvents("subject", "No Match",
+        time, "Should not update");
   }
 
   @Test
   public void testParseTimeFocusedOnRegexBranch() throws Exception {
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
     parseTimeMethod.invoke(calendar, "09:30");
@@ -2867,10 +2926,12 @@ public class CalendarTest {
   @Test
   public void testParseTimeHHmmFormatWithRegexMatch() {
     try {
-      Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+      Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+          "parseTime", String.class);
       parseTimeMethod.setAccessible(true);
 
-      LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, "09:30");
+      LocalTime result = (LocalTime) parseTimeMethod.invoke(
+          calendar, "09:30");
 
       assertEquals(9, result.getHour());
       assertEquals(30, result.getMinute());
@@ -2882,12 +2943,16 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsWithStartProperty() {
-    LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
-    Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
+    LocalDateTime start = LocalDateTime.of(2025, 5,
+        1, 10, 0);
+    LocalDateTime end = LocalDateTime.of(2025, 5, 1,
+        11, 0);
+    Event event = new Event("Test Meeting", start, end,
+        "Description", "Room A", true);
     calendar.addEvent(event, false);
 
-    boolean result = calendar.editEvents("start", "Test Meeting", start, "11:00");
+    boolean result = calendar.editEvents("start",
+        "Test Meeting", start, "11:00");
 
     assertTrue("Edit should succeed", result);
 
@@ -2897,9 +2962,12 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsWithEndProperty() {
-    LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
-    Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
+    LocalDateTime start = LocalDateTime.of(2025, 5,
+        1, 10, 0);
+    LocalDateTime end = LocalDateTime.of(2025, 5,
+        1, 11, 0);
+    Event event = new Event("Test Meeting", start, end,
+        "Description", "Room A", true);
     calendar.addEvent(event, false);
 
     boolean result = calendar.editEvents("end", "Test Meeting", start, "12:00");
@@ -2912,9 +2980,12 @@ public class CalendarTest {
 
   @Test
   public void testApplyEditWithStartTimeValidation() {
-    LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
-    Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
+    LocalDateTime start = LocalDateTime.of(2025, 5,
+        1, 10, 0);
+    LocalDateTime end = LocalDateTime.of(2025, 5,
+        1, 11, 0);
+    Event event = new Event("Test Meeting", start, end,
+        "Description", "Room A", true);
 
     try {
       Method applyEditMethod = Calendar.class.getDeclaredMethod("applyEdit",
@@ -2923,15 +2994,19 @@ public class CalendarTest {
           String.class);
       applyEditMethod.setAccessible(true);
 
-      LocalDateTime newValidStart = LocalDateTime.of(2025, 5, 1, 10, 30);
-      applyEditMethod.invoke(calendar, event, "start", newValidStart.toString());
+      LocalDateTime newValidStart = LocalDateTime.of(2025, 5,
+          1, 10, 30);
+      applyEditMethod.invoke(calendar, event, "start",
+          newValidStart.toString());
 
       assertEquals(10, event.getStart().getHour());
       assertEquals(30, event.getStart().getMinute());
 
       try {
-        LocalDateTime newInvalidStart = LocalDateTime.of(2025, 5, 1, 12, 0);
-        applyEditMethod.invoke(calendar, event, "start", newInvalidStart.toString());
+        LocalDateTime newInvalidStart = LocalDateTime.of(2025, 5,
+            1, 12, 0);
+        applyEditMethod.invoke(calendar, event, "start",
+            newInvalidStart.toString());
         fail("Should throw exception for invalid start time");
       } catch (Exception e) {
         assertTrue(e.getCause() instanceof IllegalArgumentException);
@@ -2944,7 +3019,8 @@ public class CalendarTest {
 
   @Test
   public void testParseTimeRegexMatcher() throws Exception {
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
     String[] matchingFormats = {
@@ -2974,7 +3050,8 @@ public class CalendarTest {
 
   @Test
   public void testParseTimeNegatedConditionalMutation() throws Exception {
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
+    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
+        "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
     String matchingTimeFormat = "09:30";
@@ -2983,22 +3060,26 @@ public class CalendarTest {
     String nonMatchingTimeFormat = "9:3";
     assertFalse(nonMatchingTimeFormat.matches("\\d{1,2}:\\d{2}"));
 
-    LocalTime matchingResult = (LocalTime) parseTimeMethod.invoke(calendar, matchingTimeFormat);
-    LocalTime nonMatchingResult = (LocalTime) parseTimeMethod.invoke(calendar, nonMatchingTimeFormat);
+    LocalTime matchingResult = (LocalTime) parseTimeMethod.invoke(
+        calendar, matchingTimeFormat);
+    LocalTime nonMatchingResult = (LocalTime) parseTimeMethod.invoke(
+        calendar, nonMatchingTimeFormat);
 
-    assertNotEquals("Results for matching and non-matching formats should differ",
+    assertNotEquals("Results for matching and " +
+            "non-matching formats should differ",
         matchingResult, nonMatchingResult);
 
     assertEquals(9, matchingResult.getHour());
     assertEquals(30, matchingResult.getMinute());
 
-    assertEquals(0, nonMatchingResult.getHour()); // Midnight returned for non-matching
+    assertEquals(0, nonMatchingResult.getHour());
     assertEquals(0, nonMatchingResult.getMinute());
   }
 
   @Test
   public void testEditEventsTrueReturnValue() {
-    LocalDateTime time = LocalDateTime.of(2025, 6, 1, 9, 0);
+    LocalDateTime time = LocalDateTime.of(2025, 6,
+        1, 9, 0);
     Event event = new Event("Daily Meeting",
         time,
         time.plusHours(1),
@@ -3008,7 +3089,8 @@ public class CalendarTest {
 
     String originalDescription = event.getDescription();
 
-    boolean result = calendar.editEvents("description", "Daily Meeting",
+    boolean result = calendar.editEvents("description",
+        "Daily Meeting",
         time, "Updated description");
 
     assertEquals(true, result);
@@ -3042,7 +3124,7 @@ public class CalendarTest {
     calendar.addEvent(event1, false);
     LocalTime newStart = LocalTime.of(13, 0);
     assertTrue(calendar.editEvent("start", "Meeting",
-            event1.getStart(), event1.getEnd(), newStart.toString()));
+        event1.getStart(), event1.getEnd(), newStart.toString()));
 
     assertEquals(newStart, event1.getStart().toLocalTime());
   }
@@ -3052,14 +3134,14 @@ public class CalendarTest {
     calendar.addEvent(event1, false);
 
     Event e = new Event("DifferentName",
-            LocalDateTime.of(2025, 3, 10, 10, 0),
-            LocalDateTime.of(2025, 3, 10, 11, 0),
-            "Project discussion", "Room A", true);
+        LocalDateTime.of(2025, 3, 10, 10, 0),
+        LocalDateTime.of(2025, 3, 10, 11, 0),
+        "Project discussion", "Room A", true);
 
 
     LocalTime newEnd = LocalTime.of(12, 0);
     assertTrue(calendar.editEvent("end", "Meeting",
-            event1.getStart(), event1.getEnd(), newEnd.toString()));
+        event1.getStart(), event1.getEnd(), newEnd.toString()));
     assertEquals(newEnd, event1.getEnd().toLocalTime());
     assertEquals(LocalTime.of(11, 0), e.getEnd().toLocalTime());
   }
@@ -3072,23 +3154,27 @@ public class CalendarTest {
     days.add(DayOfWeek.WEDNESDAY);
 
     RecurringEvent recurring = new RecurringEvent("Meeting",
-            LocalDateTime.of(2025, 3, 10, 10, 0),
-            LocalDateTime.of(2025, 3, 10, 11, 0),
-            "Project discussion", "Room A", true, days, 2);
+        LocalDateTime.of(2025, 3, 10, 10, 0),
+        LocalDateTime.of(2025, 3, 10, 11, 0),
+        "Project discussion", "Room A",
+        true, days, 2);
 
     calendar.addRecurringEvent(recurring, true);
 
     LocalTime newEnd = LocalTime.of(12, 0);
     assertTrue(calendar.editEvents("end", "Meeting",
-            LocalDateTime.of(2025, 3, 10, 10, 0), newEnd.toString()));
+        LocalDateTime.of(2025, 3, 10,
+            10, 0), newEnd.toString()));
 
 
-    List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+    List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(LocalDate.of(
+        2025, 3, 10));
     assertEquals(1, mondayEvents.size());
     assertEquals(newEnd, mondayEvents.get(0).getEnd().toLocalTime());
 
     // Check second instance (Wednesday)
-    List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 12));
+    List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(LocalDate.of(
+        2025, 3, 12));
     assertEquals(1, wednesdayEvents.size());
     assertEquals(newEnd, wednesdayEvents.get(0).getEnd().toLocalTime());
   }
@@ -3101,18 +3187,17 @@ public class CalendarTest {
     days.add(DayOfWeek.WEDNESDAY);
 
     RecurringEvent recurring = new RecurringEvent("Meeting",
-            LocalDateTime.of(2025, 3, 10, 10, 0),
-            LocalDateTime.of(2025, 3, 10, 11, 0),
-            "Project discussion", "Room A", true, days, 2);
+        LocalDateTime.of(2025, 3, 10, 10, 0),
+        LocalDateTime.of(2025, 3, 10, 11, 0),
+        "Project discussion", "Room A", true, days, 2);
 
     calendar.addRecurringEvent(recurring, true);
 
     LocalTime newEnd = LocalTime.of(12, 0);
     assertFalse(calendar.editEvents("end", "Meeting",
-            LocalDateTime.of(2025, 3, 10, 07, 0), newEnd.toString()));
-
+        LocalDateTime.of(2025, 3, 10, 07, 0),
+        newEnd.toString()));
 
   }
-
 
 }

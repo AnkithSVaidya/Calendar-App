@@ -235,20 +235,24 @@ public class CalendarManager implements ICalendarManager {
 
     // Check for conflict in target calendar.
     if (targetCal.isBusyAt(newStart)) {
-      throw new IllegalStateException("The target calendar already has an event at the specified time");
+      throw new IllegalStateException("The target calendar already "
+          +
+          "has an event at the specified time");
     }
     targetCal.addEvent(copiedEvent, true);
     return true;
   }
 
   /**
-   * Copies all events scheduled on a given date from the current calendar to the target calendar.
+   * Copies all events scheduled on a given date from
+   * the current calendar to the target calendar.
    * The times are adjusted to the target calendar's timezone.
    *
    * @param sourceDate         the date (in current calendar's local time) whose events
    *                           are to be copied.
    * @param targetCalendarName the target calendar name.
-   * @param targetDate         the date (in target calendar's local time) that will correspond
+   * @param targetDate         the date (in target calendar's local time)
+   *                           that will correspond
    *                           to the source date.
    * @return true if at least one event was copied successfully; false otherwise.
    */
@@ -276,15 +280,18 @@ public class CalendarManager implements ICalendarManager {
           .toLocalDateTime();
 
       // Add the time to the date.
-      LocalDateTime newStart = LocalDateTime.of(targetDate, newEventDateTime.toLocalTime());
+      LocalDateTime newStart = LocalDateTime.of(targetDate,
+          newEventDateTime.toLocalTime());
 
-      boolean success = copyEvent(event.getTitle(), eventStart, targetCalendarName, newStart);
+      boolean success = copyEvent(event.getTitle(), eventStart,
+          targetCalendarName, newStart);
       if (success) {
         copiedAtLeastOne = true;
       }
     }
     if (!copiedAtLeastOne) {
-      throw new IllegalStateException("Failed to copy any events from " + sourceDate + " to " + targetDate);
+      throw new IllegalStateException("Failed to copy any events from "
+          + sourceDate + " to " + targetDate);
     }
     return true;
   }
@@ -292,7 +299,8 @@ public class CalendarManager implements ICalendarManager {
   /**
    * Copies all events between two dates (inclusive) from the current calendar
    * to the target calendar.
-   * The events are shifted so that the interval in the target calendar starts at targetStartDate.
+   * The events are shifted so that the interval
+   * in the target calendar starts at targetStartDate.
    *
    * @param sourceStartDate    the start date of the source interval.
    * @param sourceEndDate      the end date of the source interval.
@@ -301,20 +309,24 @@ public class CalendarManager implements ICalendarManager {
    *                           to the start of the interval.
    * @return true if at least one event was copied successfully; false otherwise.
    */
-  public boolean copyEventsBetween(LocalDate sourceStartDate, LocalDate sourceEndDate,
-                                   String targetCalendarName, LocalDate targetStartDate) {
+  public boolean copyEventsBetween(LocalDate sourceStartDate,
+                                   LocalDate sourceEndDate,
+                                   String targetCalendarName,
+                                   LocalDate targetStartDate) {
     if (currentCalendar == null) {
       throw new IllegalStateException("No current calendar selected");
     }
 
     // Check if dates are out of order
     if (sourceStartDate.isAfter(sourceEndDate)) {
-      throw new IllegalArgumentException("Source start date cannot be after source end date");
+      throw new IllegalArgumentException("Source start date" +
+          " cannot be after source end date");
     }
 
     ICalendar targetCal = calendars.get(targetCalendarName);
     if (targetCal == null) {
-      throw new IllegalArgumentException("Target calendar not found: " + targetCalendarName);
+      throw new IllegalArgumentException("Target calendar not found: "
+          + targetCalendarName);
     }
 
     boolean copiedAtLeastOne = false;
@@ -322,7 +334,8 @@ public class CalendarManager implements ICalendarManager {
     LocalDate date = sourceStartDate;
     while (!date.isAfter(sourceEndDate)) {
       boolean success = copyEventsOn(date, targetCalendarName,
-          targetStartDate.plusDays(date.toEpochDay() - sourceStartDate.toEpochDay()));
+          targetStartDate.plusDays(date.toEpochDay()
+              - sourceStartDate.toEpochDay()));
       if (success) {
         copiedAtLeastOne = true;
       }
@@ -345,8 +358,6 @@ public class CalendarManager implements ICalendarManager {
     Map<String, List<Event>> m = new HashMap<>();
 
     List<Event> eventList = new ArrayList<>();
-
-//    return (Map<String, Calendar>)(Map<?, ?>) calendars;
 
 
     return m;

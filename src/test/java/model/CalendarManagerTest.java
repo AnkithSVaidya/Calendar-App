@@ -549,7 +549,7 @@ public class CalendarManagerTest {
 
       fail("Expected an IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
-
+      System.out.println(e);
     }
   }
 
@@ -565,11 +565,13 @@ public class CalendarManagerTest {
       LocalDate startDate = LocalDate.of(2025, 4, 15);
       LocalDate endDate = LocalDate.of(2025, 4, 20);
 
-      boolean result = manager.copyEventsBetween(startDate, endDate, "Target", LocalDate.of(2025, 5, 1));
+      boolean result = manager.copyEventsBetween(startDate,
+          endDate, "Target",
+              LocalDate.of(2025, 5, 1));
 
       fail("Expected an IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
-
+      System.out.println(e);
     }
   }
 
@@ -599,8 +601,8 @@ public class CalendarManagerTest {
 
     // We store the result in a local variable that affects program flow
     if (result) {
-      // Do something that can be verified
-      assertTrue("Return value should be true and this assertion should run", true);
+      assertTrue("Return value should be true and this assertion should run",
+          result);
     } else {
       fail("The operation should have succeeded and returned true");
     }
@@ -631,7 +633,8 @@ public class CalendarManagerTest {
     // We store the result in a local variable that affects program flow
     if (result) {
       // Do something that can be verified
-      assertTrue("Return value should be true and this assertion should run", true);
+      assertTrue("Return value should be true and this assertion should run",
+          result);
     } else {
       fail("The operation should have succeeded and returned true");
     }
@@ -695,8 +698,10 @@ public class CalendarManagerTest {
 
     // Also check that the event was actually copied
     Calendar targetCal = (Calendar) manager.getCalendar("Target");
-    assertEquals(1, targetCal.getEventsOnDate(LocalDate.of(2025, 3, 15)).size());
+    assertEquals(1, targetCal.getEventsOnDate(LocalDate.of(
+        2025, 3, 15)).size());
   }
+
   @Test
   public void testKillCopyEventsOnMutation() {
     // Set up test spies to track method execution
@@ -705,7 +710,9 @@ public class CalendarManagerTest {
     // Create a subclass of CalendarManager that we can monitor
     CalendarManager spyManager = new CalendarManager() {
       @Override
-      public boolean copyEventsOn(LocalDate sourceDate, String targetCalendarName, LocalDate targetDate) {
+      public boolean copyEventsOn(LocalDate sourceDate,
+                                  String targetCalendarName,
+                                  LocalDate targetDate) {
         boolean result = super.copyEventsOn(sourceDate, targetCalendarName, targetDate);
         copyEventReturnValue[0] = result; // Record the actual return value
         return result;
@@ -825,6 +832,7 @@ public class CalendarManagerTest {
     assertNotNull(eventsMap);
     assertTrue(eventsMap.isEmpty());
   }
+
   @Test
   public void testGetAllEventsForEachCalendarReturnValueExactly() {
     // Create calendars

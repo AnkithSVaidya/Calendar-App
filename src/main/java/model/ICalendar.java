@@ -53,7 +53,7 @@ public interface ICalendar {
    * Checks for event conflicts at a specific moment.
    *
    * @param time the timestamp to check.
-   * @return {@code true} if any event is scheduled during this time, {@code false} otherwise.
+   * @return {@code true} if any event
    */
   boolean isBusyAt(LocalDateTime time);
 
@@ -70,11 +70,12 @@ public interface ICalendar {
 
   /**
    * Imports events from a CSV file in the expected format:
-   * Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private
+   * Subject, Start Date, Start Time,
+   * End Date, End Time, All Day Event, Description, Location, Private.
    *
    * @param filename the input file path
    * @return the number of events successfully imported
-   * @throws IOException if an I/O error occurs during reading
+   * @throws IOException              if an I/O error occurs during reading
    * @throws IllegalArgumentException if the file format is invalid
    */
   int importFromCSV(String filename) throws IOException, IllegalArgumentException;
@@ -121,18 +122,21 @@ public interface ICalendar {
 
   /**
    * Method to return the calendar timezone.
+   *
    * @return - Return zone id of timezone.
    */
   ZoneId getTimezone();
 
   /**
    * Method to return all events associated with the calendar.
+   *
    * @return - List of events.
    */
   List<Event> getAllEventsList();
 
   /**
    * Method to get the name of the calendar.
+   *
    * @return - Returns string name.
    */
   String getName();

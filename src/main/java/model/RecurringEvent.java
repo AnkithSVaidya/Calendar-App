@@ -27,15 +27,15 @@ public class RecurringEvent extends AbstractEvent {
   /**
    * Constructs a recurring event with a fixed number of occurrences.
    *
-   * @param title           the title of the event
-   * @param start           the start date and time of the first occurrence
-   * @param end             the end date and time of individual occurrences
-   * @param description     event description
-   * @param location        event location
-   * @param isPublic        visibility status
-   * @param recurrenceDays  set of days of the week when the event repeats
-   * @param occurrences     maximum number of occurrences
-   *                        (mutually exclusive with 'until')
+   * @param title          the title of the event
+   * @param start          the start date and time of the first occurrence
+   * @param end            the end date and time of individual occurrences
+   * @param description    event description
+   * @param location       event location
+   * @param isPublic       visibility status
+   * @param recurrenceDays set of days of the week when the event repeats
+   * @param occurrences    maximum number of occurrences
+   *                       (mutually exclusive with 'until')
    */
   public RecurringEvent(String title,
                         LocalDateTime start,
@@ -48,22 +48,22 @@ public class RecurringEvent extends AbstractEvent {
     super(title, start, description, location, isPublic);
     this.end = end;
     this.recurrenceDays = recurrenceDays;
-    this.occurrences = occurrences * 7; // Multiple to repeat over each week. 2 times will repeat over 2 weeks.
+    this.occurrences = occurrences * 7;
     this.until = null;
   }
 
   /**
    * Constructs a recurring event that repeats until a specified end date.
    *
-   * @param title           the title of the event
-   * @param start           the start date and time of the first occurrence
-   * @param end             the end date and time of individual occurrences
-   * @param description     event description
-   * @param location        event location
-   * @param isPublic        visibility status
-   * @param recurrenceDays  set of days of the week when the event repeats
-   * @param until           final date for occurrences (inclusive,
-   *                        mutually exclusive with 'occurrences')
+   * @param title          the title of the event
+   * @param start          the start date and time of the first occurrence
+   * @param end            the end date and time of individual occurrences
+   * @param description    event description
+   * @param location       event location
+   * @param isPublic       visibility status
+   * @param recurrenceDays set of days of the week when the event repeats
+   * @param until          final date for occurrences (inclusive,
+   *                       mutually exclusive with 'occurrences')
    */
   public RecurringEvent(String title,
                         LocalDateTime start,
@@ -95,6 +95,7 @@ public class RecurringEvent extends AbstractEvent {
 
   /**
    * Returns the days of the week when this event recurs.
+   *
    * @return set of recurrence days
    */
   public Set<DayOfWeek> getRecurrenceDays() {
@@ -103,6 +104,7 @@ public class RecurringEvent extends AbstractEvent {
 
   /**
    * Returns the maximum number of occurrences if defined.
+   *
    * @return number of occurrences, or {@code null} if using end date
    */
   public Integer getOccurrences() {
@@ -111,6 +113,7 @@ public class RecurringEvent extends AbstractEvent {
 
   /**
    * Returns the end date for recurrences if defined.
+   *
    * @return final recurrence date, or {@code null} if using occurrence count
    */
   public LocalDate getUntil() {

@@ -13,7 +13,8 @@ public interface ICalendarManager {
 
   /**
    * Method to create a new calendar.
-   * @param name - The name for the new calendar.
+   *
+   * @param name     - The name for the new calendar.
    * @param timezone - The timezone for the new calendar.
    * @return - Returns true on create success, false otherwise.
    */
@@ -21,15 +22,17 @@ public interface ICalendarManager {
 
   /**
    * Method to edit a property in a calendar.
+   *
    * @param calendarName - The calendar to edit.
-   * @param property - The property to edit.
-   * @param newValue - The new value for the property.
+   * @param property     - The property to edit.
+   * @param newValue     - The new value for the property.
    * @return - Returns true on success, false otherwise.
    */
   boolean editCalendar(String calendarName, String property, String newValue);
 
   /**
    * Method to swap between the current calendar in use.
+   *
    * @param name - The name of the calendar.
    * @return - Returns true on success, false otherwise.
    */
@@ -37,12 +40,14 @@ public interface ICalendarManager {
 
   /**
    * Gets the current active calendar.
+   *
    * @return - Returns the active calendar.
    */
   ICalendar getCurrentCalendar();
 
   /**
    * Method to get a specific calendar by name.
+   *
    * @param name - The name of the calendar.
    * @return - Returns the calendar wanted.
    */
@@ -50,22 +55,25 @@ public interface ICalendarManager {
 
   /**
    * Method to get all the calendars created.
+   *
    * @return - Returns a list of all the calendars in the manager.
    */
   Collection<Calendar> getAllCalendars();
 
   /**
    * Method to return the name/calendar map.
+   *
    * @return - Returns name as keys and calendar as values.
    */
   Map<String, Calendar> getAllCalendarsMap();
 
   /**
    * Method to copy a single event from the active calendar to another calendar.
-   * @param eventName - The name of the event.
-   * @param eventStart - The start of the event.
+   *
+   * @param eventName          - The name of the event.
+   * @param eventStart         - The start of the event.
    * @param targetCalendarName - The copy destination calendar.
-   * @param newTargetStart - The new start of the event.
+   * @param newTargetStart     - The new start of the event.
    * @return - Returns true on completion, false otherwise.
    */
   boolean copyEvent(String eventName, LocalDateTime eventStart,
@@ -73,19 +81,21 @@ public interface ICalendarManager {
 
   /**
    * Method to copy all events on a date to a target calendar.
-   * @param sourceDate - The date of the events.
+   *
+   * @param sourceDate         - The date of the events.
    * @param targetCalendarName - The copy destination calendar.
-   * @param targetDate - The new date.
+   * @param targetDate         - The new date.
    * @return - Returns true on success, false otherwise.
    */
   boolean copyEventsOn(LocalDate sourceDate, String targetCalendarName, LocalDate targetDate);
 
   /**
    * Method to copy all events in a date range.
-   * @param sourceStartDate - Start date.
-   * @param sourceEndDate - End date.
+   *
+   * @param sourceStartDate    - Start date.
+   * @param sourceEndDate      - End date.
    * @param targetCalendarName - The copy destination calendar.
-   * @param targetStartDate - The new date.
+   * @param targetStartDate    - The new date.
    * @return - Returns true on success, false otherwise.
    */
   boolean copyEventsBetween(LocalDate sourceStartDate, LocalDate sourceEndDate,
