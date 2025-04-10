@@ -349,6 +349,7 @@ public class CalendarView extends JFrame implements IView {
   @Override
   public void showErrorMessage(String error) {
     JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+
   }
 
   @Override
