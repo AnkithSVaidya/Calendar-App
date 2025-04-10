@@ -404,7 +404,8 @@ public class CommandCreateTest {
   public void testPrintError1() throws IOException {
     InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
             "--timezone America/New_York\ncreate event event1 from 2025-03-01T08:07 to " +
-            "2025-03-01T09:10\ncreate event failEvent from 2025-03-01T08:07 to 2025-03-01T09:10\nq").getBytes());
+            "2025-03-01T09:10\ncreate event failEvent " +
+            "from 2025-03-01T08:07 to 2025-03-01T09:10\nq").getBytes());
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bytes);

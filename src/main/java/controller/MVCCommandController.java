@@ -109,12 +109,18 @@ public class MVCCommandController implements IController, ActionListener {
       view.setAllCalendarEvents(eventDetailsMap);
       view.setCalendars(model.getAllCalendarsMap(), model.getCurrentCalendar().getName());
       view.refresh();
-    } catch(Exception ex) {
+    } catch (Exception ex) {
       view.showErrorMessage(ex.getMessage());
     }
   }
 
-
+  /**
+   * Method to process an action command.
+   * @param actionCommand - Action command from the view.
+   * @param date - Active date.
+   * @return - Returns message on success or fail.
+   * @throws IOException - IOException for file.
+   */
   public String processCommand(String actionCommand, LocalDate date) throws IOException {
     String message = "";
     List<String> command = new ArrayList<>();
@@ -136,103 +142,112 @@ public class MVCCommandController implements IController, ActionListener {
     }
     // Import calendar.
     else if ("Import Calendar".equals(actionCommand)) {
-        File f = view.showImportPopup();
-        if (f != null) {
-          System.out.println("Importing from: " + f.getName());
+      File f = view.showImportPopup();
+      if (f != null) {
+        System.out.println("Importing from: " + f.getName());
 
-          // Verify it's a CSV file.
-          if (!f.getName().toLowerCase().endsWith(".csv")) {
-            throw new IllegalArgumentException("File must be a CSV file");
-          }
-
-          // Import the calendar.
-          int count = model.getCurrentCalendar().importFromCSV(f.getAbsolutePath());
-          message = "Successfully imported " + count + " events.";
+        // Verify it's a CSV file.
+        if (!f.getName().toLowerCase().endsWith(".csv")) {
+          throw new IllegalArgumentException("File must be a CSV file");
         }
+
+        // Import the calendar.
+        int count = model.getCurrentCalendar().importFromCSV(f.getAbsolutePath());
+        message = "Successfully imported " + count + " events.";
+      }
     }
     // Create calendar.
     else if ("Create Calendar".equals(actionCommand)) {
-        view.createCalendarPopup();
-        command = view.getCalendarCommandList();
+      view.createCalendarPopup();
+      command = view.getCalendarCommandList();
 
-        if (!command.isEmpty() && "create_calendar".equals(command.get(0))) {
-          String name = command.get(1);
-          String timezone = command.get(2);
-          model.createCalendar(name, timezone);
-          message = "Calendar '" + name + "' created with timezone '" + timezone + "'.";
-        }
+      if (!command.isEmpty() && "create_calendar".equals(command.get(0))) {
+        String name = command.get(1);
+        String timezone = command.get(2);
+        model.createCalendar(name, timezone);
+        message = "Calendar '" + name + "' created with timezone '" + timezone + "'.";
+      }
     }
     else if ("Create Event".equals(actionCommand)) {
-        view.showCreateEventPopup(date, this);
-        command = view.getCalendarCommandList();
+      view.showCreateEventPopup(date, this);
+      command = view.getCalendarCommandList();
 
-        // Assume command format: ["create_event", title, fromTime, toTime, dateString]
-        if (!command.isEmpty() && "create_event".equals(command.get(0))) {
-          LocalDateTime startDateTime = buildDateTimeFromString(command.get(4), command.get(2));
-          LocalDateTime endDateTime = buildDateTimeFromString(command.get(4), command.get(3));
-          boolean isPublic = Boolean.parseBoolean(command.get(7));
+      // Assume command format: ["create_event", title, fromTime, toTime, dateString]
+      if (!command.isEmpty() && "create_event".equals(command.get(0))) {
+        LocalDateTime startDateTime = buildDateTimeFromString(command.get(4), command.get(2));
+        LocalDateTime endDateTime = buildDateTimeFromString(command.get(4), command.get(3));
+        boolean isPublic = Boolean.parseBoolean(command.get(7));
 
-          Event event = new Event(command.get(1), startDateTime, endDateTime, command.get(5),
-              command.get(6), isPublic);
-          model.getCurrentCalendar().addEvent(event, true);
+        Event event = new Event(command.get(1), startDateTime, endDateTime, command.get(5),
+            command.get(6), isPublic);
+        model.getCurrentCalendar().addEvent(event, true);
 
-          message = "Creating Event " + command.get(1) + " on " + command.get(4) + " from "
-              + command.get(2) + " to " + command.get(3);
-        }
+        message = "Creating Event " + command.get(1) + " on " + command.get(4) + " from "
+            + command.get(2) + " to " + command.get(3);
+      }
     }
     else if ("Create All Day Event".equals(actionCommand)) {
-        view.showCreateAllDayEventPopup(date, this);
-        command = view.getCalendarCommandList();
+      view.showCreateAllDayEventPopup(date, this);
+      command = view.getCalendarCommandList();
 
-        if (!command.isEmpty() && "create_all_day_event".equals(command.get(0))) {
-          // Assume command format: ["create_all_day_event", title, dateString, ...]
-          LocalDate localDate = LocalDate.parse(command.get(2));
-          LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.NOON);
-          boolean isPublic = Boolean.parseBoolean(command.get(5));
+      if (!command.isEmpty() && "create_all_day_event".equals(command.get(0))) {
+        // Assume command format: ["create_all_day_event", title, dateString, ...]
+        LocalDate localDate = LocalDate.parse(command.get(2));
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.NOON);
+        boolean isPublic = Boolean.parseBoolean(command.get(5));
 
-          Event allDayEvent = new Event(command.get(1), localDateTime, command.get(3),
-              command.get(4), isPublic);
-          model.getCurrentCalendar().addEvent(allDayEvent, true);
+        Event allDayEvent = new Event(command.get(1), localDateTime, command.get(3),
+            command.get(4), isPublic);
+        model.getCurrentCalendar().addEvent(allDayEvent, true);
 
-          message = "Creating All Day Event " + command.get(1) +
-              " on " + command.get(2);
-        }
+        message = "Creating All Day Event " + command.get(1) +
+            " on " + command.get(2);
+      }
     }
     else if ("Create Recurring Event".equals(actionCommand)) {
-        view.showRecurringEventPopup(date, this);
-        command = view.getCalendarCommandList();
+      view.showRecurringEventPopup(date, this);
+      command = view.getCalendarCommandList();
 
-        if (!command.isEmpty() && "create_recurring_event".equals(command.get(0))) {
-          // Assume command format: ["create_recurring_event", title, fromTime,
-          // toTime, daysString, extraDateString]
-          //  {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-          List<String> selectedDaysList = new ArrayList<>(Arrays.asList(command.get(4).split(", ")));
-          Set<DayOfWeek> recurrenceDays = new HashSet<>();
-          for (String dayChar : selectedDaysList) {
-            switch (dayChar) {
-              case "Mon" : recurrenceDays.add(DayOfWeek.MONDAY); break;
-              case "Tue" : recurrenceDays.add(DayOfWeek.TUESDAY); break;
-              case "Wed" : recurrenceDays.add(DayOfWeek.WEDNESDAY); break;
-              case "Thu" : recurrenceDays.add(DayOfWeek.THURSDAY); break;
-              case "Fri" : recurrenceDays.add(DayOfWeek.FRIDAY); break;
-              case "Sat" : recurrenceDays.add(DayOfWeek.SATURDAY); break;
-              case "Sun" : recurrenceDays.add(DayOfWeek.SUNDAY); break;
-            }
+      if (!command.isEmpty() && "create_recurring_event".equals(command.get(0))) {
+        // Assume command format: ["create_recurring_event", title, fromTime,
+        // toTime, daysString, extraDateString]
+        //  {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+        List<String> selectedDaysList = new ArrayList<>(Arrays.asList(command.get(4).split(", ")));
+        Set<DayOfWeek> recurrenceDays = new HashSet<>();
+        for (String dayChar : selectedDaysList) {
+          switch (dayChar) {
+            case "Mon" : recurrenceDays.add(DayOfWeek.MONDAY);
+              break;
+            case "Tue" : recurrenceDays.add(DayOfWeek.TUESDAY);
+              break;
+            case "Wed" : recurrenceDays.add(DayOfWeek.WEDNESDAY);
+              break;
+            case "Thu" : recurrenceDays.add(DayOfWeek.THURSDAY);
+              break;
+            case "Fri" : recurrenceDays.add(DayOfWeek.FRIDAY);
+              break;
+            case "Sat" : recurrenceDays.add(DayOfWeek.SATURDAY);
+              break;
+            case "Sun" : recurrenceDays.add(DayOfWeek.SUNDAY);
+              break;
+            default:
+              break;
           }
-          int num = Integer.parseInt(command.get(5));
-          boolean isPublic = Boolean.parseBoolean(command.get(9));
-          LocalDateTime startDateTimeRec = buildDateTimeFromString(command.get(6), command.get(2));
-          LocalDateTime endDateTimeRec = buildDateTimeFromString(command.get(6), command.get(3));
-
-          RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTimeRec,
-              endDateTimeRec, command.get(7), command.get(8), isPublic, recurrenceDays, num);
-
-          model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
-
-          message = "Creating Recurring Event " + command.get(1) + " on " + command.get(4)
-              + " over " + command.get(5) + " times.";
         }
+        int num = Integer.parseInt(command.get(5));
+        boolean isPublic = Boolean.parseBoolean(command.get(9));
+        LocalDateTime startDateTimeRec = buildDateTimeFromString(command.get(6), command.get(2));
+        LocalDateTime endDateTimeRec = buildDateTimeFromString(command.get(6), command.get(3));
+
+        RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTimeRec,
+            endDateTimeRec, command.get(7), command.get(8), isPublic, recurrenceDays, num);
+
+        model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
+
+        message = "Creating Recurring Event " + command.get(1) + " on " + command.get(4)
+            + " over " + command.get(5) + " times.";
       }
+    }
     else if ("Edit Event".equals(actionCommand)) {
       view.showEditEventPopup(date, this);
       command = view.getCalendarCommandList();
@@ -265,7 +280,8 @@ public class MVCCommandController implements IController, ActionListener {
         boolean ok = model.getCurrentCalendar().editEvents(property, eventName, dt, command.get(3));
 
         message = "Editing All Events " + eventName +
-            " Property: " + property + " to value: " + newValue + " starting from " + command.get(4);
+            " Property: " + property + " to value: "
+                + newValue + " starting from " + command.get(4);
       }
     }
     else if ("Day Options".equals(actionCommand)) {
@@ -300,7 +316,8 @@ public class MVCCommandController implements IController, ActionListener {
    * @return - Returns a LocalDateTime object of the combined fields.
    * @throws DateTimeParseException - If invalid inputs, throw error.
    */
-  private LocalDateTime buildDateTimeFromString(String date, String time) throws DateTimeParseException {
+  private LocalDateTime buildDateTimeFromString(String date, String time)
+          throws DateTimeParseException {
     try {
       LocalDate d = LocalDate.parse(date);
       LocalTime t = LocalTime.parse(time);

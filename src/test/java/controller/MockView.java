@@ -12,11 +12,18 @@ import model.Calendar;
 import view.EventDetails;
 import view.IView;
 
+/**
+ * This class represents a mock view used in JUnit tests.
+ */
 public class MockView implements IView {
 
   private final StringBuilder log;
   List<String> commandList;
 
+  /**
+   * Constructor for mock view.
+   * @param log - Log of strings for testing use.
+   */
   public MockView(StringBuilder log) {
     this.log = log;
     this.commandList = new ArrayList<>();
@@ -24,12 +31,12 @@ public class MockView implements IView {
 
   @Override
   public void makeVisible() {
-
+    return;
   }
 
   @Override
   public void setCommandButtonListener(ActionListener actionEvent) {
-
+    return;
   }
 
   @Override
@@ -46,12 +53,12 @@ public class MockView implements IView {
 
   @Override
   public void refresh() {
-
+    return;
   }
 
   @Override
   public void setCalendars(Map<String, Calendar> calMap, String currentCal) {
-
+    return;
   }
 
   @Override
@@ -134,7 +141,7 @@ public class MockView implements IView {
 
   @Override
   public void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap) {
-
+    return;
   }
 
   @Override

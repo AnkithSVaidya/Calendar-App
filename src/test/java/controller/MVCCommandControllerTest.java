@@ -3,8 +3,6 @@ package controller;
 import org.junit.Before;
 import org.junit.Test;
 
-
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +16,9 @@ import view.IView;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * JUnit tests to test the mvc controller.
+ */
 public class MVCCommandControllerTest {
 
   ICalendar mockCal;
@@ -94,8 +95,9 @@ public class MVCCommandControllerTest {
     assertTrue(mockCalLog.toString().contains("AddEvent"));
     assertTrue(mockViewLog.toString().contains("showCreateEventPopup"));
 
-    String expected = "Creating Event " + commandList.get(1) + " on " + commandList.get(4) + " from "
-            + commandList.get(2) + " to " + commandList.get(3);;
+    String expected = "Creating Event " + commandList.get(1)
+            + " on " + commandList.get(4) + " from "
+            + commandList.get(2) + " to " + commandList.get(3);
     assertEquals(expected, msg);
   }
 
@@ -159,7 +161,8 @@ public class MVCCommandControllerTest {
     assertTrue(mockCalLog.toString().contains("editEvent"));
     assertTrue(mockViewLog.toString().contains("showEditEventPopup"));
 
-    String expected = "Edited event " + commandList.get(1) + " Property: " + commandList.get(2) + " to "
+    String expected = "Edited event " + commandList.get(1)
+            + " Property: " + commandList.get(2) + " to "
             + commandList.get(5) + ".";
     assertEquals(expected, msg);
   }

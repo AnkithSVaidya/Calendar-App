@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 public class EditEventPopup extends JFrame {
 
   /**
-   * Constructor method to build the popup frame
+   * Constructor method to build the popup frame.
    * @param view - The view.
    * @param mainFrame - The views main frame.
    * @param date - The active date.

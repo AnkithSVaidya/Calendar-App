@@ -1,7 +1,9 @@
 package view;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.LocalDate;
@@ -11,35 +13,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.BoxLayout;
+import javax.swing.JFileChooser;
+import javax.swing.DefaultComboBoxModel;
 
 import model.Calendar;
 
+/**
+ * Main class for view. Builds a calendar ui that communicates with the controller.
+ */
 public class CalendarView extends JFrame implements IView {
   // JFrame variables.
   private JFrame frame;
-  private JFrame showEventsFrame;
   private JPanel calendarPanel;
-  private JPanel topButtons;
   private JLabel monthLabel;
   private JComboBox<String> calendarDropdown;
-  private IButtonPopups currentPopup;
   private JButton exportButton;
   private JButton importButton;
-  private JPanel topPanel;
-  private JPanel calendarStuffPanel;
-  private JPanel bottomPanel;
-  private JPanel bottomPanelButtons;
   private JButton exitButton;
   private JButton createCalButtonNew;
   private JLabel activeCalLabel;
   private JLabel activeDateLabel;
   private JButton eventOptionsButton;
-  private JButton prevButton;
-  private JButton nextButton;
 
   private Map<String, Color> calendars;
-  private Map<LocalDate, List<String>> events;
   private Map<LocalDate, List<EventDetails>> eventDetailsList;
   private Map<String, List<EventDetails>> detailsForEachCalendarList;
   private YearMonth currentMonth;
@@ -47,7 +50,9 @@ public class CalendarView extends JFrame implements IView {
   private List<String> commandList;
   private LocalDate activeDate;
 
-
+  /**
+   * Method to build the main view. Constructs a calendar ui for the user to interact with.
+   */
   public CalendarView() {
     frame = new JFrame("Calendar App");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -56,7 +61,6 @@ public class CalendarView extends JFrame implements IView {
 
     currentMonth = YearMonth.now();
     calendars = new HashMap<>();
-    events = new HashMap<>();
     eventDetailsList = new HashMap<>();
     detailsForEachCalendarList = new HashMap<>();
     commandList = new ArrayList<>();
@@ -65,7 +69,7 @@ public class CalendarView extends JFrame implements IView {
     selectedCalendar = "default";
 
     // Main top stuff.
-    topPanel = new JPanel();
+    JPanel topPanel = new JPanel();
     topPanel.setLayout(new BorderLayout());
 
     // Active Info for lables.
@@ -100,9 +104,9 @@ public class CalendarView extends JFrame implements IView {
 
 
     // Calendar arrows and selector.
-    calendarStuffPanel = new JPanel();
-    prevButton = new JButton("<");
-    nextButton = new JButton(">");
+    JPanel calendarStuffPanel = new JPanel();
+    JButton prevButton = new JButton("<");
+    JButton nextButton = new JButton(">");
     monthLabel = new JLabel();
     calendarDropdown = new JComboBox<>(calendars.keySet().toArray(new String[0]));
     calendarStuffPanel.add(prevButton);
@@ -124,9 +128,9 @@ public class CalendarView extends JFrame implements IView {
     calendarDropdown.addActionListener(e -> changeCalendar());
 
     // Bottom stuff.
-    bottomPanel = new JPanel();
+    JPanel bottomPanel = new JPanel();
 
-    bottomPanelButtons = new JPanel();
+    JPanel bottomPanelButtons = new JPanel();
     bottomPanelButtons.setLayout(new BorderLayout());
     exportButton = new JButton("Export Calendar");
     exportButton.setActionCommand("Export Calendar");
@@ -180,7 +184,8 @@ public class CalendarView extends JFrame implements IView {
     calendarPanel.setBackground(calendars.get(selectedCalendar));
 
     // Then set the active calendar events.
-    List<EventDetails> eventsDetails = detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
+    List<EventDetails> eventsDetails =
+            detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
     setActiveCalendarEvents(eventsDetails);
 
     for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
@@ -247,7 +252,8 @@ public class CalendarView extends JFrame implements IView {
         "Do not include file type.", "Export File Name", JOptionPane.PLAIN_MESSAGE);
 
     if (fileName != null && !fileName.trim().isEmpty()) {
-      JOptionPane.showMessageDialog(this, "You have chosen to export the file as: " + fileName);
+      JOptionPane.showMessageDialog(this,
+              "You have chosen to export the file as: " + fileName);
       System.out.println("Export file name: " + fileName);
     } else {
       JOptionPane.showMessageDialog(this, "No file name entered.");
@@ -300,6 +306,11 @@ public class CalendarView extends JFrame implements IView {
   }
 
 
+  /**
+   * Method to set the calendars from the controller.
+   * @param calMap - Map of Calendar Name,
+   * @param currentCal - The current active calendar.
+   */
   public void setCalendars(Map<String, Calendar> calMap, String currentCal) {
     selectedCalendar = currentCal;
     calendars.clear();
@@ -311,7 +322,8 @@ public class CalendarView extends JFrame implements IView {
     calendarDropdown.removeAll();
 
     // Refresh dropdown after calendar creation.
-    DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(calendars.keySet().toArray(new String[0]));
+    DefaultComboBoxModel<String> model =
+            new DefaultComboBoxModel<>(calendars.keySet().toArray(new String[0]));
     calendarDropdown.setModel(model);
 
     this.refresh();
@@ -330,10 +342,15 @@ public class CalendarView extends JFrame implements IView {
     this.refresh();
   }
 
+  /**
+   * Method to set all calendar events from the controller.
+   * @param detailsPerMap - List of event details associated with a calendar name key.
+   */
   public void setAllCalendarEvents(Map<String, List<EventDetails>> detailsPerMap) {
     detailsForEachCalendarList = detailsPerMap;
 
-    List<EventDetails> eventsDetails = detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
+    List<EventDetails> eventsDetails =
+            detailsForEachCalendarList.getOrDefault(selectedCalendar, new ArrayList<>());
     setActiveCalendarEvents(eventsDetails);
   }
 
@@ -348,13 +365,15 @@ public class CalendarView extends JFrame implements IView {
 
   @Override
   public void showErrorMessage(String error) {
-    JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(this,
+            error, "Error", JOptionPane.ERROR_MESSAGE);
 
   }
 
   @Override
   public void showSuccessMessage(String message) {
-    JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    JOptionPane.showMessageDialog(this,
+            message, "Success", JOptionPane.INFORMATION_MESSAGE);
   }
 
   @Override
