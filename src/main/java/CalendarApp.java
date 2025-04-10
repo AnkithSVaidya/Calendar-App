@@ -49,15 +49,15 @@ public class CalendarApp {
         PrintWriter a = new PrintWriter(System.out, true);
 
         try {
-          new HeadlessController(r, a, model, f).controllerGo();
+          new HeadlessController(r, System.out, model, f).controllerGo();
         }
         catch (Exception e) {
           e.printStackTrace(a);
           a.println("Error: " + e.getMessage());
 
           e.printStackTrace();
-          System.out.println(e.getMessage());
-          throw new IllegalArgumentException(e.getMessage());
+          System.out.println("Illegal command in file: " + e.getMessage());
+          throw new IllegalArgumentException("Illegal command in file: " + e.getMessage());
         }
 
       }

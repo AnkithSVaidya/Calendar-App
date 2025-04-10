@@ -2,7 +2,7 @@ create calendar --name cal1 --timezone America/New_York
 use calendar --name cal1
 create event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public
 create event event12 from 2025-03-11T08:00 to 2025-03-11T09:00 --desc d2 --location l2 public
-create event event2R from 2025-03-01T10:07 to 2025-03-01T11:12 repeats MWF for 3 times
+create event event2R from 2025-05-20T10:07 to 2025-05-20T11:12 repeats MWF for 2 times
 create event event3U from 2025-03-01T12:03 to 2025-03-01T13:14 repeats TR until 2025-03-14T12:00
 create event event4Allday on 2025-03-11T14:03
 create event event4All on 2025-03-02T12:03

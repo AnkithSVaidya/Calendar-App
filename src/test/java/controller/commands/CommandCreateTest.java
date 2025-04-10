@@ -32,7 +32,6 @@ public class CommandCreateTest {
     mockCalManagerLog = new StringBuilder();
     mockCal = new MockCalendar(mockCalLog, 1111);
     mockCalManager = new MockCalendarManager(mockCalManagerLog, mockCal);
-
   }
 
   @Test(expected = IllegalArgumentException.class)

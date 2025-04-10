@@ -1,6 +1,7 @@
 create calendar --name cal1 --timezone America/New_York
+create calendar --name cal1 --timezone America/New_York
 use calendar --name cal1
 create event event1 from 2025-03-01T08:07 to 2025-03-01T09:10 --desc desc1 --location loc1 public
-edit events start event1 from 2025-03-01T08:07 with 2025-03-02T10:07
+edit events description event1 from 2025-03-01T08:07 with newDesc
 print events on 2025-03-01
 q
