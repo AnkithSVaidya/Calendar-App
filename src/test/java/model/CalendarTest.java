@@ -369,7 +369,6 @@ public class CalendarTest {
 
   @Test(expected = IOException.class)  // Change from IllegalArgumentException
   public void testImportFromCSVInvalidFile() throws IOException {
-    // This seems to be throwing IOException (NoSuchFileException) instead of IllegalArgumentException
     calendar.importFromCSV("non_existent_file.csv");
   }
 
@@ -1390,69 +1389,6 @@ public class CalendarTest {
   }
 
 
-  /**
-   * This test specifically targets the Calendar.parseTime method
-   * where the HH:mm format handler seems to be implemented.
-   */
-  @Test
-  public void testForceTimeParseHHmmExecution() throws Exception {
-    // This test carefully sets up the conditions to make the HH:mm handler execute
-    // and confirms its behavior
-
-    // Create a version of the parseTime logic that we control
-    class TimeParser {
-      public LocalTime parse(String timeStr) {
-        timeStr = timeStr.trim();
-
-        try {
-          // First parser (ISO format)
-          return LocalTime.parse(timeStr);
-        } catch (Exception e1) {
-          try {
-            // Second parser (HH:mm format) - this is what we're targeting
-            if (timeStr.matches("\\d{1,2}:\\d{2}")) {
-              // To actually cover the mutation, we execute this line:
-              return LocalTime.parse(timeStr + ":00");
-            }
-          } catch (Exception e2) {
-            // Fall through
-          }
-
-          // Skip AM/PM handler for simplicity
-
-          // Default
-          return LocalTime.MIDNIGHT;
-        }
-      }
-    }
-
-    TimeParser parser = new TimeParser();
-
-
-    java.lang.reflect.Method calendarMethod = Calendar.class.getDeclaredMethod(
-        "parseTime", String.class);
-    calendarMethod.setAccessible(true);
-
-
-    String[] testCases = {
-        "9:30",
-        "09:30",
-        "1:30",
-        "01:30"
-    };
-
-    for (String timeStr : testCases) {
-      LocalTime expected = parser.parse(timeStr);
-
-      LocalTime actual = (LocalTime) calendarMethod.invoke(calendar, timeStr);
-
-      System.out.println("Test case: " + timeStr);
-      System.out.println("Our implementation result: " + expected);
-      System.out.println("Calendar.parseTime result: " + actual);
-
-    }
-  }
-
 
   @Test
   public void testAddRecurringEventWithConflictChecking() {
@@ -1867,8 +1803,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test specifically targets the negated conditional in line 399
-   * focusing on making sure both the TRUE and FALSE paths are executed
+   * JUnit tests for testParseTimeRegexConditionalCoverage.
    */
   @Test
   public void testParseTimeRegexConditionalCoverage() throws Exception {
@@ -2027,26 +1962,6 @@ public class CalendarTest {
     assertFalse("10:000".matches("\\d{1,2}:\\d{2}"));
   }
 
-  /**
-   * This test directly executes the parseTime method with inputs
-   * specifically selected to test both branches of the regex condition.
-   */
-  @Test
-  public void testDirectParseTime() throws Exception {
-    java.lang.reflect.Method parseTimeMethod = Calendar.class.getDeclaredMethod(
-        "parseTime", String.class);
-    parseTimeMethod.setAccessible(true);
-
-
-    LocalTime result1 = (LocalTime) parseTimeMethod.invoke(calendar, "12:45");
-    LocalTime result2 = (LocalTime) parseTimeMethod.invoke(calendar, "12:5");
-
-    System.out.println("Result for 12:45: " + result1);
-    System.out.println("Result for 12:5: " + result2);
-
-    LocalTime result3 = (LocalTime) parseTimeMethod.invoke(calendar, "99:99");
-    System.out.println("Result for 99:99: " + result3);
-  }
 
   /**
    * This test specifically targets line 399 in Calendar.parseTime method
@@ -2249,54 +2164,6 @@ public class CalendarTest {
     }
   }
 
-
-  /**
-   * This test directly targets the parseTime method's handling of time strings
-   * in the format HH:mm, focusing on the regex condition at line 399 and
-   * the LocalTime.parse call at line 400.
-   */
-  @Test
-  public void testDirectHHmmTimeParsing() throws Exception {
-    class TimeParsingTester {
-      public LocalTime parseTime(String timeStr) {
-        try {
-          return LocalTime.parse(timeStr);
-        } catch (Exception e) {
-          if (timeStr.matches("\\d{1,2}:\\d{2}")) {
-            try {
-              return LocalTime.parse(timeStr + ":00");
-            } catch (Exception e2) {
-              System.out.println(e2);
-            }
-          }
-          return LocalTime.MIDNIGHT;
-        }
-      }
-    }
-
-    TimeParsingTester tester = new TimeParsingTester();
-
-    Method parseTimeMethod = Calendar.class.getDeclaredMethod(
-        "parseTime", String.class);
-    parseTimeMethod.setAccessible(true);
-
-
-    String[] testCases = {
-        "01:30", "1:30", "09:30", "9:30", "13:45", "23:59"
-    };
-
-
-    for (String timeStr : testCases) {
-      LocalTime expected = tester.parseTime(timeStr);
-
-      LocalTime actual = (LocalTime) parseTimeMethod.invoke(calendar, timeStr);
-
-      System.out.println("Time string: " + timeStr);
-      System.out.println("Test implementation result: " + expected);
-      System.out.println("Calendar.parseTime result: " + actual);
-      System.out.println("---");
-    }
-  }
 
   /**
    * JUnit Test for testParseTimeRegexSimplified.
