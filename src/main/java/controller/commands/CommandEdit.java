@@ -31,6 +31,15 @@ public class CommandEdit extends ICommand {
     ILLEGAL
   }
 
+  private enum PropertyType {
+    SUBJECT,
+    DESC,
+    LOCATION,
+    START,
+    END,
+    ISPUBLIC
+  }
+
   private Type editType;
 
   /**
@@ -86,31 +95,34 @@ public class CommandEdit extends ICommand {
       throw new IllegalStateException("No calendar found.");
     }
 
+    boolean success = true;
     switch (this.editType) {
       case EDIT_EVENT:
         List<LocalDateTime> range = ((FromDTToDT) this.dt).getDateTimeRange();
-        cal.editEvent(this.property, this.eventName, range.get(0), range.get(1),
+        success = cal.editEvent(this.property, this.eventName, range.get(0), range.get(1),
             this.newPropertyValue);
         break;
 
       case EDIT_ALL_EVENTS:
-        cal.editAllEvents(this.property, this.eventName, this.newPropertyValue);
+        success = cal.editAllEvents(this.property, this.eventName, this.newPropertyValue);
         break;
 
       case EDIT_ALL_EVENTS_DT:
         List<LocalDateTime> range2 = ((FromDTToDT) this.dt).getDateTimeRange();
-        cal.editEvents(this.property, this.eventName, range2.get(0), this.newPropertyValue);
+        success = cal.editEvents(this.property, this.eventName, range2.get(0), this.newPropertyValue);
         break;
 
       case EDIT_CAL:
-        calManager.editCalendar(this.calName, this.property, this.newPropertyValue);
+        success = calManager.editCalendar(this.calName, this.property, this.newPropertyValue);
         break;
 
       default:
         throw new IllegalArgumentException("Invalid edit type.");
     }
 
-
+    if (!success) {
+      throw new IllegalArgumentException("Failed to edit property.");
+    }
   }
 
   /**
@@ -163,7 +175,7 @@ public class CommandEdit extends ICommand {
    * @return - Boolean verify.
    */
   private boolean isValidProperty(String inputProperty) {
-    String[] validProperties = {"subject", "description" , "location"};
+    String[] validProperties = {"subject", "description" , "location", "start", "end", "ispublic"};
     List<String> validPropertyArr = Arrays.asList(validProperties);
     return validPropertyArr.contains(inputProperty);
   }

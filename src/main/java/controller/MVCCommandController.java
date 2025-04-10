@@ -85,18 +85,11 @@ public class MVCCommandController implements IController, ActionListener {
           // Export the calendar
           String exportedFile = model.getCurrentCalendar().exportToCSV(fileName);
 
-          // Show success message
-          JOptionPane.showMessageDialog(null,
-              "Calendar successfully exported to: " + exportedFile,
-              "Export Success", JOptionPane.INFORMATION_MESSAGE);
-
-          System.out.println("Exported to: " + exportedFile);
+          String message = "Calendar successfully exported to: " + exportedFile;
+          view.showSuccessMessage(message);
         }
       } catch (IOException err) {
-        err.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-            "Error exporting calendar: " + err.getMessage(),
-            "Export Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(err.getMessage());
       }
     }
     else if ("Import Calendar".equals(actionCommand)) {
@@ -220,21 +213,15 @@ public class MVCCommandController implements IController, ActionListener {
           RecurringEvent recurringEvent = new RecurringEvent(command.get(1), startDateTimeRec,
               endDateTimeRec, command.get(7), command.get(8), isPublic, recurrenceDays, num);
 
-          try {
-            model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
-            JOptionPane.showMessageDialog(null, "Creating Recurring Event " + command.get(1) +
-                " on " + command.get(4) + " over " + command.get(5) + " times.");
-          } catch (IllegalStateException ex) {
-            // This is likely a conflict error
-            JOptionPane.showMessageDialog(null,
-                "Cannot create recurring event: Conflicts with existing event. " + ex.getMessage(),
-                "Scheduling Conflict", JOptionPane.ERROR_MESSAGE);
-          }
+          model.getCurrentCalendar().addRecurringEvent(recurringEvent, true);
+
+          String message = "Creating Recurring Event " + command.get(1) + " on " + command.get(4)
+              + " over " + command.get(5) + " times.";
+
+          view.showSuccessMessage(message);
         }
       } catch (Exception ex) {
-        JOptionPane.showMessageDialog(null,
-            "Error creating recurring event: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Edit Event".equals(actionCommand)) {
