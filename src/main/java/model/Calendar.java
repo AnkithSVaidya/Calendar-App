@@ -398,14 +398,6 @@ public class Calendar implements ICalendar {
       // Try standard ISO format (HH:mm:ss)
       return LocalTime.parse(timeStr);
     } catch (Exception e) {
-      try {
-        // Try HH:mm format
-        if (timeStr.matches("\\d{1,2}:\\d{2}")) {
-          return LocalTime.parse(timeStr + ":00");
-        }
-      } catch (Exception e2) {
-        // Fall through to next attempt
-      }
 
       try {
         // Try 12-hour format with AM/PM
