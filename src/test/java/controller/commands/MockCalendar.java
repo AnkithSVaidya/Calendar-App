@@ -11,7 +11,7 @@ import model.Event;
 import model.ICalendar;
 import model.RecurringEvent;
 
-class MockCalendar implements ICalendar {
+public class MockCalendar implements ICalendar {
   AbstractEvent event;
   private StringBuilder log;
 
@@ -73,12 +73,15 @@ class MockCalendar implements ICalendar {
   @Override
   public String exportToCSV(String filename) throws IOException {
     log.append("Export");
-    return "";
+    log.append(" ");
+    return "exported";
   }
 
   @Override
   public int importFromCSV(String filename) throws IOException, IllegalArgumentException {
-    return 0;
+    log.append("Import");
+    log.append(" ");
+    return 1;
   }
 
   @Override

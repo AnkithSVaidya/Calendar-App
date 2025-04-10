@@ -23,7 +23,7 @@ public class MockCalendarManager implements ICalendarManager {
    * @param log - Log to access in test class.
    * @param mockCalendar - Calendar Manager class. Either a mock or a regular one.
    */
-  MockCalendarManager(StringBuilder log, ICalendar mockCalendar) {
+  public MockCalendarManager(StringBuilder log, ICalendar mockCalendar) {
     this.log = log;
     this.mockCalendar = mockCalendar;
   }

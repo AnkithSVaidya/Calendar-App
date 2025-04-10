@@ -382,12 +382,12 @@ public class MVCCommandController implements IController, ActionListener {
         // Export the calendar
         String exportedFile = model.getCurrentCalendar().exportToCSV(fileName);
 
-        message = "Calendar successfully exported to: " + exportedFile;
+        message = "Calendar successfully exported to: " + exportedFile + ".csv";
       }
     }
     // Import calendar.
     else if ("Import Calendar".equals(actionCommand)) {
-        File f = view.showImportPopup(this);
+        File f = view.showImportPopup();
         if (f != null) {
           System.out.println("Importing from: " + f.getName());
 
@@ -403,7 +403,7 @@ public class MVCCommandController implements IController, ActionListener {
     }
     // Create calendar.
     else if ("Create Calendar".equals(actionCommand)) {
-        view.createCalendarPopup(this);
+        view.createCalendarPopup();
         command = view.getCalendarCommandList();
 
         if (!command.isEmpty() && "create_calendar".equals(command.get(0))) {

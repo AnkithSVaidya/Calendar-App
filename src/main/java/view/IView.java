@@ -57,9 +57,8 @@ public interface IView {
 
   /**
    * Method to show a create calendar popup on button click.
-   * @param listener - Action listener.
    */
-  void createCalendarPopup(ActionListener listener);
+  void createCalendarPopup();
 
   /**
    * Method to show the main popup for other action buttons for a day.
@@ -96,7 +95,7 @@ public interface IView {
    */
   void showEditEventPopup(LocalDate date, ActionListener listener);
 
-  File showImportPopup(ActionListener listener);
+  File showImportPopup();
 
   String showExportPopup();
 

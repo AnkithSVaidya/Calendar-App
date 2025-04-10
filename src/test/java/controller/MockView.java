@@ -30,6 +30,8 @@ public class MockView implements IView {
 
   @Override
   public List<String> getCalendarCommandList() {
+    log.append("commandList");
+    log.append(" ");
     return List.of();
   }
 
@@ -59,7 +61,7 @@ public class MockView implements IView {
   }
 
   @Override
-  public void createCalendarPopup(ActionListener listener) {
+  public void createCalendarPopup() {
 
   }
 
@@ -89,13 +91,30 @@ public class MockView implements IView {
   }
 
   @Override
-  public File showImportPopup(ActionListener listener) {
+  public File showImportPopup() {
+//    try {
+//      // Create a temporary file
+//      File tempFile = File.createTempFile("test-import", ".txt");
+//      tempFile.deleteOnExit(); // Automatically deletes on JVM exit
+//
+//      // Optionally, write something to the file for testing
+//      try (FileWriter writer = new FileWriter(tempFile)) {
+//        writer.write("Sample content for import testing.");
+//      }
+//
+//      return tempFile;
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//      return null;
+//    }
     return null;
   }
 
   @Override
   public String showExportPopup() {
-    return "";
+    log.append("showExportPopup");
+    log.append(" ");
+    return "export";
   }
 
   @Override
@@ -110,11 +129,13 @@ public class MockView implements IView {
 
   @Override
   public void showErrorMessage(String error) {
-
+    log.append("errorMessage");
+    log.append(" ");
   }
 
   @Override
   public void showSuccessMessage(String success) {
-
+    log.append("successMessage");
+    log.append(" ");
   }
 }

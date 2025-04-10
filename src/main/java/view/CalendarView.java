@@ -225,7 +225,7 @@ public class CalendarView extends JFrame implements IView {
   }
 
   @Override
-  public File showImportPopup(ActionListener listener) {
+  public File showImportPopup() {
 
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -258,7 +258,7 @@ public class CalendarView extends JFrame implements IView {
     return fileName;
   }
 
-  public void createCalendarPopup(ActionListener listener) {
+  public void createCalendarPopup() {
     JFrame popup = new CreateCalendarPopup(this, frame);
   }
 
