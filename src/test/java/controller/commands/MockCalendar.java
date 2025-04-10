@@ -85,20 +85,20 @@ class MockCalendar implements ICalendar {
   public boolean editEvent(String property, String eventName, LocalDateTime startTime,
                            LocalDateTime endTime, String newValue) {
     editHelper(property, newValue);
-    return false;
+    return true;
   }
 
   @Override
   public boolean editEvents(String property, String eventName, LocalDateTime startTime,
                             String newValue) {
     editHelper(property, newValue);
-    return false;
+    return true;
   }
 
   @Override
   public boolean editAllEvents(String property, String eventName, String newValue) {
     editHelper(property, newValue);
-    return false;
+    return true;
   }
 
   @Override
@@ -119,14 +119,17 @@ class MockCalendar implements ICalendar {
   protected void editHelper(String property, String newValue) {
     switch (property) {
       case "description":
+        log.append(" ");
         log.append(newValue);
         break;
 
       case "subject":
+        log.append(" ");
         log.append(newValue);
         break;
 
       case "location":
+        log.append(" ");
         log.append(newValue);
         break;
 

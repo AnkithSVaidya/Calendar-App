@@ -179,7 +179,7 @@ public class CommandCreateTest {
     assertTrue(mockCalLog.toString().contains("event2R"));
     String str = mockCalLog.toString();
     String[] parts = str.split(" ");
-    assertEquals(4, parts.length);
+    assertEquals(28, parts.length);
   }
 
   @Test

@@ -52,6 +52,8 @@ public class CommandEditTest {
     assertTrue(mockCalLog.toString().contains("desc1"));
     assertTrue(mockCalLog.toString().contains("newLoc"));
     assertTrue(mockCalLog.toString().contains("true"));
+    assertTrue(mockCalLog.toString().contains("newLoc"));
+
   }
 
   @Test

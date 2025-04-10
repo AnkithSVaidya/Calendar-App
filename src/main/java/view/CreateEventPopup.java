@@ -23,7 +23,7 @@ public class CreateEventPopup extends JFrame {
 
     createSingleEventPanel = new JPanel();
     createSingleEventPanel.setLayout(new GridLayout(0, 1));
-    JLabel instructions = new JLabel("Please input datetimes in <dateStringTtimeString> format.");
+    JLabel instructions = new JLabel("Please input times in HH:mm format.");
     createSingleEventPanel.add(instructions);
 
     createSingleEventPanel.add(new JLabel("Event Name:"));
