@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -195,17 +196,20 @@ public class MVCCommandController implements IController, ActionListener {
         command = view.getCalendarCommandList();
 
         if (!command.isEmpty() && "create_recurring_event".equals(command.get(0))) {
-          // Assume command format: ["create_recurring_event", title, fromTime, toTime, daysString, extraDateString]
+          // Assume command format: ["create_recurring_event", title, fromTime,
+          // toTime, daysString, extraDateString]
+          //  {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+          List<String> selectedDaysList = new ArrayList<>(Arrays.asList(command.get(4).split(", ")));
           Set<DayOfWeek> recurrenceDays = new HashSet<>();
-          for (char dayChar : command.get(4).toCharArray()) {
+          for (String dayChar : selectedDaysList) {
             switch (dayChar) {
-              case 'M': recurrenceDays.add(DayOfWeek.MONDAY); break;
-              case 'T': recurrenceDays.add(DayOfWeek.TUESDAY); break;
-              case 'W': recurrenceDays.add(DayOfWeek.WEDNESDAY); break;
-              case 'R': recurrenceDays.add(DayOfWeek.THURSDAY); break;
-              case 'F': recurrenceDays.add(DayOfWeek.FRIDAY); break;
-              case 'S': recurrenceDays.add(DayOfWeek.SATURDAY); break;
-              case 'U': recurrenceDays.add(DayOfWeek.SUNDAY); break;
+              case "Mon" : recurrenceDays.add(DayOfWeek.MONDAY); break;
+              case "Tue" : recurrenceDays.add(DayOfWeek.TUESDAY); break;
+              case "Wed" : recurrenceDays.add(DayOfWeek.WEDNESDAY); break;
+              case "Thu" : recurrenceDays.add(DayOfWeek.THURSDAY); break;
+              case "Fri" : recurrenceDays.add(DayOfWeek.FRIDAY); break;
+              case "Sat" : recurrenceDays.add(DayOfWeek.SATURDAY); break;
+              case "Sun" : recurrenceDays.add(DayOfWeek.SUNDAY); break;
             }
           }
           int num = Integer.parseInt(command.get(5));
@@ -241,50 +245,41 @@ public class MVCCommandController implements IController, ActionListener {
           // Correct order: ["edit_event", eventName, property, fromISO, toISO, newValue]
           String eventName = command.get(1);
           String property = command.get(2).toLowerCase();
-          LocalDateTime from = LocalDateTime.parse(command.get(3));
-          LocalDateTime to = LocalDateTime.parse(command.get(4));
+
+          LocalDateTime from = buildDateTimeFromString(command.get(6), command.get(3));
+          LocalDateTime to = buildDateTimeFromString(command.get(6), command.get(4));
           String newValue = command.get(5);
 
-          if (!isValidProperty(property)) {
-            throw new IllegalArgumentException("Invalid property: " + property);
-          }
           boolean ok = model.getCurrentCalendar().editEvent(property, eventName, from, to, newValue);
-          JOptionPane.showMessageDialog(null,
-              ok ? "Changes applied to event." : "Failed to edit event.",
-              ok ? "Success" : "Error",
-              ok ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+
+          String message = "Edited event " + eventName + " Property: " + property + " to "
+              + newValue + ".";
+          view.showSuccessMessage(message);
         }
       } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-            "Error editing event: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Edit Events".equals(actionCommand)) {
       try {
         view.showEditRecurringEventPopup(date, this);
         command = view.getCalendarCommandList();
-        if (!command.isEmpty() && "edit_events".equals(command.get(0))) {
-          // Expected command order: ["edit_events", property, eventName, fromISO, newValue]
-          String property = command.get(1).toLowerCase();
-          String eventName = command.get(2);
-          LocalDateTime fromTime = LocalDateTime.parse(command.get(3));
-          String newValue = command.get(4);
-          if (!isValidProperty(property)) {
-            throw new IllegalArgumentException("Invalid property: " + property);
-          }
-          boolean ok = model.getCurrentCalendar().editEvents(property, eventName, fromTime, newValue);
-          JOptionPane.showMessageDialog(null,
-              ok ? "Changes applied to all events." : "Failed to edit events.",
-              ok ? "Success" : "Error",
-              ok ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (!command.isEmpty() && "edit_recurring_events".equals(command.get(0))) {
+          // command, name, property, new val, current date, start time.
+          // String[] properties = {"subject", "description", "location", "start", "end", "ispublic"};
+          String eventName = command.get(1);
+          String property = command.get(2).toLowerCase();
+          LocalDateTime dt = buildDateTimeFromString(command.get(4), command.get(5));
+
+          String newValue = command.get(3);
+          boolean ok = model.getCurrentCalendar().editEvents(property, eventName, dt, command.get(3));
+
+          String message = "Editing All Events " + eventName +
+            " Property: " + property + " to value: " + newValue + " starting from " + command.get(4);
+          view.showSuccessMessage(message);
         }
       } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-            "Error editing events: " + ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        view.showErrorMessage(ex.getMessage());
       }
     }
     else if ("Day Options".equals(actionCommand)) {

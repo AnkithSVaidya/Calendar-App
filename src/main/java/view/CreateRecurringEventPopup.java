@@ -30,7 +30,8 @@ public class CreateRecurringEventPopup extends JFrame {
 
     createRecurringEventPanel = new JPanel();
     createRecurringEventPanel.setLayout(new GridLayout(0, 1));
-    JLabel instructions = new JLabel("Please input datetimes in hh:mm format.");
+    createRecurringEventPanel.setPreferredSize(new Dimension(400, 600));
+    JLabel instructions = new JLabel("Please input times in hh:mm format.");
     createRecurringEventPanel.add(instructions);
 
     createRecurringEventPanel.add(new JLabel("Event Name:"));
@@ -53,7 +54,7 @@ public class CreateRecurringEventPopup extends JFrame {
     weekdayPanel.setLayout(new GridLayout(0, 4));
 
     // MTWRFSU.
-    String[] days = {"M", "T", "W", "R", "F", "S", "U"};
+    String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
     Map<String, JCheckBox> dayCheckboxes = new HashMap<>();
 
     for (String day : days) {
@@ -84,7 +85,8 @@ public class CreateRecurringEventPopup extends JFrame {
           selectedDays.add(day);
         }
       }
-      String weekdays = String.join("", selectedDays);
+
+      String weekdays = String.join(", ", selectedDays);
 
       if (name.isEmpty() || nTimes.isEmpty() || fromDateTime.isEmpty() || toDateTime.isEmpty()
           || weekdays.isEmpty()) {

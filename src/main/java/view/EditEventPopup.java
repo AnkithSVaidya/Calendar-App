@@ -25,9 +25,8 @@ public class EditEventPopup extends JFrame {
 
     editEventPanel = new JPanel(new GridLayout(0, 1));
 
-    JLabel instructions = new JLabel("Edit a single event");
-    JLabel formatNote = new JLabel("Time format: yyyy-MM-ddTHH:mm:ss");
-    formatNote.setForeground(Color.RED);
+    JLabel instructions = new JLabel("Edit a single event on " + date.toString());
+    JLabel formatNote = new JLabel("Please input times in hh:mm format.");
 
     editEventPanel.add(instructions);
     editEventPanel.add(formatNote);
@@ -38,10 +37,10 @@ public class EditEventPopup extends JFrame {
     editEventPanel.add(new JLabel("Property to Edit:"));
     editEventPanel.add(propertyBox);
 
-    editEventPanel.add(new JLabel("From Time (yyyy-MM-ddTHH:mm:ss):"));
+    editEventPanel.add(new JLabel("From Time:"));
     editEventPanel.add(fromTimeField);
 
-    editEventPanel.add(new JLabel("To Time (yyyy-MM-ddTHH:mm:ss):"));
+    editEventPanel.add(new JLabel("To Time:"));
     editEventPanel.add(toTimeField);
 
     editEventPanel.add(new JLabel("New Value:"));
@@ -61,13 +60,14 @@ public class EditEventPopup extends JFrame {
         commandList.add("close");
         JOptionPane.showMessageDialog(mainFrame, "Please fill out all fields");
       } else {
-        // Build the command list in the order expected by the controller
-        commandList.add("edit_event");
-        commandList.add(eventName);  // First add event name
-        commandList.add(property);   // Then add property
-        commandList.add(fromTime);
-        commandList.add(toTime);
-        commandList.add(newValue);
+        // Build the command list in the order expected by the controller.
+        commandList.add("edit_event"); // 0
+        commandList.add(eventName); // 1
+        commandList.add(property); // 2
+        commandList.add(fromTime); // 3
+        commandList.add(toTime); // 4
+        commandList.add(newValue); // 5
+        commandList.add(date.toString()); // 6
       }
       // push back to controller in either case:
       view.setCalendarCommandList(commandList);

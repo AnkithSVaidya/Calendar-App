@@ -24,7 +24,7 @@ public class CreateAllDayEventPopup extends JFrame {
 
     createAllDayEventPanel = new JPanel();
     createAllDayEventPanel.setLayout(new GridLayout(0, 1));
-    JLabel instructions = new JLabel("Please input a name for your all day event.");
+    JLabel instructions = new JLabel("Create an all day event for today: " + date.toString());
     createAllDayEventPanel.add(instructions);
 
     createAllDayEventPanel.add(new JLabel("Event Name:"));

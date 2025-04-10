@@ -481,7 +481,28 @@ public class Calendar implements ICalendar {
           && event.getStart().equals(startTime)
           && ((event.getEnd() == null && endTime == null) || (event.getEnd() != null
           && event.getEnd().equals(endTime)))) {
-        applyEdit(event, property, newValue);
+
+        String temp = newValue;
+
+        // Handle start and end times for each recurring event.
+        if (property.equals("start")) {
+          LocalDateTime currentStartDT = event.getStart();
+          LocalDate currentStartDate = currentStartDT.toLocalDate();
+
+          LocalTime newTime = LocalTime.parse(temp);
+          LocalDateTime newDateTime = LocalDateTime.of(currentStartDate, newTime);
+          temp = newDateTime.toString();
+        }
+        else if (property.equals("end")) {
+          LocalDateTime currentEndDT = event.getEnd();
+          LocalDate currentEndDate = currentEndDT.toLocalDate();
+
+          LocalTime newTime = LocalTime.parse(temp);
+          LocalDateTime newDateTime = LocalDateTime.of(currentEndDate, newTime);
+          temp = newDateTime.toString();
+        }
+
+        applyEdit(event, property, temp);
         return true;
       }
     }
@@ -498,14 +519,40 @@ public class Calendar implements ICalendar {
    * @return {@code true} if any events were modified
    */
   @Override
-  public boolean editEvents(String property,
-                            String eventName,
-                            LocalDateTime startTime,
-                            String newValue) {
+  public boolean editEvents(String property, String eventName,
+                            LocalDateTime startTime, String newValue) {
+    // edit events subject event2R from 2025-03-03T10:07 with newSubject
     boolean modified = false;
+    LocalTime initialEventStart = startTime.toLocalTime();
+
+
     for (Event event : events) {
-      if (event.getTitle().equals(eventName) && event.getStart().equals(startTime)) {
-        applyEdit(event, property, newValue);
+      LocalTime targetStart = event.getStart().toLocalTime();
+
+      if (event.getTitle().equals(eventName) && targetStart.equals(initialEventStart)
+          && startTime.isBefore(event.getStart()) || startTime.isEqual(event.getStart())) {
+
+        String temp = newValue;
+
+        // Handle start and end times for each recurring event.
+        if (property.equals("start")) {
+          LocalDateTime currentStartDT = event.getStart();
+          LocalDate currentStartDate = currentStartDT.toLocalDate();
+
+          LocalTime newTime = LocalTime.parse(temp);
+          LocalDateTime newDateTime = LocalDateTime.of(currentStartDate, newTime);
+          temp = newDateTime.toString();
+        }
+        else if (property.equals("end")) {
+          LocalDateTime currentEndDT = event.getEnd();
+          LocalDate currentEndDate = currentEndDT.toLocalDate();
+
+          LocalTime newTime = LocalTime.parse(temp);
+          LocalDateTime newDateTime = LocalDateTime.of(currentEndDate, newTime);
+          temp = newDateTime.toString();
+        }
+
+        applyEdit(event, property, temp);
         modified = true;
       }
     }
