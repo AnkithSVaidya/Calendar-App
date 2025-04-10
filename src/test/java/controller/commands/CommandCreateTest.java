@@ -1,14 +1,10 @@
 package controller.commands;
 
+import model.CalendarManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.time.DateTimeException;
 
 import controller.HeadlessController;
@@ -71,46 +67,40 @@ public class CommandCreateTest {
     assertTrue(mockCalLog.toString().contains("true"));
   }
 
-//  @Test
-//  public void testBasicCreateTxtFile() throws IOException {
-//
-//    InputStream in = new ByteArrayInputStream(("test").getBytes());
-//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//    PrintStream out = new PrintStream(bytes);
-//
-//    File f = new File("res/test_commands.txt");
-//    controller = new HeadlessController(in, out, mockCalManager, f);
-//    controller.controllerGo();
-//
-//    assertTrue(mockCalLog.toString().contains("event1"));
-//    assertTrue(mockCalLog.toString().contains("desc1"));
-//    assertTrue(mockCalLog.toString().contains("loc1"));
-//    assertTrue(mockCalLog.toString().contains("true"));
-//  }
+  @Test
+  public void testBasicCreateTxtFile() throws IOException {
+    Readable r = new InputStreamReader(System.in);
+    PrintWriter a = new PrintWriter(System.out, true);
 
-//  @Test(expected = IOException.class)
-//  public void testBasicCreateTxtFileFail() throws IOException {
-//
-//    InputStream in = new ByteArrayInputStream((" ").getBytes());
-//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//    PrintStream out = new PrintStream(bytes);
-//
-//    File f = new File("res/test_commands.pdf");
-//    controller = new HeadlessController(in, out, mockCalManager, f);
-//    controller.controllerGo();
-//  }
+    File f = new File("res/test_commands.txt");
+    controller = new HeadlessController(r, a, mockCalManager, f);
+    controller.controllerGo();
 
-//  @Test(expected = IOException.class)
-//  public void testBasicCreateTxtFileFail2() throws IOException {
-//
-//    InputStream in = new ByteArrayInputStream(("").getBytes());
-//    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//    PrintStream out = new PrintStream(bytes);
-//
-//    File f = new File("res/command_invalid.pdf");
-//    controller = new HeadlessController(in, out, mockCalManager, f);
-//    controller.controllerGo();
-//  }
+    assertTrue(mockCalLog.toString().contains("event1"));
+    assertTrue(mockCalLog.toString().contains("desc1"));
+    assertTrue(mockCalLog.toString().contains("loc1"));
+    assertTrue(mockCalLog.toString().contains("true"));
+  }
+
+  @Test(expected = IOException.class)
+  public void testBasicCreateTxtFileFail() throws IOException {
+    Readable r = new InputStreamReader(System.in);
+    PrintWriter a = new PrintWriter(System.out, true);
+
+    File f = new File("res/test_commands.pdf");
+    controller = new HeadlessController(r, a, mockCalManager, f);
+    controller.controllerGo();
+  }
+
+  @Test(expected = IOException.class)
+  public void testBasicCreateTxtFileFail2() throws IOException {
+    Readable r = new InputStreamReader(System.in);
+    PrintWriter a = new PrintWriter(System.out, true);
+
+    File f = new File("res/command_invalid.pdf");
+    controller = new HeadlessController(r, a, mockCalManager, f);
+    controller.controllerGo();
+  }
 
   // Autodecline no longer supported. Test will fail.
   @Test(expected = IllegalArgumentException.class)
@@ -179,7 +169,7 @@ public class CommandCreateTest {
     assertTrue(mockCalLog.toString().contains("event2R"));
     String str = mockCalLog.toString();
     String[] parts = str.split(" ");
-    assertEquals(28, parts.length);
+    assertEquals(29, parts.length);
   }
 
   @Test
@@ -373,5 +363,65 @@ public class CommandCreateTest {
 
     controller = new InteractiveController(in, out, mockCalManager);
     controller.controllerGo();
+  }
+
+  @Test
+  public void testPrintError() throws IOException {
+    InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
+            "--timezone America/New_York\ncreate calendar --name cal1 " +
+            "--timezone America/New_York\nq").getBytes());
+
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    PrintStream out = new PrintStream(bytes);
+
+    System.setOut(out);
+
+    boolean fail = false;
+    try {
+      controller = new InteractiveController(in, out, new CalendarManager());
+      controller.controllerGo();
+    }
+    catch (IllegalArgumentException e) {
+      fail = true;
+    }
+
+    String expectedTerminalPrint = "Please enter a command." + System.lineSeparator()
+            +
+            "Please enter a command." + System.lineSeparator()
+            +
+            "Calendar with the name 'cal1' already exists." + System.lineSeparator();
+
+    assertEquals(expectedTerminalPrint, bytes.toString());
+  }
+
+  @Test
+  public void testPrintError1() throws IOException {
+    InputStream in = new ByteArrayInputStream(("create calendar --name cal1 " +
+            "--timezone America/New_York\ncreate event event1 from 2025-03-01T08:07 to " +
+            "2025-03-01T09:10\ncreate event failEvent from 2025-03-01T08:07 to 2025-03-01T09:10\nq").getBytes());
+
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    PrintStream out = new PrintStream(bytes);
+
+    System.setOut(out);
+
+    boolean fail = false;
+    try {
+      controller = new InteractiveController(in, out, new CalendarManager());
+      controller.controllerGo();
+    }
+    catch (Exception e) {
+      fail = true;
+    }
+
+    String expectedTerminalPrint = "Please enter a command." + System.lineSeparator()
+            +
+            "Please enter a command." + System.lineSeparator()
+            +
+            "Please enter a command." + System.lineSeparator()
+            +
+            "Event conflict detected" + System.lineSeparator();
+
+    assertEquals(expectedTerminalPrint, bytes.toString());
   }
 }

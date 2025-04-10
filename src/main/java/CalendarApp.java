@@ -1,8 +1,5 @@
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,12 +46,20 @@ public class CalendarApp {
 
         // Readable and appendable for terminal output.
         Readable r = new InputStreamReader(System.in);
+        PrintWriter a = new PrintWriter(System.out, true);
 
         try {
-          new HeadlessController(r, System.out, model, f).controllerGo();
-        } catch (IOException e) {
-          e.printStackTrace();
+          new HeadlessController(r, a, model, f).controllerGo();
         }
+        catch (Exception e) {
+          e.printStackTrace(a);
+          a.println("Error: " + e.getMessage());
+
+          e.printStackTrace();
+          System.out.println(e.getMessage());
+          throw new IllegalArgumentException(e.getMessage());
+        }
+
       }
     }
     else if (parseInputArr.isEmpty()) {

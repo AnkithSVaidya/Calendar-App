@@ -61,7 +61,6 @@ public class EditRecurringEventPopup extends JFrame {
         commandList.add(date.toString()); // 4
         commandList.add(startTime); // 5
 
-
         view.setCalendarCommandList(commandList);
       }
     }

@@ -2,7 +2,9 @@ package controller;
 
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,10 +14,12 @@ import view.IView;
 
 public class MockView implements IView {
 
-  private StringBuilder log;
+  private final StringBuilder log;
+  List<String> commandList;
 
   public MockView(StringBuilder log) {
     this.log = log;
+    this.commandList = new ArrayList<>();
   }
 
   @Override
@@ -32,12 +36,12 @@ public class MockView implements IView {
   public List<String> getCalendarCommandList() {
     log.append("commandList");
     log.append(" ");
-    return List.of();
+    return this.commandList;
   }
 
   @Override
   public void setCalendarCommandList(List<String> commandList) {
-
+    this.commandList = commandList;
   }
 
   @Override
@@ -62,52 +66,57 @@ public class MockView implements IView {
 
   @Override
   public void createCalendarPopup() {
-
+    log.append("createCalendarPopup");
+    log.append(" ");
   }
 
   @Override
   public void showDayPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showDayPopup");
+    log.append(" ");
   }
 
   @Override
   public void showCreateEventPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showCreateEventPopup");
+    log.append(" ");
   }
 
   @Override
   public void showCreateAllDayEventPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showCreateAllDayEventPopup");
+    log.append(" ");
   }
 
   @Override
   public void showRecurringEventPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showRecurringEventPopup");
+    log.append(" ");
   }
 
   @Override
   public void showEditEventPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showEditEventPopup");
+    log.append(" ");
   }
 
   @Override
   public File showImportPopup() {
-//    try {
-//      // Create a temporary file
-//      File tempFile = File.createTempFile("test-import", ".txt");
-//      tempFile.deleteOnExit(); // Automatically deletes on JVM exit
-//
-//      // Optionally, write something to the file for testing
-//      try (FileWriter writer = new FileWriter(tempFile)) {
-//        writer.write("Sample content for import testing.");
-//      }
-//
-//      return tempFile;
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      return null;
-//    }
-    return null;
+
+    log.append("showImportPopup");
+    log.append(" ");
+
+    try {
+      // Create a temporary file
+      File tempFile = File.createTempFile("test-import", ".csv");
+      tempFile.deleteOnExit();
+
+      return tempFile;
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+
   }
 
   @Override
@@ -119,7 +128,8 @@ public class MockView implements IView {
 
   @Override
   public void showEditRecurringEventPopup(LocalDate date, ActionListener listener) {
-
+    log.append("showEditRecurringEventPopup");
+    log.append(" ");
   }
 
   @Override

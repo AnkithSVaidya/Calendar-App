@@ -22,7 +22,6 @@ public class CommandEdit extends ICommand {
   // Calendar
   private String calName;
 
-
   private enum Type {
     EDIT_ALL_EVENTS,
     EDIT_ALL_EVENTS_DT,

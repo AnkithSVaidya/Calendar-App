@@ -82,7 +82,7 @@ public class CommandCopy extends ICommand {
     }
 
     if (!success) {
-      System.out.println("Copy failed");
+      throw new IllegalStateException("Failed to copy event.");
     }
   }
 

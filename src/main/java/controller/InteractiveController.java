@@ -44,7 +44,7 @@ public class InteractiveController implements IController {
         System.out.println("Please enter a command.");
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(e.getMessage());
       }
     }
   }

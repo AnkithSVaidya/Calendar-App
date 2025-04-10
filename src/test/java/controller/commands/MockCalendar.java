@@ -38,6 +38,13 @@ public class MockCalendar implements ICalendar {
     log.append(this.desc);
     log.append(" ");
     log.append(this.isPublic);
+    log.append(" ");
+    if (event.getEnd() == null) {
+      log.append("AllDay");
+    }
+    else {
+      log.append("AddEvent");
+    }
   }
 
   @Override
@@ -47,6 +54,8 @@ public class MockCalendar implements ICalendar {
       log.append(event.getTitle());
       log.append(" ");
     }
+    log.append("addRecurringEvent");
+    log.append(" ");
   }
 
   @Override
@@ -88,6 +97,8 @@ public class MockCalendar implements ICalendar {
   public boolean editEvent(String property, String eventName, LocalDateTime startTime,
                            LocalDateTime endTime, String newValue) {
     editHelper(property, newValue);
+    log.append("editEvent");
+    log.append(" ");
     return true;
   }
 
@@ -95,12 +106,16 @@ public class MockCalendar implements ICalendar {
   public boolean editEvents(String property, String eventName, LocalDateTime startTime,
                             String newValue) {
     editHelper(property, newValue);
+    log.append("editEvents");
+    log.append(" ");
     return true;
   }
 
   @Override
   public boolean editAllEvents(String property, String eventName, String newValue) {
     editHelper(property, newValue);
+    log.append("editAllEvents");
+    log.append(" ");
     return true;
   }
 

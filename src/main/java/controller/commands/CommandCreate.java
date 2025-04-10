@@ -181,57 +181,60 @@ public class CommandCreate extends ICommand {
 
     boolean success = true;
     // Create new event based on parameters.
-    switch (this.type) {
-      case SINGLE_EVENT:
-        range = ((FromDTToDT) this.dt).getDateTimeRange();
-        event = new Event(this.eventName, range.get(0), range.get(1),
-            this.description, this.location, this.isPublic);
+    try {
 
-        break;
 
-      case RECURRING_REPEAT_N_TIMES:
-        range = ((FromDTToDT) this.dt).getDateTimeRange();
+      switch (this.type) {
+        case SINGLE_EVENT:
+          range = ((FromDTToDT) this.dt).getDateTimeRange();
+          event = new Event(this.eventName, range.get(0), range.get(1),
+                  this.description, this.location, this.isPublic);
 
-        event = new RecurringEvent(this.eventName, range.get(0), range.get(1), this.description,
-            this.location, this.isPublic, this.recurrenceDays, this.n);
-        break;
+          break;
 
-      case RECURRING_UNTIL_DATE:
-        range = ((FromDTToDT) this.dt).getDateTimeRange();
+        case RECURRING_REPEAT_N_TIMES:
+          range = ((FromDTToDT) this.dt).getDateTimeRange();
 
-        event = new RecurringEvent(this.eventName, range.get(0), range.get(1), this.description,
-            this.location, this.isPublic, this.recurrenceDays, this.untilDate.getD());
-        break;
+          event = new RecurringEvent(this.eventName, range.get(0), range.get(1), this.description,
+                  this.location, this.isPublic, this.recurrenceDays, this.n);
+          break;
 
-      case SINGLE_ALL_DAY:
-        event = new Event(this.eventName, this.dt.getDt(), this.description, this.location,
-            this.isPublic);
+        case RECURRING_UNTIL_DATE:
+          range = ((FromDTToDT) this.dt).getDateTimeRange();
 
-        break;
+          event = new RecurringEvent(this.eventName, range.get(0), range.get(1), this.description,
+                  this.location, this.isPublic, this.recurrenceDays, this.untilDate.getD());
+          break;
 
-      case RECURRING_ALL_DAY_REPEAT_N:
-        event = new RecurringEvent(this.eventName, this.dt.getDt(), null, this.description,
-            this.location, this.isPublic, this.recurrenceDays, this.n);
+        case SINGLE_ALL_DAY:
+          event = new Event(this.eventName, this.dt.getDt(), this.description, this.location,
+                  this.isPublic);
 
-        break;
+          break;
 
-      case RECURRING_ALL_DAY_UNTIL:
-        event = new RecurringEvent(this.eventName, this.dt.getDt(), null, this.description,
-            this.location, this.isPublic, this.recurrenceDays, this.untilDate.getD());
+        case RECURRING_ALL_DAY_REPEAT_N:
+          event = new RecurringEvent(this.eventName, this.dt.getDt(), null, this.description,
+                  this.location, this.isPublic, this.recurrenceDays, this.n);
 
-        break;
+          break;
 
-      case CREATE_CAL:
-        success = calManager.createCalendar(this.calName, this.timezone.toString());
-        break;
+        case RECURRING_ALL_DAY_UNTIL:
+          event = new RecurringEvent(this.eventName, this.dt.getDt(), null, this.description,
+                  this.location, this.isPublic, this.recurrenceDays, this.untilDate.getD());
 
-      default:
-        break;
+          break;
+
+        case CREATE_CAL:
+          success = calManager.createCalendar(this.calName, this.timezone.toString());
+          break;
+
+        default:
+          break;
+      }
     }
-
-    if (!success) {
-      System.out.println("Failed to create calendar");
-      throw new IllegalStateException("Calendar not created due to name conflict");
+    catch (Exception e) {
+      System.out.println(e.getMessage());
+      throw new IllegalArgumentException(e.getMessage());
     }
 
     ICalendar cal = calManager.getCurrentCalendar();
@@ -251,8 +254,9 @@ public class CommandCreate extends ICommand {
         }
       }
     }
-    catch (IllegalStateException e) {
+    catch (Exception e) {
       System.out.println(e.getMessage());
+      throw new IllegalStateException(e.getMessage());
     }
   }
 

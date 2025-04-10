@@ -62,7 +62,7 @@ public class CommandExportTest {
         +
         "Please enter a command." + System.lineSeparator()
         +
-        "Export Filename: " + System.lineSeparator()
+        "Export Filename: exported" + System.lineSeparator()
         +
         "Please enter a command." + System.lineSeparator()
         +

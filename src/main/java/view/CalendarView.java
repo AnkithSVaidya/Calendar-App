@@ -234,8 +234,6 @@ public class CalendarView extends JFrame implements IView {
     // Get the selected file.
     if (result == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
-      System.out.println("Selected file: " + f.getAbsolutePath());
-
       return f;
     } else {
       System.out.println("No file selected");
