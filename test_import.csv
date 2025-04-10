@@ -1,0 +1,3 @@
+Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private
+Meeting,2025-03-10,10:00,2025-03-10,11:00,false,Project discussion,Room A,false
+Lunch,2025-03-10,12:00,2025-03-10,13:00,false,Team lunch,Cafeteria,true

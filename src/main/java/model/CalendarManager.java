@@ -286,7 +286,7 @@ public class CalendarManager implements ICalendarManager {
     if (!copiedAtLeastOne) {
       throw new IllegalStateException("Failed to copy any events from " + sourceDate + " to " + targetDate);
     }
-    return copiedAtLeastOne;
+    return true;
   }
 
   /**
@@ -333,7 +333,7 @@ public class CalendarManager implements ICalendarManager {
       throw new IllegalStateException("Failed to copy any events between " +
           sourceStartDate + " and " + sourceEndDate);
     }
-    return copiedAtLeastOne;
+    return true;
   }
 
   /**
