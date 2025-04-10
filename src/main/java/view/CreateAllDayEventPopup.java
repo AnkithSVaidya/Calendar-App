@@ -1,28 +1,37 @@
 package view;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class for create all day event popup.
+ */
 public class CreateAllDayEventPopup extends JFrame {
 
-  private JPanel createAllDayEventPanel;
-  private List<String> commandList;
-
-
+  /**
+   * Method to show create all day event popup.
+   * @param view - The view.
+   * @param mainFrame = The main frame.
+   * @param date - The active date.
+   */
   CreateAllDayEventPopup(IView view, JFrame mainFrame, LocalDate date) {
     // create event --autoDecline <eventName> on <dateStringTtimeString>
-    commandList = new ArrayList<>();
+    List<String> commandList = new ArrayList<>();
     JTextField eventNameField = new JTextField(10);
     JTextField descField = new JTextField(10);
     JTextField locField = new JTextField(10);
     JCheckBox isPublicField = new JCheckBox();
 
-    createAllDayEventPanel = new JPanel();
+    JPanel createAllDayEventPanel = new JPanel();
     createAllDayEventPanel.setLayout(new GridLayout(0, 1));
     JLabel instructions = new JLabel("Create an all day event for today: " + date.toString());
     createAllDayEventPanel.add(instructions);

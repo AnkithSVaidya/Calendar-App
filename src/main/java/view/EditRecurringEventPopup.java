@@ -5,15 +5,27 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class to create a edit recurring event popup.
+ */
 public class EditRecurringEventPopup extends JFrame {
-  private JPanel editEventsPanel;
-  private List<String> commandList;
 
+  /**
+   * Method to show popup.
+   * @param view - the view.
+   * @param mainFrame = the view main frame.
+   * @param date - The current active date.
+   */
   EditRecurringEventPopup(IView view, JFrame mainFrame, LocalDate date) {
     // edit events <property> <eventName> from <dateStringTtimeString> with <NewPropertyValue>
-    commandList = new ArrayList<>();
+    List<String> commandList = new ArrayList<>();
     JTextField eventNameField = new JTextField(10);
     JTextField fromTimeField = new JTextField(10);
     JTextField newPropertyField = new JTextField(10);
@@ -22,7 +34,7 @@ public class EditRecurringEventPopup extends JFrame {
     JComboBox<String> propertyBox = new JComboBox<>(properties);
 
 
-    editEventsPanel = new JPanel();
+    JPanel editEventsPanel = new JPanel();
     editEventsPanel.setLayout(new GridLayout(0, 1));
     JLabel instructions = new JLabel("Please input times in hh:mm format.");
     editEventsPanel.add(instructions);

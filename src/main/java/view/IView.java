@@ -13,7 +13,7 @@ import model.Calendar;
 public interface IView {
 
   /**
-   * Method to make the main frame visible
+   * Method to make the main frame visible.
    */
   void makeVisible();
 
@@ -46,7 +46,7 @@ public interface IView {
    * Method to set the calendars from the controller. This method is supposed to be called after
    * every communication with the controller.
    * @param calMap - Map of Calendar Name,
-   * @param currentCal
+   * @param currentCal - The current active calendar.
    */
   void setCalendars(Map<String, Calendar> calMap, String currentCal);
 
@@ -111,4 +111,4 @@ public interface IView {
   void showErrorMessage(String error);
 
   void showSuccessMessage(String success);
-  }
+}

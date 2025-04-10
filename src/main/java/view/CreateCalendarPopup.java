@@ -1,16 +1,28 @@
 package view;
 
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+
 import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.Box;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class to create a calendar popup.
+ */
 public class CreateCalendarPopup extends JFrame {
-  private List<String> commandList = new ArrayList<>();
 
+  /**
+   * Method to show create calendar popup.
+   * @param view - The view.
+   * @param mainFrame - The main frame.
+   */
   public CreateCalendarPopup(IView view, JFrame mainFrame) {
     JTextField nameField     = new JTextField(10);
     JTextField timezoneField = new JTextField(10);
@@ -30,6 +42,7 @@ public class CreateCalendarPopup extends JFrame {
         JOptionPane.PLAIN_MESSAGE
     );
 
+    List<String> commandList = new ArrayList<>();
     if (result == JOptionPane.OK_OPTION) {
       String name     = nameField.getText().trim();
       String timezone = timezoneField.getText().trim();

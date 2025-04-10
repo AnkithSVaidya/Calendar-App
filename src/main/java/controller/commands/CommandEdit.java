@@ -108,7 +108,8 @@ public class CommandEdit extends ICommand {
 
       case EDIT_ALL_EVENTS_DT:
         List<LocalDateTime> range2 = ((FromDTToDT) this.dt).getDateTimeRange();
-        success = cal.editEvents(this.property, this.eventName, range2.get(0), this.newPropertyValue);
+        success = cal.editEvents(this.property, this.eventName,
+                range2.get(0), this.newPropertyValue);
         break;
 
       case EDIT_CAL:

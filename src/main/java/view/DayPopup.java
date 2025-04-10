@@ -1,12 +1,11 @@
 package view;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
-import java.util.List;
-
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.BoxLayout;
 
 /**
  * DayPopup class builds a day popup pane. This pane includes buttons to create event, create all

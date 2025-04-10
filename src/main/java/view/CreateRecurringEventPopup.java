@@ -1,24 +1,35 @@
 package view;
 
-import java.awt.*;
+import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class to represent a recurring event create popup.
+ */
 public class CreateRecurringEventPopup extends JFrame {
 
-  private JPanel createRecurringEventPanel;
-  private List<String> commandList;
-
-
+  /**
+   * Method to show the create recurring event popup.
+   * @param view - The view.
+   * @param mainFrame - The main frame.
+   * @param date - The active date.
+   */
   CreateRecurringEventPopup(IView view, JFrame mainFrame, LocalDate date) {
     // create event --autoDecline <eventName> from <dateStringTtimeString>
     // to <dateStringTtimeString> repeats <weekdays> for <N> times
-    commandList = new ArrayList<>();
+    List<String> commandList = new ArrayList<>();
 
     JTextField eventNameField = new JTextField(10);
     JTextField fromDTField = new JTextField(10);
@@ -28,7 +39,7 @@ public class CreateRecurringEventPopup extends JFrame {
     JTextField locField = new JTextField(10);
     JCheckBox isPublicField = new JCheckBox();
 
-    createRecurringEventPanel = new JPanel();
+    JPanel createRecurringEventPanel = new JPanel();
     createRecurringEventPanel.setLayout(new GridLayout(0, 1));
     createRecurringEventPanel.setPreferredSize(new Dimension(400, 600));
     JLabel instructions = new JLabel("Please input times in hh:mm format.");

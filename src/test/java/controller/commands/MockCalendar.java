@@ -11,6 +11,9 @@ import model.Event;
 import model.ICalendar;
 import model.RecurringEvent;
 
+/**
+ * Class to represent a mock calendar used for testing.
+ */
 public class MockCalendar implements ICalendar {
   AbstractEvent event;
   private StringBuilder log;
@@ -20,6 +23,11 @@ public class MockCalendar implements ICalendar {
   String desc;
   Boolean isPublic;
 
+  /**
+   * Constructor to build a mock calendar.
+   * @param log - Log used in tests.
+   * @param uniqueCode - Unique code.
+   */
   public MockCalendar(StringBuilder log,int uniqueCode) {
     this.log = log;
   }

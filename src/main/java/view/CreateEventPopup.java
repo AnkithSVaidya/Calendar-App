@@ -5,14 +5,26 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class to show a create event popup.
+ */
 public class CreateEventPopup extends JFrame {
-  private List<String> commandList;
-  private JPanel createSingleEventPanel;
 
+  /**
+   * Method to create a create event frame.
+   * @param view - The view.
+   * @param mainFrame - The main frame.
+   * @param date - The active date.
+   */
   CreateEventPopup(IView view, JFrame mainFrame, LocalDate date) {
-    commandList = new ArrayList<>();
+    List<String> commandList = new ArrayList<>();
 
     JTextField eventNameField = new JTextField(10);
     JTextField fromDTField = new JTextField(10);
@@ -21,7 +33,7 @@ public class CreateEventPopup extends JFrame {
     JTextField locField = new JTextField(10);
     JCheckBox isPublicField = new JCheckBox();
 
-    createSingleEventPanel = new JPanel();
+    JPanel createSingleEventPanel = new JPanel();
     createSingleEventPanel.setLayout(new GridLayout(0, 1));
     JLabel instructions = new JLabel("Please input times in HH:mm format.");
     createSingleEventPanel.add(instructions);

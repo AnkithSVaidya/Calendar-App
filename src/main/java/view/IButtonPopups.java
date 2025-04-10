@@ -1,11 +1,16 @@
 package view;
 
-
 import java.awt.event.ActionListener;
-import java.util.List;
 
+/**
+ * This interface represents the Popups for buttons.
+ */
 public interface IButtonPopups {
 
+  /**
+   * Method to set action listener for the frame.
+   * @param actionEvent - Action event controller.
+   */
   void setCommandButtonListener(ActionListener actionEvent);
 
 }

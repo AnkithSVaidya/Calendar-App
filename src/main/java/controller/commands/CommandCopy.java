@@ -69,7 +69,8 @@ public class CommandCopy extends ICommand {
         break;
 
       case COPY_ALL_EVENT:
-        success = calManager.copyEventsOn(this.onDateTime.getD(), this.targetCal, this.toDateTime.getD());
+        success = calManager.copyEventsOn(this.onDateTime.getD(),
+                this.targetCal, this.toDateTime.getD());
         break;
 
       case COPY_ALL_EVENT_INTERVAL:

@@ -1,17 +1,29 @@
 package view;
 
-import java.awt.*;
+import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
+/**
+ * Class to show edit event popup.
+ */
 public class EditEventPopup extends JFrame {
-  private JPanel editEventPanel;
-  private List<String> commandList;
 
+  /**
+   * Constructor method to build the popup frame
+   * @param view - The view.
+   * @param mainFrame - The views main frame.
+   * @param date - The active date.
+   */
   public EditEventPopup(IView view, JFrame mainFrame, LocalDate date) {
-    commandList = new ArrayList<>();
+    List<String> commandList = new ArrayList<>();
 
     JTextField eventNameField = new JTextField(10);
 
@@ -23,7 +35,7 @@ public class EditEventPopup extends JFrame {
     JTextField toTimeField = new JTextField(10);
     JTextField newPropertyField = new JTextField(10);
 
-    editEventPanel = new JPanel(new GridLayout(0, 1));
+    JPanel editEventPanel = new JPanel(new GridLayout(0, 1));
 
     JLabel instructions = new JLabel("Edit a single event on " + date.toString());
     JLabel formatNote = new JLabel("Please input times in hh:mm format.");
@@ -56,7 +68,8 @@ public class EditEventPopup extends JFrame {
       String toTime = toTimeField.getText().trim();
       String newValue = newPropertyField.getText().trim();
 
-      if (eventName.isEmpty() || property == null || fromTime.isEmpty() || toTime.isEmpty() || newValue.isEmpty()) {
+      if (eventName.isEmpty() || property == null ||
+              fromTime.isEmpty() || toTime.isEmpty() || newValue.isEmpty()) {
         commandList.add("close");
         JOptionPane.showMessageDialog(mainFrame, "Please fill out all fields");
       } else {
