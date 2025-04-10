@@ -3210,5 +3210,101 @@ public class CalendarTest {
   }
 
 
+  @Test
+  public void testEditEventStart() {
+    calendar.addEvent(event1, false);
+    LocalTime newStart = LocalTime.of(9, 0);
+    assertTrue(calendar.editEvent("start", "Meeting",
+        event1.getStart(), event1.getEnd(), newStart.toString()));
+
+    assertEquals(newStart, event1.getStart().toLocalTime());
+  }
+
+  @Test
+  public void testEditEventEnd() {
+    calendar.addEvent(event1, false);
+    LocalTime newEnd = LocalTime.of(12, 0);
+    assertTrue(calendar.editEvent("end", "Meeting",
+        event1.getStart(), event1.getEnd(), newEnd.toString()));
+    assertEquals(newEnd, event1.getEnd().toLocalTime());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEditEventStartFail() {
+    calendar.addEvent(event1, false);
+    LocalTime newStart = LocalTime.of(13, 0);
+    assertTrue(calendar.editEvent("start", "Meeting",
+            event1.getStart(), event1.getEnd(), newStart.toString()));
+
+    assertEquals(newStart, event1.getStart().toLocalTime());
+  }
+
+  @Test
+  public void testEditEventName() {
+    calendar.addEvent(event1, false);
+
+    Event e = new Event("DifferentName",
+            LocalDateTime.of(2025, 3, 10, 10, 0),
+            LocalDateTime.of(2025, 3, 10, 11, 0),
+            "Project discussion", "Room A", true);
+
+
+    LocalTime newEnd = LocalTime.of(12, 0);
+    assertTrue(calendar.editEvent("end", "Meeting",
+            event1.getStart(), event1.getEnd(), newEnd.toString()));
+    assertEquals(newEnd, event1.getEnd().toLocalTime());
+    assertEquals(LocalTime.of(11, 0), e.getEnd().toLocalTime());
+  }
+
+  @Test
+  public void testEditEventsEnd() {
+    Set<DayOfWeek> days = new HashSet<>();
+    days.add(DayOfWeek.MONDAY);
+    days.add(DayOfWeek.TUESDAY);
+    days.add(DayOfWeek.WEDNESDAY);
+
+    RecurringEvent recurring = new RecurringEvent("Meeting",
+            LocalDateTime.of(2025, 3, 10, 10, 0),
+            LocalDateTime.of(2025, 3, 10, 11, 0),
+            "Project discussion", "Room A", true, days, 2);
+
+    calendar.addRecurringEvent(recurring, true);
+
+    LocalTime newEnd = LocalTime.of(12, 0);
+    assertTrue(calendar.editEvents("end", "Meeting",
+            LocalDateTime.of(2025, 3, 10, 10, 0), newEnd.toString()));
+
+
+    List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
+    assertEquals(1, mondayEvents.size());
+    assertEquals(newEnd, mondayEvents.get(0).getEnd().toLocalTime());
+
+    // Check second instance (Wednesday)
+    List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(LocalDate.of(2025, 3, 12));
+    assertEquals(1, wednesdayEvents.size());
+    assertEquals(newEnd, wednesdayEvents.get(0).getEnd().toLocalTime());
+  }
+
+  @Test
+  public void testEditEventsEndFail() {
+    Set<DayOfWeek> days = new HashSet<>();
+    days.add(DayOfWeek.MONDAY);
+    days.add(DayOfWeek.TUESDAY);
+    days.add(DayOfWeek.WEDNESDAY);
+
+    RecurringEvent recurring = new RecurringEvent("Meeting",
+            LocalDateTime.of(2025, 3, 10, 10, 0),
+            LocalDateTime.of(2025, 3, 10, 11, 0),
+            "Project discussion", "Room A", true, days, 2);
+
+    calendar.addRecurringEvent(recurring, true);
+
+    LocalTime newEnd = LocalTime.of(12, 0);
+    assertFalse(calendar.editEvents("end", "Meeting",
+            LocalDateTime.of(2025, 3, 10, 07, 0), newEnd.toString()));
+
+
+  }
+
 
 }
