@@ -10,7 +10,7 @@ public interface IController {
 
   /**
    * Method to start the controller.
-   * @throws IOException
+   * @throws IOException - Throws IOException on file input/output errors.
    */
   void controllerGo() throws IOException;
 }

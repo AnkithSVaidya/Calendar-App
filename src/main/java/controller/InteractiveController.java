@@ -9,11 +9,20 @@ import java.util.Scanner;
 import controller.commands.Command;
 import model.ICalendarManager;
 
+/**
+ * This class represents an interactive controller. Use to run the calendar app in a terminal with user inputs.
+ */
 public class InteractiveController implements IController {
   final InputStream in;
   final PrintStream out;
   ICalendarManager calendarManager;
 
+  /**
+   * Constructor method for Interactive controller. Initializes model and IO.
+   * @param in - InputStream in.
+   * @param out - PrintStream out.
+   * @param calManager - The model.
+   */
   public InteractiveController(InputStream in, PrintStream out, ICalendarManager calManager) {
     this.calendarManager = calManager;
     this.in = in;
