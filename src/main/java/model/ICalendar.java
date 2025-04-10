@@ -69,6 +69,17 @@ public interface ICalendar {
   String exportToCSV(String filename) throws IOException;
 
   /**
+   * Imports events from a CSV file in the expected format:
+   * Subject, Start Date, Start Time, End Date, End Time, All Day Event, Description, Location, Private
+   *
+   * @param filename the input file path
+   * @return the number of events successfully imported
+   * @throws IOException if an I/O error occurs during reading
+   * @throws IllegalArgumentException if the file format is invalid
+   */
+  int importFromCSV(String filename) throws IOException, IllegalArgumentException;
+
+  /**
    * Edits a specific event identified by exact match of title, start time, and end time.
    *
    * @param property  field to modify (subject/description/location)

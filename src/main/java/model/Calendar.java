@@ -219,6 +219,248 @@ public class Calendar implements ICalendar {
   }
 
   /**
+   * Imports events from a CSV file in Google Calendar format.
+   *
+   * @param filename the input file path
+   * @return the number of events successfully imported
+   * @throws IOException if an I/O error occurs during reading
+   * @throws IllegalArgumentException if the file format is invalid
+   */
+  @Override
+  public int importFromCSV(String filename) throws IOException, IllegalArgumentException {
+    List<String> lines = java.nio.file.Files.readAllLines(Paths.get(filename));
+
+    // Verify CSV has header row
+    if (lines.isEmpty()) {
+      throw new IllegalArgumentException("CSV file is empty");
+    }
+
+    // Process header row to identify column indices
+    String headerLine = lines.get(0);
+    String[] headers = parseCSVLine(headerLine);
+
+    // Map column indices
+    int subjectIdx = findColumnIndex(headers, "Subject");
+    int startDateIdx = findColumnIndex(headers, "Start Date");
+    int startTimeIdx = findColumnIndex(headers, "Start Time");
+    int endDateIdx = findColumnIndex(headers, "End Date");
+    int endTimeIdx = findColumnIndex(headers, "End Time");
+    int allDayIdx = findColumnIndex(headers, "All Day Event");
+    int descriptionIdx = findColumnIndex(headers, "Description");
+    int locationIdx = findColumnIndex(headers, "Location");
+    int privateIdx = findColumnIndex(headers, "Private");
+
+    // Verify essential columns exist
+    if (subjectIdx == -1 || startDateIdx == -1) {
+      throw new IllegalArgumentException("CSV file missing required columns (Subject, Start Date)");
+    }
+
+    // Skip header row and process data rows
+    int importedCount = 0;
+
+    for (int i = 1; i < lines.size(); i++) {
+      String line = lines.get(i);
+      if (line.trim().isEmpty()) {
+        continue; // Skip empty lines
+      }
+
+      // Parse CSV line
+      String[] fields = parseCSVLine(line);
+
+      try {
+        // Extract fields with error checking
+        String title = getFieldValue(fields, subjectIdx, "");
+        String startDateStr = getFieldValue(fields, startDateIdx, "");
+        String startTimeStr = getFieldValue(fields, startTimeIdx, "00:00:00");
+        String endDateStr = getFieldValue(fields, endDateIdx, startDateStr);
+        String endTimeStr = getFieldValue(fields, endTimeIdx, "23:59:59");
+        String allDayStr = getFieldValue(fields, allDayIdx, "FALSE");
+        String description = getFieldValue(fields, descriptionIdx, "");
+        String location = getFieldValue(fields, locationIdx, "");
+        String privateStr = getFieldValue(fields, privateIdx, "FALSE");
+
+        // Parse boolean fields
+        boolean isAllDay = Boolean.parseBoolean(allDayStr.trim());
+        boolean isPrivate = Boolean.parseBoolean(privateStr.trim());
+        boolean isPublic = !isPrivate;
+
+        // Parse date/time fields
+        LocalDate startDate = parseDate(startDateStr);
+        LocalTime startTime = parseTime(startTimeStr);
+        LocalDateTime start = LocalDateTime.of(startDate, startTime);
+
+        // Create appropriate event
+        Event event;
+        if (isAllDay) {
+          event = new Event(title, start, description, location, isPublic);
+        } else {
+          LocalDate endDate = parseDate(endDateStr);
+          LocalTime endTime = parseTime(endTimeStr);
+          LocalDateTime end = LocalDateTime.of(endDate, endTime);
+
+          event = new Event(title, start, end, description, location, isPublic);
+        }
+
+        // Add to calendar (skip if conflict exists and autoDecline is true)
+        addEvent(event, true);
+        importedCount++;
+      } catch (Exception e) {
+        // Skip invalid events but continue processing
+        System.err.println("Error parsing event at line " + (i+1) + ": " + e.getMessage());
+      }
+    }
+
+    return importedCount;
+  }
+
+  /**
+   * Finds the index of a column in the CSV header
+   * @param headers Array of header strings
+   * @param columnName Name of column to find
+   * @return Index of column or -1 if not found
+   */
+  private int findColumnIndex(String[] headers, String columnName) {
+    for (int i = 0; i < headers.length; i++) {
+      if (headers[i].trim().equalsIgnoreCase(columnName)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Safely gets a field value from the fields array with bounds checking
+   * @param fields Array of field values
+   * @param index Index to retrieve
+   * @param defaultValue Default value if index is out of bounds
+   * @return Field value or default
+   */
+  private String getFieldValue(String[] fields, int index, String defaultValue) {
+    if (index >= 0 && index < fields.length) {
+      return fields[index];
+    }
+    return defaultValue;
+  }
+
+  /**
+   * Parses a date string in various common formats
+   * @param dateStr Date string to parse
+   * @return LocalDate object
+   */
+  private LocalDate parseDate(String dateStr) {
+    dateStr = dateStr.trim();
+    try {
+      // Try standard ISO format (yyyy-MM-dd)
+      return LocalDate.parse(dateStr);
+    } catch (Exception e) {
+      try {
+        // Try MM/dd/yyyy format
+        String[] parts = dateStr.split("/");
+        if (parts.length == 3) {
+          int month = Integer.parseInt(parts[0]);
+          int day = Integer.parseInt(parts[1]);
+          int year = Integer.parseInt(parts[2]);
+          return LocalDate.of(year, month, day);
+        }
+      } catch (Exception e2) {
+        // Fall through to next attempt
+      }
+
+      try {
+        // Try dd/MM/yyyy format
+        String[] parts = dateStr.split("/");
+        if (parts.length == 3) {
+          int day = Integer.parseInt(parts[0]);
+          int month = Integer.parseInt(parts[1]);
+          int year = Integer.parseInt(parts[2]);
+          return LocalDate.of(year, month, day);
+        }
+      } catch (Exception e3) {
+        // Fall through to next attempt
+      }
+
+      throw new IllegalArgumentException("Unable to parse date: " + dateStr);
+    }
+  }
+
+  /**
+   * Parses a time string in various common formats
+   * @param timeStr Time string to parse
+   * @return LocalTime object
+   */
+  private LocalTime parseTime(String timeStr) {
+    timeStr = timeStr.trim();
+    try {
+      // Try standard ISO format (HH:mm:ss)
+      return LocalTime.parse(timeStr);
+    } catch (Exception e) {
+      try {
+        // Try HH:mm format
+        if (timeStr.matches("\\d{1,2}:\\d{2}")) {
+          return LocalTime.parse(timeStr + ":00");
+        }
+      } catch (Exception e2) {
+        // Fall through to next attempt
+      }
+
+      try {
+        // Try 12-hour format with AM/PM
+        if (timeStr.toLowerCase().contains("am") || timeStr.toLowerCase().contains("pm")) {
+          String[] parts = timeStr.split(" ");
+          String time = parts[0];
+          boolean isPM = parts[1].toLowerCase().contains("pm");
+
+          String[] timeParts = time.split(":");
+          int hour = Integer.parseInt(timeParts[0]);
+          int minute = timeParts.length > 1 ? Integer.parseInt(timeParts[1]) : 0;
+          int second = timeParts.length > 2 ? Integer.parseInt(timeParts[2]) : 0;
+
+          if (isPM && hour < 12) {
+            hour += 12;
+          } else if (!isPM && hour == 12) {
+            hour = 0;
+          }
+
+          return LocalTime.of(hour, minute, second);
+        }
+      } catch (Exception e3) {
+        // Fall through to default
+      }
+
+      // Default to midnight
+      return LocalTime.MIDNIGHT;
+    }
+  }
+
+  /**
+   * Parses a CSV line properly handling quoted fields
+   * @param line The CSV line to parse
+   * @return Array of field values
+   */
+  private String[] parseCSVLine(String line) {
+    List<String> fields = new ArrayList<>();
+    StringBuilder currentField = new StringBuilder();
+    boolean inQuotes = false;
+
+    for (char c : line.toCharArray()) {
+      if (c == '\"') {
+        inQuotes = !inQuotes;
+      } else if (c == ',' && !inQuotes) {
+        fields.add(currentField.toString());
+        currentField.setLength(0);
+      } else {
+        currentField.append(c);
+      }
+    }
+
+    // Add the last field
+    fields.add(currentField.toString());
+
+    return fields.toArray(new String[0]);
+
+  }
+
+  /**
    * Edits a specific event identified by its title, start time, and end time.
    *
    * @param property  the event property to modify ("subject", "description", or "location")

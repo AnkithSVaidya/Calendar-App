@@ -75,25 +75,53 @@ public class MVCCommandController implements IController, ActionListener {
     if ("Export Calendar".equals(actionCommand)) {
       try {
         String fileName = view.showExportPopup();
-        fileName = fileName + ".csv";
-        model.getCurrentCalendar().exportToCSV(fileName);
-        System.out.println("Export Filename: " + fileName);
-      }
-      catch (IOException err) {
-        view.showErrorMessage(err.getMessage());
-      }
+        if (fileName != null && !fileName.trim().isEmpty()) {
+          // Add .csv extension if not already present
+          if (!fileName.toLowerCase().endsWith(".csv")) {
+            fileName = fileName + ".csv";
+          }
 
-      System.out.println("Export Calendar action");
-      // (Export logic here...)
+          // Export the calendar
+          String exportedFile = model.getCurrentCalendar().exportToCSV(fileName);
+
+          // Show success message
+          JOptionPane.showMessageDialog(null,
+              "Calendar successfully exported to: " + exportedFile,
+              "Export Success", JOptionPane.INFORMATION_MESSAGE);
+
+          System.out.println("Exported to: " + exportedFile);
+        }
+      } catch (IOException err) {
+        err.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error exporting calendar: " + err.getMessage(),
+            "Export Error", JOptionPane.ERROR_MESSAGE);
+      }
     }
     else if ("Import Calendar".equals(actionCommand)) {
+      try {
+        File f = view.showImportPopup(this);
+        if (f != null) {
+          System.out.println("Importing from: " + f.getName());
 
-      File f = view.showImportPopup(this);
+          // Verify it's a CSV file
+          if (!f.getName().toLowerCase().endsWith(".csv")) {
+            throw new IllegalArgumentException("File must be a CSV file");
+          }
 
-      System.out.println(f.getName());
+          // Import the calendar
+          int count = model.getCurrentCalendar().importFromCSV(f.getAbsolutePath());
 
-      System.out.println("Import Calendar action");
-      // (Import logic here...)
+          JOptionPane.showMessageDialog(null,
+              "Successfully imported " + count + " events.",
+              "Import Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+      } catch (IOException | IllegalArgumentException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+            "Error importing calendar: " + ex.getMessage(),
+            "Import Error", JOptionPane.ERROR_MESSAGE);
+      }
     }
     else if ("Create Calendar".equals(actionCommand)) {
       try {

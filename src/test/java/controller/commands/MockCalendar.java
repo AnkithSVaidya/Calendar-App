@@ -77,6 +77,11 @@ class MockCalendar implements ICalendar {
   }
 
   @Override
+  public int importFromCSV(String filename) throws IOException, IllegalArgumentException {
+    return 0;
+  }
+
+  @Override
   public boolean editEvent(String property, String eventName, LocalDateTime startTime,
                            LocalDateTime endTime, String newValue) {
     editHelper(property, newValue);
