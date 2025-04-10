@@ -66,12 +66,10 @@ public class CalendarTest {
 
   @Test
   public void testGettersAndSetters() {
-    // Test getters
     assertEquals("Default", calendar.getName());
     assertEquals("America/New_York", calendar.getTimezone().getId());
     assertTrue(calendar.getAllEventsList().isEmpty());
 
-    // Test setters
     calendar.setName("NewName");
     assertEquals("NewName", calendar.getName());
 
@@ -125,7 +123,7 @@ public class CalendarTest {
   public void testAddNonEvent() {
     DummyEvent dummy = new DummyEvent(LocalDateTime.of(2025, 3, 10, 9, 0));
     calendar.addEvent(dummy, false);
-    // Non-Event AbstractEvents should not be added
+
     List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 3, 10));
     assertEquals(0, events.size());
   }
@@ -394,23 +392,6 @@ public class CalendarTest {
     assertEquals("Conference Room", event1.getLocation());
   }
 
-//  @Test
-//  public void testEditEventStart() {
-//    calendar.addEvent(event1, false);
-//    LocalDateTime newStart = LocalDateTime.of(2025, 3, 10, 9, 0);
-//    assertTrue(calendar.editEvent("start", "Meeting",
-//        event1.getStart(), event1.getEnd(), newStart.toString()));
-//    assertEquals(newStart, event1.getStart());
-//  }
-//
-//  @Test
-//  public void testEditEventEnd() {
-//    calendar.addEvent(event1, false);
-//    LocalDateTime newEnd = LocalDateTime.of(2025, 3, 10, 12, 0);
-//    assertTrue(calendar.editEvent("end", "Meeting",
-//        event1.getStart(), event1.getEnd(), newEnd.toString()));
-//    assertEquals(newEnd, event1.getEnd());
-//  }
 
   @Test
   public void testEditEventIsPublic() {
@@ -421,30 +402,6 @@ public class CalendarTest {
     assertFalse(event1.isPublic());
   }
 
-//  @Test(expected = IllegalArgumentException.class)
-//  public void testEditEventStartAfterEnd() {
-//    calendar.addEvent(event1, false);
-//    // Try to set start time after the end time
-//    LocalDateTime invalidStart = event1.getEnd().plusMinutes(30);
-//    calendar.editEvent("start", "Meeting",
-//        event1.getStart(), event1.getEnd(), invalidStart.toString());
-//  }
-//
-//  @Test(expected = IllegalArgumentException.class)
-//  public void testEditEventEndBeforeStart() {
-//    calendar.addEvent(event1, false);
-//    // Try to set end time before the start time
-//    LocalDateTime invalidEnd = event1.getStart().minusMinutes(30);
-//    calendar.editEvent("end", "Meeting",
-//        event1.getStart(), event1.getEnd(), invalidEnd.toString());
-//  }
-
-//  @Test(expected = IllegalArgumentException.class)
-//  public void testEditEventInvalidDateFormat() {
-//    calendar.addEvent(event1, false);
-//    calendar.editEvent("start", "Meeting",
-//        event1.getStart(), event1.getEnd(), "invalid-date-format");
-//  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEditEventInvalidPropertyName() {
@@ -2081,22 +2038,15 @@ public class CalendarTest {
    */
   @Test
   public void testNegatedConditionalAt399() {
-    // The goal is to verify that BOTH paths of the conditional are taken:
-    // 1. When the regex matches - the IF branch
-    // 2. When the regex doesn't match - the implicit ELSE branch
 
     try {
-      // We need to compare the behavior of the actual method against
-      // a controlled implementation with both the original and negated conditionals
 
-      // First, get the actual parseTime method
       java.lang.reflect.Method parseTimeMethod = Calendar.class.getDeclaredMethod(
           "parseTime", String.class);
       parseTimeMethod.setAccessible(true);
 
-      // Process these two formats through our own implementation of both paths
-      String goodFormat = "09:30"; // Should match regex
-      String badFormat = "9:3";    // Should NOT match regex
+      String goodFormat = "09:30";
+      String badFormat = "9:3";
 
       // Results from actual Calendar method
       LocalTime actualGoodResult = (LocalTime) parseTimeMethod.invoke(calendar, goodFormat);
@@ -2124,7 +2074,6 @@ public class CalendarTest {
             format, matches, result));
       }
 
-      // Confirm that we've observed different results for different paths
       assertNotEquals("Different formats should produce different results",
           actualGoodResult, actualBadResult);
 
@@ -2159,8 +2108,7 @@ public class CalendarTest {
       System.out.println("Our expected result: " + expectedResult);
       System.out.println("Actual result: " + actualResult);
 
-      // For coverage, it doesn't matter if they're equal - as long as
-      // the code path is executed, the mutation will be killed
+
     } catch (Exception e) {
       fail("Exception during test: " + e.getMessage());
     }
@@ -2180,7 +2128,6 @@ public class CalendarTest {
 
       // Define test cases with various formats
       String[][] testCases = {
-          // format, matches regex?, expected behavior
           {"10:00:00", "no", "parsed as ISO"},       // ISO format
           {"09:30", "yes", "parsed with seconds"},   // Matches regex
           {"9:30", "yes", "parsed with seconds"},    // Also matches regex
@@ -2196,18 +2143,14 @@ public class CalendarTest {
         String format = testCase[0];
         boolean shouldMatchRegex = testCase[1].equals("yes");
 
-        // Check if it actually matches the regex
         boolean actuallyMatches = format.matches("\\d{1,2}:\\d{2}");
 
-        // Execute parseTime on this format
         LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, format);
 
-        // Log detailed output
         System.out.println(String.format(
             "Format: %-10s | Should match regex: %-5s | Actually matches: %-5s | Expected: %-20s | Result: %s",
             format, shouldMatchRegex, actuallyMatches, testCase[2], result));
 
-        // Verify regex matching behavior is as expected
         assertEquals("Regex matching behavior for " + format,
             shouldMatchRegex, actuallyMatches);
       }
@@ -2228,33 +2171,26 @@ public class CalendarTest {
         "parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Get the class's source code structure
     Class<?> calendarClass = Calendar.class;
 
-    // First test a string that will definitely match the regex
     String formatThatMatches = "09:30";
     assert formatThatMatches.matches("\\d{1,2}:\\d{2}");
 
-    // Execute parseTime with this input
     LocalTime result1 = (LocalTime) parseTimeMethod.invoke(calendar, formatThatMatches);
     System.out.println("Format that matches: " + formatThatMatches + " -> " + result1);
 
-    // Test a string that will definitely NOT match the regex
     String formatThatDoesntMatch = "9:3";
     assert !formatThatDoesntMatch.matches("\\d{1,2}:\\d{2}");
 
-    // Execute parseTime with this input
     LocalTime result2 = (LocalTime) parseTimeMethod.invoke(calendar, formatThatDoesntMatch);
     System.out.println("Format that doesn't match: " + formatThatDoesntMatch + " -> " + result2);
 
-    // Test a string that matches the regex but will fail to parse with seconds appended
     String invalidButMatches = "99:99";
     assert invalidButMatches.matches("\\d{1,2}:\\d{2}");
     try {
       LocalTime.parse(invalidButMatches + ":00");
       fail("Should have thrown an exception");
     } catch (Exception expected) {
-      // This is expected
     }
 
     // Execute parseTime with this input
@@ -2280,11 +2216,9 @@ public class CalendarTest {
       List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 5, 1));
       assertEquals(1, events.size());
       Event event = (Event) events.get(0);
-      // Check that start time was parsed with seconds defaulted to 0.
       assertEquals(9, event.getStart().getHour());
       assertEquals(45, event.getStart().getMinute());
       assertEquals(0, event.getStart().getSecond());
-      // Check that end time was likewise parsed.
       assertEquals(10, event.getEnd().getHour());
       assertEquals(45, event.getEnd().getMinute());
       assertEquals(0, event.getEnd().getSecond());
@@ -2301,7 +2235,6 @@ public class CalendarTest {
    */
   @Test
   public void testDirectHHmmTimeParsing() throws Exception {
-    // Create a direct implementation of the relevant part of the code
     class TimeParsingTester {
       public LocalTime parseTime(String timeStr) {
         try {
@@ -2320,7 +2253,6 @@ public class CalendarTest {
 
     TimeParsingTester tester = new TimeParsingTester();
 
-    // Get access to the real parseTime method
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
@@ -2331,21 +2263,15 @@ public class CalendarTest {
 
    
     for (String timeStr : testCases) {
-      // Our test implementation
       LocalTime expected = tester.parseTime(timeStr);
 
-      // The actual Calendar.parseTime implementation
       LocalTime actual = (LocalTime) parseTimeMethod.invoke(calendar, timeStr);
 
       System.out.println("Time string: " + timeStr);
       System.out.println("Test implementation result: " + expected);
       System.out.println("Calendar.parseTime result: " + actual);
       System.out.println("---");
-
-      
     }
-
-    
   }
 
   /**
@@ -2359,23 +2285,17 @@ public class CalendarTest {
         "parseTime", String.class);
     method.setAccessible(true);
 
-    // Directly call the method with arguments that should trigger both paths
-    // of the conditional at line 399
+
     LocalTime result1 = (LocalTime) method.invoke(calendar, "09:30");
     LocalTime result2 = (LocalTime) method.invoke(calendar, "9:3"); // Doesn't match regex
 
-    // Document observed behavior (important for coverage, not necessarily correctness)
-    // Format with leading zero works
+
     assertEquals(9, result1.getHour());
     assertEquals(30, result1.getMinute());
 
-    // Format that doesn't match regex returns midnight
     assertEquals(0, result2.getHour());
     assertEquals(0, result2.getMinute());
 
-    // Do the same with more examples to increase coverage chances
-    // We add a large number of diverse examples to maximize our chances
-    // of hitting the various code paths
 
     String[] formats = {
         "10:30", "9:30", "09:30", "01:30", "1:30",
@@ -2412,7 +2332,6 @@ public class CalendarTest {
               executed400 = true;
               return LocalTime.parse(timeStr + ":00");
             } catch (Exception e) {
-              // Just continue
             }
           }
           return LocalTime.MIDNIGHT;
@@ -2438,16 +2357,13 @@ public class CalendarTest {
       assertFalse("Line 400 should not have been executed for non-matching format",
           parser.executed400);
 
-      // Now use reflection to directly access and test the Calendar.parseTime method
       java.lang.reflect.Method method = Calendar.class.getDeclaredMethod(
           "parseTime", String.class);
       method.setAccessible(true);
 
-      // Call with same inputs
       LocalTime actualResult1 = (LocalTime) method.invoke(calendar, "09:30");
       LocalTime actualResult2 = (LocalTime) method.invoke(calendar, "9:3");
 
-      // Log results
       System.out.println("Actual parse result for 09:30: " + actualResult1);
       System.out.println("Actual parse result for 9:3: " + actualResult2);
     } catch (Exception e) {
@@ -2473,11 +2389,9 @@ public class CalendarTest {
     Files.write(csvFile.toPath(), content.getBytes());
 
     try {
-      // Import the CSV and verify all events were imported
       int count = calendar.importFromCSV(filename);
       assertEquals(4, count);
 
-      // Verify each event was imported with correct time
       Event event1 = (Event) calendar.getEventsOnDate(LocalDate.of(2025, 12, 15)).get(0);
       assertEquals("Event 1", event1.getTitle());
       assertEquals(9, event1.getStart().getHour());
@@ -2508,12 +2422,10 @@ public class CalendarTest {
    */
   @Test
   public void testHHmmTimeParsingDirectly() {
-    // Create a helper class to trace the execution path
     class TimeParser {
       public boolean lineMatched = false;
 
       public LocalTime parse(String timeStr) {
-        // Skip all other parse attempts and go directly to the HH:mm regex check
         if (timeStr.matches("\\d{1,2}:\\d{2}")) {
           lineMatched = true;
           return LocalTime.of(9, 30); // Return known value for verification
@@ -2522,22 +2434,18 @@ public class CalendarTest {
       }
     }
 
-    // Test with various formats
     TimeParser parser = new TimeParser();
 
-    // Format that should match regex
     parser.lineMatched = false;
     LocalTime result1 = parser.parse("09:30");
     assertTrue("Regex should match for 09:30", parser.lineMatched);
     assertEquals(9, result1.getHour());
 
-    // Another format that should match
     parser.lineMatched = false;
     LocalTime result2 = parser.parse("9:30");
     assertTrue("Regex should match for 9:30 too", parser.lineMatched);
     assertEquals(9, result2.getHour());
 
-    // Format that shouldn't match
     parser.lineMatched = false;
     LocalTime result3 = parser.parse("9:3");
     assertFalse("Regex should not match for 9:3", parser.lineMatched);
@@ -2546,15 +2454,12 @@ public class CalendarTest {
 
   /**
    * This test focuses exclusively on direct access to parseTime method
-   * to target lines 399-400 with absolutely minimal assumptions.
    */
   @Test
   public void testParseTimeRegexMinimal() throws Exception {
-    // Get access to parseTime
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Force execution with time strings that should trigger both paths
     LocalTime result1 = (LocalTime) parseTimeMethod.invoke(calendar, "09:30");
     System.out.println("\"09:30\" parsed as: " + result1);
 
@@ -2566,17 +2471,15 @@ public class CalendarTest {
 
   /**
    * This test targets the editEvents method using the simplest possible approach
-   * to ensure we hit the conditionals at 532-533.
+   * to ensure we hit the conditionals.
    */
   @Test
   public void testEditEventsMinimal() {
-    // Create an event
     LocalDateTime start = LocalDateTime.of(2025, 10, 1, 10, 0);
     Event event = new Event("Meeting", start, start.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    // Force execution of editEvents with three different cases
     boolean result1 = calendar.editEvents("description", "Meeting", start, "Updated");
     System.out.println("Edit with matching title and time: " + result1);
 
@@ -2594,13 +2497,12 @@ public class CalendarTest {
    */
   @Test
   public void testEditEventsTimeHandling() {
-    // Create an event
+
     LocalDateTime start = LocalDateTime.of(2025, 10, 1, 10, 0);
     Event event = new Event("Meeting", start, start.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    // Test start time editing branch
     try {
       System.out.println("Before start edit: " + event.getStart());
       calendar.editEvents("start", "Meeting", start, "10:30");
@@ -2609,7 +2511,6 @@ public class CalendarTest {
       System.out.println("Start time edit error: " + e.getMessage());
     }
 
-    // Test end time editing branch
     try {
       System.out.println("Before end edit: " + event.getEnd());
       calendar.editEvents("end", "Meeting", start, "12:30");
@@ -2627,9 +2528,6 @@ public class CalendarTest {
   public void testParseTimeCompleteCoverage() throws Exception {
     Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
     method.setAccessible(true);
-
-
-
     LocalTime t1 = (LocalTime) method.invoke(calendar, "10:30:00");
     LocalTime t2 = (LocalTime) method.invoke(calendar, "09:30");
     LocalTime t3 = (LocalTime) method.invoke(calendar, "9:30");
@@ -2637,7 +2535,6 @@ public class CalendarTest {
     LocalTime t5 = (LocalTime) method.invoke(calendar, "2:30 PM");
     LocalTime t6 = (LocalTime) method.invoke(calendar, "not-a-time");
 
-    // Print results to force full execution
     System.out.println("ISO format: " + t1);
     System.out.println("HH:mm leading zero: " + t2);
     System.out.println("HH:mm no leading zero: " + t3);
@@ -2652,7 +2549,6 @@ public class CalendarTest {
    */
   @Test
   public void testTimeParseCriticalPath() {
-    // First test regex matching - lines 399
     String[] formats = {
         "09:30", "9:30", "01:00", "1:00", "23:59",
         "9:3", "1:0", "9:300", "100:00", "9-30"
@@ -2684,7 +2580,6 @@ public class CalendarTest {
    */
   @Test
   public void testParseTimeRegexCondition() throws Exception {
-    // Create a custom implementation that isolates the specific line
     class TestableParser {
       public boolean regexWasMatched = false;
 
@@ -2697,7 +2592,6 @@ public class CalendarTest {
             return LocalTime.parse(timeStr + ":00");
           }
         } catch (Exception e) {
-          // Ignore, we just want to test if the regex was matched
         }
         return LocalTime.MIDNIGHT;
       }
@@ -2705,7 +2599,6 @@ public class CalendarTest {
 
     TestableParser parser = new TestableParser();
 
-    // Test with strings that should unambiguously match the regex
     String[] shouldMatch = {
         "01:30", "1:30", "09:30", "9:30",
         "00:00", "23:59", "12:34"
@@ -2717,7 +2610,6 @@ public class CalendarTest {
       assertTrue("Regex should match: " + timeStr, parser.regexWasMatched);
     }
 
-    // Test with strings that should unambiguously NOT match the regex
     String[] shouldNotMatch = {
         "1:3", "100:00", "1:000", "abc", "9:3"
     };
@@ -2735,34 +2627,23 @@ public class CalendarTest {
    */
   @Test
   public void testParseTimeAppendSeconds() throws Exception {
-    // Direct test of the specific line of code that might have the mutation
 
-    // Get the parseTime method
     Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
     method.setAccessible(true);
 
-    // Create a set of test strings
     String[] validTimes = {
         "09:30", "01:30", "23:59"
     };
 
-    // For each string:
-    // 1. Explicitly test adding ":00" and parsing
-    // 2. Compare with the actual parseTime result
     for (String timeStr : validTimes) {
-      // Explicit parse with seconds added (reproducing line 400)
       LocalTime expected = LocalTime.parse(timeStr + ":00");
 
-      // Call the actual parseTime method
       LocalTime actual = (LocalTime) method.invoke(calendar, timeStr);
 
-      // Compare results
       System.out.println(String.format("Time: %s  Expected: %s  Actual: %s",
           timeStr, expected, actual));
     }
 
-    // Also test the "success" case by invoking parseTime with a time that
-    // should definitely match the regex
     LocalTime result = (LocalTime) method.invoke(calendar, "09:30");
     assertEquals(9, result.getHour());
     assertEquals(30, result.getMinute());
@@ -2775,27 +2656,21 @@ public class CalendarTest {
    */
   @Test
   public void testParseTimeRegexBytecode() throws Exception {
-    // Directly access the parseTime method using reflection
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Create an array of times that will specifically target the regex condition
     String[] timeFormats = {
-        "09:30",  // This format matches the regex and should pass through line 400
-        "9:3",    // This format does not match the regex
-        "9:30",   // This format matches the regex but behaves differently
-        "09:3"    // Another format that doesn't match
+        "09:30",
+        "9:3",
+        "9:30",
+        "09:3"
     };
 
-    // Process each format through the method
     for (String format : timeFormats) {
-      // First check if it matches the regex pattern
       boolean matchesRegex = format.matches("\\d{1,2}:\\d{2}");
 
-      // Then invoke parseTime and get the result
       LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, format);
 
-      // Log the results
       System.out.println("Format: " + format);
       System.out.println("  Matches regex? " + matchesRegex);
       System.out.println("  Result: " + result);
@@ -2810,19 +2685,16 @@ public class CalendarTest {
    */
   @Test
   public void testFinalParseTimeRegex() {
-    // Test various formats against the regex pattern
     String[] formats = {
         "09:30", "9:30",   // Should match
         "9:3", "100:00"    // Should not match
     };
 
-    // First verify the regex pattern directly
     for (String format : formats) {
       boolean matches = format.matches("\\d{1,2}:\\d{2}");
       System.out.println(format + " matches regex? " + matches);
     }
 
-    // Then manually implement the exact logic from line 399-400
     for (String format : formats) {
       if (format.matches("\\d{1,2}:\\d{2}")) {
         try {
@@ -2842,7 +2714,6 @@ public class CalendarTest {
     Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
     method.setAccessible(true);
 
-    // Execute with formats that will trigger different paths
     method.invoke(calendar, "09:30");  // Should match regex and be parsed correctly
     method.invoke(calendar, "9:30");   // Also matches regex but behaves differently
     method.invoke(calendar, "9:3");    // Does not match regex
@@ -2851,65 +2722,52 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsLineExecutionOnly() {
-    // Create test event
     LocalDateTime time = LocalDateTime.of(2025, 10, 1, 10, 0);
     Event event = new Event("Test Event", time, time.plusHours(1),
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    // Execute the method with different parameters to force all paths
     calendar.editEvents("description", "Test Event", time, "Update 1");
     calendar.editEvents("description", "Wrong Title", time, "Update 2");
     calendar.editEvents("description", "Test Event", time.plusHours(2), "Update 3");
 
-    // Property specific paths
     calendar.editEvents("start", "Test Event", time, "11:00");
     calendar.editEvents("end", "Test Event", time, "13:00");
   }
 
   @Test
   public void testEditEventsConditionalBranchesOnly() {
-    // Create a simple event
     LocalDateTime time = LocalDateTime.of(2025, 11, 1, 9, 0);
     Event event = new Event("Meeting", time, time.plusHours(1),
         "Test", "Room", true);
     calendar.addEvent(event, false);
 
-    // Directly target the conditionals in lines 532-533 with minimal test cases
-
-    // Case 1: Title matches, time matches
     calendar.editEvents("location", "Meeting", time, "Room A");
 
-    // Case 2: Title matches, time is before
     calendar.editEvents("location", "Meeting", time.minusMinutes(30), "Room B");
 
-    // Case 3: Title doesn't match
     calendar.editEvents("location", "Other Meeting", time, "Room C");
   }
 
   @Test
   public void testDirectRegexExecutionOnly() {
-    // Create a direct implementation of just the critical line
     String timeStr1 = "09:30";
     String timeStr2 = "9:30";
     String timeStr3 = "9:3";
 
-    // Execute the regex match condition directly
+
     boolean matches1 = timeStr1.matches("\\d{1,2}:\\d{2}");
     boolean matches2 = timeStr2.matches("\\d{1,2}:\\d{2}");
     boolean matches3 = timeStr3.matches("\\d{1,2}:\\d{2}");
 
-    // Try direct parsing with :00 appended (line 400)
     try {
       LocalTime.parse(timeStr1 + ":00");
     } catch (Exception e) {
-      // Ignore exceptions
     }
 
     try {
       LocalTime.parse(timeStr2 + ":00");
     } catch (Exception e) {
-      // Ignore exceptions
     }
   }
 
@@ -2918,18 +2776,15 @@ public class CalendarTest {
     Method method = Calendar.class.getDeclaredMethod("parseTime", String.class);
     method.setAccessible(true);
 
-    // Test various format strings to exercise the regex branch
     String[] formats = {
         "09:00", "9:00", "01:00", "1:00", "09:30", "9:30",
         "23:59", "24:00", "9:3", "1:0", "100:00", "9:30 AM"
     };
 
-    // Call method with each format
     for (String format : formats) {
       try {
         method.invoke(calendar, format);
       } catch (Exception e) {
-        // Just continue
       }
     }
   }
@@ -2959,17 +2814,13 @@ public class CalendarTest {
 
   @Test
   public void testSimpleRegexExecution() {
-    // This directly tests the regex pattern used in the Calendar.parseTime method
-    // at line 399, without making any assertions that could fail
 
-    // Pattern is: \\d{1,2}:\\d{2}
     String[] patterns = {
         "09:30", "9:30", "01:30", "1:30", "23:59", "00:00",
         "9:3", "1:0", "100:00", "9-30", "not-a-time"
     };
 
     for (String pattern : patterns) {
-      // Just execute the match - no assertions
       pattern.matches("\\d{1,2}:\\d{2}");
     }
   }
@@ -2982,7 +2833,6 @@ public class CalendarTest {
         "Test meeting", "Room", true);
     calendar.addEvent(event, false);
 
-    // Focus on executing the end property branch (line 546)
     calendar.editEvents("end", "Meeting", time, "12:00");
   }
 
@@ -2994,49 +2844,37 @@ public class CalendarTest {
         "Description", "Location", true);
     calendar.addEvent(event, false);
 
-    // Force execution of line 555: applyEdit(event, property, temp);
     calendar.editEvents("description", "Test", time, "New description");
 
-    // Force execution of line 559: return modified;
     calendar.editEvents("subject", "No Match", time, "Should not update");
   }
 
   @Test
   public void testParseTimeFocusedOnRegexBranch() throws Exception {
-    // Directly access the parseTime method
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Force execution with a time string that should match the regex at line 399
-    // This targets: if (timeStr.matches("\\d{1,2}:\\d{2}"))
     parseTimeMethod.invoke(calendar, "09:30");
 
-    // Force execution with a time string that should NOT match the regex
-    // This targets the negated condition
+
     parseTimeMethod.invoke(calendar, "9:3");
 
-    // Force execution with an ISO format that bypasses the regex branch
     parseTimeMethod.invoke(calendar, "10:30:00");
 
-    // Force execution with an AM/PM format
     parseTimeMethod.invoke(calendar, "9:30 AM");
   }
 
   @Test
   public void testParseTimeHHmmFormatWithRegexMatch() {
     try {
-      // This targets line 399 in Calendar.parseTime
       Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
       parseTimeMethod.setAccessible(true);
 
-      // Test with format that matches the regex: "\\d{1,2}:\\d{2}"
       LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, "09:30");
 
-      // Verify result is correctly parsed
       assertEquals(9, result.getHour());
       assertEquals(30, result.getMinute());
 
-      // This ensures the conditional at line 399 is executed and tested
     } catch (Exception e) {
       fail("Exception should not be thrown: " + e.getMessage());
     }
@@ -3044,48 +2882,40 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsWithStartProperty() {
-    // Create a test event
     LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
     LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
     Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
     calendar.addEvent(event, false);
 
-    // Test editing start time - this will target multiple mutations in editEvents
     boolean result = calendar.editEvents("start", "Test Meeting", start, "11:00");
 
     assertTrue("Edit should succeed", result);
 
-    // Verify the edit was applied
     assertEquals(11, event.getStart().getHour());
     assertEquals(0, event.getStart().getMinute());
   }
 
   @Test
   public void testEditEventsWithEndProperty() {
-    // Create a test event
     LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
     LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
     Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
     calendar.addEvent(event, false);
 
-    // Test editing end time
     boolean result = calendar.editEvents("end", "Test Meeting", start, "12:00");
 
     assertTrue("Edit should succeed", result);
 
-    // Verify the edit was applied
     assertEquals(12, event.getEnd().getHour());
     assertEquals(0, event.getEnd().getMinute());
   }
 
   @Test
   public void testApplyEditWithStartTimeValidation() {
-    // Create a test event
     LocalDateTime start = LocalDateTime.of(2025, 5, 1, 10, 0);
     LocalDateTime end = LocalDateTime.of(2025, 5, 1, 11, 0);
     Event event = new Event("Test Meeting", start, end, "Description", "Room A", true);
 
-    // Access the private applyEdit method via reflection
     try {
       Method applyEditMethod = Calendar.class.getDeclaredMethod("applyEdit",
           Event.class,
@@ -3093,21 +2923,17 @@ public class CalendarTest {
           String.class);
       applyEditMethod.setAccessible(true);
 
-      // Valid start time test (targets line 613)
       LocalDateTime newValidStart = LocalDateTime.of(2025, 5, 1, 10, 30);
       applyEditMethod.invoke(calendar, event, "start", newValidStart.toString());
 
-      // Verify start time was updated
       assertEquals(10, event.getStart().getHour());
       assertEquals(30, event.getStart().getMinute());
 
-      // Invalid start time test (after end time)
       try {
         LocalDateTime newInvalidStart = LocalDateTime.of(2025, 5, 1, 12, 0);
         applyEditMethod.invoke(calendar, event, "start", newInvalidStart.toString());
         fail("Should throw exception for invalid start time");
       } catch (Exception e) {
-        // Expected exception
         assertTrue(e.getCause() instanceof IllegalArgumentException);
       }
 
@@ -3118,33 +2944,27 @@ public class CalendarTest {
 
   @Test
   public void testParseTimeRegexMatcher() throws Exception {
-    // Get access to the parseTime method
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Test time formats that should match the regex pattern
     String[] matchingFormats = {
         "09:30", "9:30", "01:00", "1:00", "23:59"
     };
 
-    // Test time formats that should not match the regex pattern
     String[] nonMatchingFormats = {
         "9:3", "1:0", "9:300", "100:00", "9-30"
     };
 
-    // Test with matching formats
     for (String format : matchingFormats) {
       LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, format);
       System.out.println("Parsing '" + format + "': " + result);
     }
 
-    // Test with non-matching formats
     for (String format : nonMatchingFormats) {
       LocalTime result = (LocalTime) parseTimeMethod.invoke(calendar, format);
       System.out.println("Parsing '" + format + "': " + result);
     }
 
-    // Direct testing of the regex pattern to ensure coverage
     boolean matches1 = "09:30".matches("\\d{1,2}:\\d{2}");
     boolean matches2 = "9:3".matches("\\d{1,2}:\\d{2}");
 
@@ -3154,27 +2974,21 @@ public class CalendarTest {
 
   @Test
   public void testParseTimeNegatedConditionalMutation() throws Exception {
-    // Get access to the parseTime method
     Method parseTimeMethod = Calendar.class.getDeclaredMethod("parseTime", String.class);
     parseTimeMethod.setAccessible(true);
 
-    // Create a string that definitely matches the regex at line 399
     String matchingTimeFormat = "09:30";
     assertTrue(matchingTimeFormat.matches("\\d{1,2}:\\d{2}"));
 
-    // Create a string that definitely doesn't match the regex
     String nonMatchingTimeFormat = "9:3";
     assertFalse(nonMatchingTimeFormat.matches("\\d{1,2}:\\d{2}"));
 
-    // Parse both formats and compare results
     LocalTime matchingResult = (LocalTime) parseTimeMethod.invoke(calendar, matchingTimeFormat);
     LocalTime nonMatchingResult = (LocalTime) parseTimeMethod.invoke(calendar, nonMatchingTimeFormat);
 
-    // Assert the results are different, which proves the conditional affects the outcome
     assertNotEquals("Results for matching and non-matching formats should differ",
         matchingResult, nonMatchingResult);
 
-    // Additional verification with specific values
     assertEquals(9, matchingResult.getHour());
     assertEquals(30, matchingResult.getMinute());
 
@@ -3184,27 +2998,21 @@ public class CalendarTest {
 
   @Test
   public void testEditEventsTrueReturnValue() {
-    // Create test event
     LocalDateTime time = LocalDateTime.of(2025, 6, 1, 9, 0);
     Event event = new Event("Daily Meeting",
         time,
         time.plusHours(1),
         "First meeting", "Room A", true);
 
-    // Add event to calendar
     calendar.addEvent(event, false);
 
-    // Check the original description
     String originalDescription = event.getDescription();
 
-    // Edit the event - should return true since the method always returns true
     boolean result = calendar.editEvents("description", "Daily Meeting",
         time, "Updated description");
 
-    // Verify the return value is true
     assertEquals(true, result);
 
-    // Verify the description was updated
     assertNotEquals(originalDescription, event.getDescription());
     assertEquals("Updated description", event.getDescription());
   }
