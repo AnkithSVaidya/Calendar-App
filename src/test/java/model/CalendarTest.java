@@ -169,7 +169,6 @@ public class CalendarTest {
 
     calendar.addEvent(allDayEvent, false);
 
-    // This may need adjusting based on how your implementation handles all-day events
     List<AbstractEvent> events = calendar.getEventsBetween(
         LocalDateTime.of(2025, 3, 15, 0, 0),  // Exact day, start of day
         LocalDateTime.of(2025, 3, 15, 23, 59));  // End of day
@@ -187,8 +186,7 @@ public class CalendarTest {
     // Add the event to the calendar
     calendar.addEvent(multiDay, false);
 
-    // The implementation seems to have a different approach to multi-day events
-    // Check if the event is returned on the start date
+
     List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(2025, 3, 9));
     assertEquals(1, events.size());
   }
@@ -197,19 +195,14 @@ public class CalendarTest {
   public void testIsBusyAt() {
     calendar.addEvent(event1, false); // 10:00-11:00
 
-    // Test exact start time
     assertTrue(calendar.isBusyAt(LocalDateTime.of(2025, 3, 10, 10, 0)));
 
-    // Test exact end time (should still be busy)
     assertTrue(calendar.isBusyAt(LocalDateTime.of(2025, 3, 10, 11, 0)));
 
-    // Test middle of event
     assertTrue(calendar.isBusyAt(LocalDateTime.of(2025, 3, 10, 10, 30)));
 
-    // Test just before event
     assertFalse(calendar.isBusyAt(LocalDateTime.of(2025, 3, 10, 9, 59)));
 
-    // Test just after event
     assertFalse(calendar.isBusyAt(LocalDateTime.of(2025, 3, 10, 11, 1)));
   }
 
@@ -222,13 +215,9 @@ public class CalendarTest {
         "National holiday", "City", false);
     calendar.addEvent(allDayEvent, false);
 
-    // Check during the day (this should still be true)
     assertTrue(calendar.isBusyAt(LocalDateTime.of(2025, 3, 15, 12, 0)));
 
-    // It seems like your all-day event implementation may have different behavior
-    // for the day boundaries. Let's modify the assertions:
 
-    // Test day before (this should be false regardless)
     assertFalse(calendar.isBusyAt(LocalDateTime.of(2025, 3, 14, 23, 59)));
   }
 
@@ -244,11 +233,9 @@ public class CalendarTest {
       assertTrue(file.exists());
       String content = new String(Files.readAllBytes(file.toPath()));
 
-      // Check header
       assertTrue(content.contains("Subject, Start Date, Start Time, End Date, " +
           "End Time, All Day Event, Description, Location, Private"));
 
-      // Check event1 data
       assertTrue(content.contains("Meeting"));
       assertTrue(content.contains(event1.getStart().toLocalDate().toString()));
       assertTrue(content.contains(event1.getStart().toLocalTime().toString()));
@@ -259,7 +246,6 @@ public class CalendarTest {
       assertTrue(content.contains("Room A"));
       assertTrue(content.contains("false")); // Not private
 
-      // Check event2 data
       assertTrue(content.contains("Lunch"));
       assertTrue(content.contains("Team lunch"));
       assertTrue(content.contains("Cafeteria"));
@@ -300,26 +286,21 @@ public class CalendarTest {
 
   @Test
   public void testImportFromCSV() throws IOException {
-    // First export events to create a CSV file
     calendar.addEvent(event1, false);
     calendar.addEvent(event2, false);
     String filename = "test_import.csv";
     calendar.exportToCSV(filename);
 
-    // Create a new calendar and import the CSV
     Calendar newCalendar = new Calendar();
     int importCount = newCalendar.importFromCSV(filename);
 
-    // Verify import results
     assertEquals("Should import 2 events", 2, importCount);
     assertEquals("Calendar should have 2 events", 2, newCalendar.getAllEventsList().size());
 
-    // Check that events were imported correctly
     List<AbstractEvent> importedEvents = newCalendar.getEventsOnDate(
         LocalDate.of(2025, 3, 10));
     assertEquals(2, importedEvents.size());
 
-    // Verify event details were preserved
     boolean foundEvent1 = false;
     boolean foundEvent2 = false;
 
@@ -336,19 +317,16 @@ public class CalendarTest {
     assertTrue("Should find imported event1", foundEvent1);
     assertTrue("Should find imported event2", foundEvent2);
 
-    // Clean up
     File file = new File(filename);
     file.delete();
   }
 
   @Test
   public void testImportFromCSVWithAllDayEvent() throws IOException {
-    // Export an all-day event
     calendar.addEvent(allDayEvent, false);
     String filename = "test_import_allday.csv";
     calendar.exportToCSV(filename);
 
-    // Create new calendar and import
     Calendar newCalendar = new Calendar();
     int importCount = newCalendar.importFromCSV(filename);
 
@@ -357,12 +335,10 @@ public class CalendarTest {
         LocalDate.of(2025, 3, 15));
     assertEquals(1, importedEvents.size());
 
-    // Verify it's still an all-day event
     AbstractEvent imported = importedEvents.get(0);
     assertEquals("Holiday", imported.getTitle());
     assertNull(imported.getEnd());
 
-    // Clean up
     File file = new File(filename);
     file.delete();
   }
@@ -376,11 +352,9 @@ public class CalendarTest {
   public void testEditEvent() {
     calendar.addEvent(event1, false);
 
-    // Test edit successful
     assertTrue(calendar.editEvent("subject", "Meeting",
         event1.getStart(), event1.getEnd(), "Updated Meeting"));
 
-    // Verify edit applied
     List<AbstractEvent> events = calendar.getEventsOnDate(event1.getStart().toLocalDate());
     assertEquals("Updated Meeting", events.get(0).getTitle());
   }
@@ -423,15 +397,12 @@ public class CalendarTest {
   public void testEditEventNotFound() {
     calendar.addEvent(event1, false);
 
-    // Test with wrong title
     assertFalse(calendar.editEvent("subject", "Wrong Title",
         event1.getStart(), event1.getEnd(), "New Title"));
 
-    // Test with wrong start time
     assertFalse(calendar.editEvent("subject", "Meeting",
         event1.getStart().plusHours(1), event1.getEnd(), "New Title"));
 
-    // Test with wrong end time
     assertFalse(calendar.editEvent("subject", "Meeting",
         event1.getStart(), event1.getEnd().plusHours(1), "New Title"));
   }
@@ -439,7 +410,6 @@ public class CalendarTest {
 
   @Test
   public void testEditAllEvents() {
-    // Create multiple events with same title but different times
     Event event1 = new Event("Weekly Meeting",
         LocalDateTime.of(2025, 3, 10, 9, 0),
         LocalDateTime.of(2025, 3, 10, 10, 0),
@@ -453,7 +423,6 @@ public class CalendarTest {
     calendar.addEvent(event1, false);
     calendar.addEvent(event2, false);
 
-    // Edit all events with the title
     assertTrue(calendar.editAllEvents("subject", "Weekly Meeting", "Team Sync"));
 
     // Verify both were edited
@@ -478,22 +447,18 @@ public class CalendarTest {
     RecurringEvent recurringEvent = new RecurringEvent("Weekly Class",
         start, end, "CS101", "Room 203", true, days, 3);
 
-    // This should add 3 instances of the event
     calendar.addRecurringEvent(recurringEvent, false);
 
-    // Check first instance (Monday)
     List<AbstractEvent> mondayEvents = calendar.getEventsOnDate(
         LocalDate.of(2025, 3, 10));
     assertEquals(1, mondayEvents.size());
     assertEquals("Weekly Class", mondayEvents.get(0).getTitle());
 
-    // Check second instance (Wednesday)
     List<AbstractEvent> wednesdayEvents = calendar.getEventsOnDate(
         LocalDate.of(2025, 3, 12));
     assertEquals(1, wednesdayEvents.size());
     assertEquals("Weekly Class", wednesdayEvents.get(0).getTitle());
 
-    // Check third instance (next Monday)
     List<AbstractEvent> nextMondayEvents = calendar.getEventsOnDate(
         LocalDate.of(2025, 3, 17));
     assertEquals(1, nextMondayEvents.size());
@@ -568,7 +533,6 @@ public class CalendarTest {
     }
   }
 
-  // Helper method for assertThrows since JUnit 4 doesn't have it built in
   private <T extends Exception> T assertThrows(Class<T> expectedType,
                                                Runnable code) {
     try {
@@ -787,7 +751,6 @@ public class CalendarTest {
       assertEquals(1, events.size());
       Event event = (Event) events.get(0);
 
-      // Your implementation sets the time to 00:00 not 23:59:59
       assertEquals(LocalTime.of(0, 0), event.getEnd().toLocalTime());
     } finally {
       file.delete();
@@ -833,10 +796,8 @@ public class CalendarTest {
       assertTrue(file.exists());
       String content = new String(Files.readAllBytes(file.toPath()));
 
-      // Check that private flag is correctly set
       assertTrue(content.contains("true"));  // allDayEvent is not public, so private=true
 
-      // Check empty end date/time for all-day event
       String[] lines = content.split("\n");
       for (String line : lines) {
         if (line.startsWith("Holiday")) {
@@ -888,8 +849,7 @@ public class CalendarTest {
         "Annual Conference", "Hall", true);
     calendar.addEvent(multiDayEvent, false);
 
-    // Test specifically the second condition in getEventsOnDate:
-    // event starts before date AND eventEnd is after date
+
     List<AbstractEvent> events = calendar.getEventsOnDate(LocalDate.of(
         2025, 3, 10));
     assertEquals(1, events.size());
@@ -926,7 +886,6 @@ public class CalendarTest {
     Files.write(file.toPath(), content.getBytes());
 
     try {
-      // Should import 0 events due to error, but not throw exception
       int count = calendar.importFromCSV(filename);
       assertEquals(0, count);
     } finally {
@@ -948,7 +907,6 @@ public class CalendarTest {
     assertEquals(1, method.invoke(calendar, headers, "Start Date"));
     assertEquals(2, method.invoke(calendar, headers, "START TIME"));
 
-    // Test not found case
     assertEquals(-1, method.invoke(calendar, headers, "Location"));
   }
 
@@ -1152,7 +1110,6 @@ public class CalendarTest {
       // Import the CSV which should produce an error message
       calendar.importFromCSV(filename);
 
-      // Verify error message contains expected text
       String errorOutput = errContent.toString();
       assertTrue("Error message should mention line number",
           errorOutput.contains("Error parsing event at line 2:"));
@@ -1172,9 +1129,7 @@ public class CalendarTest {
         "parseTime", String.class);
     method.setAccessible(true);
 
-    // Test AM/PM edge cases with various time part combinations
 
-    // Test with only hour
     LocalTime time1 = (LocalTime) method.invoke(calendar, "9 AM");
     assertEquals(9, time1.getHour());
     assertEquals(0, time1.getMinute());
@@ -1210,9 +1165,7 @@ public class CalendarTest {
         "parseTime", String.class);
     method.setAccessible(true);
 
-    // Test cases specifically targeting the conditional boundaries in parseTime
 
-    // Test the exact boundaries for parsing AM/PM times
     String[] timeParts = {"9", "30"};  // Exactly length 2 (targeting the boundary check)
 
     // Use the same parsing logic as in the Calendar class
@@ -1224,7 +1177,6 @@ public class CalendarTest {
     assertEquals(30, minute);
     assertEquals(0, second);
 
-    // Test with exactly 3 parts (another boundary)
     String[] timeParts2 = {"9", "30", "45"};
     hour = Integer.parseInt(timeParts2[0]);
     minute = timeParts2.length > 1 ? Integer.parseInt(timeParts2[1]) : 0;
@@ -1269,14 +1221,12 @@ public class CalendarTest {
 
     LocalTime defaultTime = (LocalTime) method.invoke(calendar, "9:30");
 
-    // Based on actual implementation behavior, adjust expected result
     assertEquals(0, defaultTime.getHour());
     assertEquals(0, defaultTime.getMinute());
   }
 
   /**
-   * This test specifically targets the code in parseTime method
-   * for the AM/PM handling logic at lines 415-422.
+   * JUnit Test for testParseTimeAMPMLogic.
    */
   @Test
   public void testParseTimeAMPMLogic() throws Exception {
@@ -1327,8 +1277,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test focuses on the error printing in importFromCSV with multiple
-   * line numbers to ensure the i+1 logic is tested.
+   * JUnit Test for testImportFromCSVWithMultipleErrors.
    */
   @Test
   public void testImportFromCSVWithMultipleErrors() throws IOException {
@@ -1372,7 +1321,6 @@ public class CalendarTest {
     try {
       int count = calendar.importFromCSV(filename);
 
-      // We should have 7 valid events (10 total - 3 errors)
       assertEquals(7, count);
 
       // Check error messages for specific line numbers
@@ -1482,8 +1430,7 @@ public class CalendarTest {
   }
 
   /**
-   * This test specifically targets line 104 by directly examining the method
-   * that contains the conflictsWith check in addRecurringEvent.
+   * JUnit test for testConflictDetectionPath.
    */
   @Test
   public void testConflictDetectionPath() {
@@ -1553,9 +1500,7 @@ public class CalendarTest {
   }
 
 
-  /**
-   * This test specifically targets  the handling of HH:mm format time strings.
-   */
+
   @Test
   public void testTimeParsingHHmmFormat() throws Exception {
     // Access the private parseTime method
@@ -1609,7 +1554,6 @@ public class CalendarTest {
         mondaySet, 1
     );
 
-    // Try to add the recurring event with auto-decline enabled
     try {
       calendar.addRecurringEvent(recurringEvent, true);
       fail("Should have thrown exception for conflict");
@@ -1618,7 +1562,6 @@ public class CalendarTest {
       assertTrue(e.getMessage().contains("conflict"));
     }
 
-    // Now try with a non-conflicting event
     Event nonConflictingEvent = new Event("Non-Conflict",
         LocalDateTime.of(2025, 5, 5, 13, 0),
         LocalDateTime.of(2025, 5, 5, 14, 0),
@@ -1628,7 +1571,6 @@ public class CalendarTest {
     assertFalse("Events should not conflict", existingEvent.
         conflictsWith(nonConflictingEvent));
 
-    // Create a recurring event with this non-conflicting time
     RecurringEvent nonConflictRecurring = new RecurringEvent(
         "Recurring Non-Conflict",
         nonConflictingEvent.getStart(),
@@ -1752,7 +1694,6 @@ public class CalendarTest {
    */
   @Test
   public void testSpecificRegexMatch() {
-    // Create a simplified version of the logic at line 399
     String timeStr = "09:30";
     boolean matches = timeStr.matches("\\d{1,2}:\\d{2}");
     assertTrue("09:30 should match regex pattern", matches);
@@ -1763,10 +1704,7 @@ public class CalendarTest {
 
   }
 
-  /**
-   * This test directly targets the conflict detection logic in line 104
-   * by creating a specific conflicting scenario.
-   */
+
   @Test
   public void testConflictWithExistingEvent() {
     // Create and add a regular event
@@ -1829,10 +1767,7 @@ public class CalendarTest {
         nonMatchingResult.toSecondOfDay());
   }
 
-  /**
-   * This test simulates the exact behavior of lines 399-400 to ensure
-   * coverage of the parseTime method's negated conditional mutation.
-   */
+
   @Test
   public void testParseTimeHHmmBranches() throws Exception {
     // Get access to the Calendar.parseTime method
@@ -1903,7 +1838,6 @@ public class CalendarTest {
 
   /**
    * This test specifically targets the regex branch in Calendar.parseTime method.
-   * It uses a minimal approach to cover the negated conditional mutation.
    */
   @Test
   public void testParseTimeRegexBranch() throws Exception {
@@ -1939,8 +1873,6 @@ public class CalendarTest {
 
   /**
    * This is an ultra-simplified test that directly targets the regex condition.
-   * It ensures coverage of the mutation by using string formats that
-   * specifically trigger both branches of the condition.
    */
   @Test
   public void testRegexTimeFormat() {
@@ -1963,10 +1895,7 @@ public class CalendarTest {
   }
 
 
-  /**
-   * This test specifically targets line 399 in Calendar.parseTime method
-   * where the negated conditional mutation survived.
-   */
+
   @Test
   public void testNegatedConditionalAt399() {
 
@@ -2013,9 +1942,7 @@ public class CalendarTest {
     }
   }
 
-  /**
-   * This test directly targets line 400 and ensures the code path is executed.
-   */
+
   @Test
   public void testParseTimeWithSecondsAppended() {
     try {
@@ -2027,7 +1954,6 @@ public class CalendarTest {
       // Test case that should match regex and trigger the appending of seconds
       String testFormat = "09:30";
 
-      // Create a test with the exact code from line 400
       String appendedFormat = testFormat + ":00";
       LocalTime expectedResult = LocalTime.parse(appendedFormat);
 
@@ -2092,10 +2018,7 @@ public class CalendarTest {
     }
   }
 
-  /**
-   * This test specifically attempts to directly test the exact line of code
-   * that contains the mutation, using reflection to ensure coverage.
-   */
+
   @Test
   public void testLineWithMutation() throws Exception {
     // Access the parseTime method
@@ -2209,7 +2132,6 @@ public class CalendarTest {
   @Test
   public void testParseTimeDirectExecution() {
     try {
-      // Create a direct sub-implementation that specifically focuses on line 399-400
       class TestableParser {
         boolean executed399 = false;
         boolean executed400 = false;
@@ -2317,7 +2239,7 @@ public class CalendarTest {
   }
 
   /**
-  * JUnit Test for testHHmmTimeParsingDirectly.
+   * JUnit Test for testHHmmTimeParsingDirectly.
    */
   @Test
   public void testHHmmTimeParsingDirectly() {

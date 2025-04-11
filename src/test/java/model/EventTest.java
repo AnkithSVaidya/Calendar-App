@@ -172,10 +172,7 @@ public class EventTest {
     // with regular events on the same day
     boolean conflicts = allDayEvent.conflictsWith(sameDay);
 
-    // Note: This assertion depends on your implementation's behavior
-    // If all-day events can coexist with timed events, this should be false
-    // If all-day events block the entire day, this should be true
-    // Adjust the expected result based on your implementation
+
     assertTrue("All-day event should conflict with events on same day", conflicts);
 
     // Test the reverse
@@ -194,7 +191,6 @@ public class EventTest {
     // Test if two all-day events on the same day conflict
     boolean conflicts = allDayEvent.conflictsWith(anotherAllDay);
 
-    // This depends on your implementation - adjust as needed
     assertTrue("Two all-day events on same day should conflict", conflicts);
   }
 
