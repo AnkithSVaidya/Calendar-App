@@ -1,5 +1,3 @@
-README
-
 Instructions on how to run your program (using the jar file from the terminal).
 Please run in terminal using either:
 java -jar assignment_6_app.jar --mode interactive. Interactive mode will allow a user to enter commands line by line. Note that invalid commands will throw an error and exit the program.
