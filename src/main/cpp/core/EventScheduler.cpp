@@ -1,11 +1,13 @@
 #include "EventScheduler.h"
+#include "SyncManager.h"
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <sstream>
 
 namespace calendar {
 
-EventScheduler::EventScheduler(size_t num_threads) {
+EventScheduler::EventScheduler(size_t num_threads) : sync_manager(nullptr) {
     // Initializing worker threads for concurrent request handling
     for (size_t i = 0; i < num_threads; ++i) {
         worker_threads.emplace_back(&EventScheduler::worker_thread_function, this);
@@ -47,6 +49,23 @@ void EventScheduler::worker_thread_function() {
     }
 }
 
+void EventScheduler::enableRealtimeSync(SyncManager* sync_mgr) {
+    // Enabling real time synchronization with connected clients
+    this->sync_manager = sync_mgr;
+    if (sync_manager) {
+        sync_manager->startRealtimeSync();
+        std::cout << "Real-time sync enabled for EventScheduler" << std::endl;
+    }
+}
+
+void EventScheduler::disableRealtimeSync() {
+    if (sync_manager) {
+        sync_manager->stopRealtimeSync();
+        sync_manager = nullptr;
+        std::cout << "Real-time sync disabled" << std::endl;
+    }
+}
+
 bool EventScheduler::hasConflict(const Event& new_event) const {
     // Checking for time conflicts with existing events for the same user
     for (const auto& existing : events) {
@@ -82,12 +101,34 @@ bool EventScheduler::addEvent(const Event& event) {
     // Checking for the conflicts before adding
     if (hasConflict(event)) {
         conflict_count++;
+        
+        // Notifying clients about conflict if sync is enabled
+        if (sync_manager) {
+            std::stringstream ss;
+            ss << "CONFLICT_DETECTED:event_id=" << event.id 
+               << ",user=" << event.user_id
+               << ",time=" << event.start_timestamp;
+            sync_manager->broadcastUpdate(ss.str());
+        }
+        
         return false;
     }
     
     // Adding event if theres no conflicts
     events.push_back(event);
     successful_adds++;
+    
+    // Broadcast the new event to all connected clients for real time sync
+    if (sync_manager) {
+        std::stringstream ss;
+        ss << "EVENT_ADDED:id=" << event.id 
+           << ",title=" << event.title
+           << ",user=" << event.user_id
+           << ",start=" << event.start_timestamp
+           << ",end=" << event.end_timestamp;
+        sync_manager->broadcastUpdate(ss.str());
+    }
+    
     return true;
 }
 
@@ -155,7 +196,17 @@ bool EventScheduler::removeEvent(int event_id) {
                           [event_id](const Event& e) { return e.id == event_id; });
     
     if (it != events.end()) {
+        std::string user_id = it->user_id;
         events.erase(it);
+        
+        // Notify all clients about event removal for the real time sync
+        if (sync_manager) {
+            std::stringstream ss;
+            ss << "EVENT_REMOVED:id=" << event_id 
+               << ",user=" << user_id;
+            sync_manager->broadcastUpdate(ss.str());
+        }
+        
         return true;
     }
     
@@ -171,10 +222,22 @@ std::future<bool> EventScheduler::updateEventAsync(const Event& event) {
         task_queue.emplace([this, event, promise]() {
             total_requests++;
             
-            // Remove old event and add new one
+           
             bool removed = removeEvent(event.id);
             if (removed) {
                 bool added = addEvent(event);
+                
+                // Broadcasting the update to all clients
+                if (added && sync_manager) {
+                    std::stringstream ss;
+                    ss << "EVENT_UPDATED:id=" << event.id 
+                       << ",title=" << event.title
+                       << ",user=" << event.user_id
+                       << ",start=" << event.start_timestamp
+                       << ",end=" << event.end_timestamp;
+                    sync_manager->broadcastUpdate(ss.str());
+                }
+                
                 promise->set_value(added);
             } else {
                 promise->set_value(false);
@@ -192,19 +255,66 @@ std::vector<bool> EventScheduler::addEventsBatch(const std::vector<Event>& event
     
     std::unique_lock<std::shared_mutex> lock(events_mutex);
     
+    std::stringstream batch_update;
+    batch_update << "BATCH_UPDATE:";
+    int added_count = 0;
+    
     for (const auto& event : events) {
         total_requests++;
         if (!hasConflict(event)) {
             this->events.push_back(event);
             successful_adds++;
             results.push_back(true);
+            
+            if (added_count > 0) batch_update << ";";
+            batch_update << "ADD:" << event.id;
+            added_count++;
         } else {
             conflict_count++;
             results.push_back(false);
         }
     }
     
+    // Sending the batch update notification for the real time sync
+    if (sync_manager && added_count > 0) {
+        batch_update << ",count=" << added_count;
+        sync_manager->broadcastUpdate(batch_update.str());
+    }
+    
     return results;
+}
+
+void EventScheduler::syncWithClient(const std::string& client_id) {
+    if (!sync_manager) return;
+    
+    // Registering client for real time updates
+    sync_manager->registerClient(client_id);
+    
+    // This  will send the current state to newly connected client
+    std::shared_lock<std::shared_mutex> lock(events_mutex);
+    
+    std::stringstream ss;
+    ss << "FULL_SYNC:client=" << client_id << ",event_count=" << events.size();
+    
+    for (const auto& event : events) {
+        ss << ";EVENT:" << event.id << "," << event.title 
+           << "," << event.start_timestamp << "," << event.end_timestamp;
+    }
+    
+    sync_manager->sendUpdateToClient(client_id, ss.str());
+}
+
+void EventScheduler::disconnectClient(const std::string& client_id) {
+    if (sync_manager) {
+        sync_manager->disconnectClient(client_id);
+    }
+}
+
+size_t EventScheduler::getConnectedClientCount() const {
+    if (sync_manager) {
+        return sync_manager->getActiveClientCount();
+    }
+    return 0;
 }
 
 }
